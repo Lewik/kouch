@@ -1,0 +1,7 @@
+package kouch
+
+class Kouch(
+
+)  {
+
+}
