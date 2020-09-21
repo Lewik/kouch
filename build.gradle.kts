@@ -1,32 +1,7 @@
-buildscript {
-    repositories {
-        //webdav/geotools should be before jcenter https://github.com/akhikhl/gretty/issues/322
-        maven("https://repo.osgeo.org/repository/release/")
-        maven("https://repo.osgeo.org/repository/Geoserver-releases/")
-        jcenter()
-        mavenCentral()
-        maven("https://repo.maven.apache.org/maven2")
-        maven("https://repo.boundlessgeo.com/main")
-        maven("http://repo.boundlessgeo.com/main")
-        maven("http://download.java.net/maven/2")
-        gradlePluginPortal()
-        maven("https://kotlin.bintray.com/kotlinx")
-        maven("http://dl.bintray.com/kotlin/kotlin-eap")
-        maven("http://dl.bintray.com/kotlin/kotlin-eap-1.2")
-        maven("https://www.jitpack.io")
-        maven("http://maven.geo-solutions.it/")
-        maven("https://mvnrepository.com/artifact/org.apache.commons/commons-math3")
-        maven("https://jcenter.bintray.com/")
-    }
-    dependencies {
-        classpath(kotlin("gradle-plugin:$KOTLIN_VERSION"))
-        classpath(kotlin("serialization:$KOTLIN_VERSION"))
-    }
-}
-
 plugins {
     kotlin("multiplatform") version KOTLIN_VERSION
     kotlin("plugin.serialization") version KOTLIN_VERSION
+    `maven-publish`
 }
 group = "kouch"
 version = "1.0-SNAPSHOT"
