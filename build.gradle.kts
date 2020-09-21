@@ -47,8 +47,9 @@ kotlin {
             dependencies {
                 implementation(kotlin("reflect"))
                 implementation("io.ktor:ktor-client-core:$KTOR_VERSION")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$KOTLINX_COROUTINES_VERSION")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$KOTLINX_COROUTINES_VERSION")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$SERIALIZATION_VERSION")
             }
         }
         val commonTest by getting {
@@ -62,6 +63,7 @@ kotlin {
             dependencies {
                 implementation("io.ktor:ktor-client-cio:$KTOR_VERSION")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$SERIALIZATION_VERSION")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$KOTLINX_COROUTINES_VERSION")
             }
         }
@@ -85,5 +87,5 @@ kotlin {
     }
 }
 tasks {
-    withType<Test>() { enabled = false }
+//    withType<Test>() { enabled = false }
 }

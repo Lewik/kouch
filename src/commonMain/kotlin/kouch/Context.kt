@@ -16,6 +16,7 @@ class Context(
     val responseJson: Json = Json {}
     val entityJson: Json = Json {
         ignoreUnknownKeys = true
+        encodeDefaults = true
     }
     val systemJson: Json = Json {
         ignoreUnknownKeys = !strictSystemJson
