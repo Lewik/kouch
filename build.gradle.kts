@@ -10,8 +10,6 @@ repositories {
     jcenter()
     mavenCentral()
     maven("https://repo.maven.apache.org/maven2")
-    maven("https://repo.boundlessgeo.com/main")
-    maven("http://repo.boundlessgeo.com/main")
     maven("http://download.java.net/maven/2")
     gradlePluginPortal()
     maven("https://kotlin.bintray.com/kotlinx")
