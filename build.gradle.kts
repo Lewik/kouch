@@ -7,9 +7,6 @@ group = "kouch"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    //webdav/geotools should be before jcenter https://github.com/akhikhl/gretty/issues/322
-    maven("https://repo.osgeo.org/repository/release/")
-    maven("https://repo.osgeo.org/repository/Geoserver-releases/")
     jcenter()
     mavenCentral()
     maven("https://repo.maven.apache.org/maven2")
@@ -19,10 +16,7 @@ repositories {
     gradlePluginPortal()
     maven("https://kotlin.bintray.com/kotlinx")
     maven("http://dl.bintray.com/kotlin/kotlin-eap")
-    maven("http://dl.bintray.com/kotlin/kotlin-eap-1.2")
     maven("https://www.jitpack.io")
-    maven("http://maven.geo-solutions.it/")
-    maven("https://mvnrepository.com/artifact/org.apache.commons/commons-math3")
     maven("https://jcenter.bintray.com/")
 }
 kotlin {
@@ -89,4 +83,7 @@ kotlin {
 //            }
 //        }
     }
+}
+tasks {
+    withType<Test>() { enabled = false }
 }
