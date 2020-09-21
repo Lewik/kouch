@@ -1,0 +1,43 @@
+¤{"id":"_design/testdes","revision":"1-7d942f97b56213fdad95106fe1ab4876","views":{"all":{"map":"doc => { emit(doc.label, doc) }"},"by_label":{"map":"doc => { if (doc.label != null) emit(doc.label, doc) }"},"asd_only":{"map":"doc => { if (doc.label === \"ASD\") { emit(doc.label, doc); } }"}}}
+(?rev=1-7d942f97b56213fdad95106fe1ab4876
+g{"id":"some-id5","revision":"1-d56aef3bad411a571759590e395bbf3e","string":"some-string","label":"ASD"}
+h{"id":"some-id6","revision":"1-50b4d1b4ca23f20ba423c466777ff673","string":"some-string","label":"ASD1"}
+j{"id":"some-id4","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+j{"id":"some-id7","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+j{"id":"some-id8","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+j{"id":"some-id2","revision":"1-78299f2b34ec4c913d69ebd13acc799f","string":"some-string","label":"label2"}
+j{"id":"some-id1","revision":"1-98a16f006f38002461c5d593fa2b4acf","string":"some-string","label":"label3"}
+k{"id":"some-id3","revision":"1-930bae1bffef14dfda5c5331fcdc2206","string":"some-string","label":"label35"}
+g{"id":"some-id5","revision":"1-d56aef3bad411a571759590e395bbf3e","string":"some-string","label":"ASD"}
+k{"id":"some-id3","revision":"1-930bae1bffef14dfda5c5331fcdc2206","string":"some-string","label":"label35"}
+j{"id":"some-id1","revision":"1-98a16f006f38002461c5d593fa2b4acf","string":"some-string","label":"label3"}
+j{"id":"some-id2","revision":"1-78299f2b34ec4c913d69ebd13acc799f","string":"some-string","label":"label2"}
+j{"id":"some-id8","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+j{"id":"some-id7","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+j{"id":"some-id4","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+h{"id":"some-id6","revision":"1-50b4d1b4ca23f20ba423c466777ff673","string":"some-string","label":"ASD1"}
+g{"id":"some-id5","revision":"1-d56aef3bad411a571759590e395bbf3e","string":"some-string","label":"ASD"}
+h{"id":"some-id6","revision":"1-50b4d1b4ca23f20ba423c466777ff673","string":"some-string","label":"ASD1"}
+j{"id":"some-id4","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+¤{"id":"_design/testdes","revision":"1-7d942f97b56213fdad95106fe1ab4876","views":{"all":{"map":"doc => { emit(doc.label, doc) }"},"by_label":{"map":"doc => { if (doc.label != null) emit(doc.label, doc) }"},"asd_only":{"map":"doc => { if (doc.label === \"ASD\") { emit(doc.label, doc); } }"}}}
+
+?rev=wrongRev
+
+i{"id":"some-id","revision":"2-8295ef42a1a28951cd8eeb380a52e828","string":"some-string","label":"label2"}
+
+i{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+
+(?rev=1-5724d63b4754675a7be8c24285f1bcb0
+Ó{"id":"theId","revision":"theRevision","someData":"someData","someDefData":"theDefData2","test":{"id":"SUBtheId","revision":"SUBtheRevision","someData":"SUBsomeData","someDefData":"SUBtheDefData2","test":null}}
+§pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=true, continuous=true, cancel=false)
+i{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+¦pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=true, continuous=true, cancel=true)
+©pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=false, continuous=false, cancel=false)
+i{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+¨pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=false, continuous=true, cancel=false)
+i{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+§pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=false, continuous=true, cancel=true)
+(?rev=1-5724d63b4754675a7be8c24285f1bcb0
+i{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+¨pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=true, continuous=false, cancel=false)
+i{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}

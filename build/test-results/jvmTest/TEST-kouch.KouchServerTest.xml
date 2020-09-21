@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kouch.KouchServerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2020-09-21T10:01:29" hostname="gemini" time="0.628">
+  <properties/>
+  <testcase name="allDbsTest" classname="kouch.KouchServerTest" time="0.311"/>
+  <testcase name="rootTest" classname="kouch.KouchServerTest" time="0.316"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

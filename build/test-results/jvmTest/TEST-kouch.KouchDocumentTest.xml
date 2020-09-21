@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kouch.KouchDocumentTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2020-09-21T10:01:30" hostname="gemini" time="4.467">
+  <properties/>
+  <testcase name="update with null revision should fails" classname="kouch.KouchDocumentTest" time="0.477"/>
+  <testcase name="update should update revision and data" classname="kouch.KouchDocumentTest" time="0.609"/>
+  <testcase name="delete with wrong revision should fails" classname="kouch.KouchDocumentTest" time="0.495"/>
+  <testcase name="notExistedId" classname="kouch.KouchDocumentTest" time="0.377"/>
+  <testcase name="getRevisionsTest" classname="kouch.KouchDocumentTest" time="0.476"/>
+  <testcase name="upsert should update revision and data" classname="kouch.KouchDocumentTest" time="0.478"/>
+  <testcase name="get should return the entity" classname="kouch.KouchDocumentTest" time="0.492"/>
+  <testcase name="delete should delete" classname="kouch.KouchDocumentTest" time="0.566"/>
+  <testcase name="delete with null revision should fails" classname="kouch.KouchDocumentTest" time="0.495"/>
+  <system-out><![CDATA[?rev=wrongRev
+{"id":"some-id","revision":"2-8295ef42a1a28951cd8eeb380a52e828","string":"some-string","label":"label2"}
+{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+?rev=1-5724d63b4754675a7be8c24285f1bcb0
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

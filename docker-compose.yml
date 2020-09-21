@@ -1,0 +1,21 @@
+version: '3.2'
+services:
+  couchdb:
+    image: "couchdb:3.1.1"
+    environment:
+      COUCHDB_USER: dbadmin
+      COUCHDB_PASSWORD: dbadmin
+    ports:
+      - "5984:5984"
+    external_links:
+      - couchdb2:second
+
+  couchdb2:
+    image: "couchdb:3.1.1"
+    environment:
+      COUCHDB_USER: dbadmin
+      COUCHDB_PASSWORD: dbadmin
+    ports:
+      - "5985:5984"
+    external_links:
+      - couchdb:first

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kouch.KouchDesignTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2020-09-21T10:01:26" hostname="gemini" time="3.227">
+  <properties/>
+  <testcase name="delete design document" classname="kouch.KouchDesignTest" time="1.342"/>
+  <testcase name="get nonexistent design" classname="kouch.KouchDesignTest" time="0.396"/>
+  <testcase name="get view should return view" classname="kouch.KouchDesignTest" time="0.775"/>
+  <testcase name="create design document" classname="kouch.KouchDesignTest" time="0.712"/>
+  <system-out><![CDATA[{"id":"_design/testdes","revision":"1-7d942f97b56213fdad95106fe1ab4876","views":{"all":{"map":"doc => { emit(doc.label, doc) }"},"by_label":{"map":"doc => { if (doc.label != null) emit(doc.label, doc) }"},"asd_only":{"map":"doc => { if (doc.label === \"ASD\") { emit(doc.label, doc); } }"}}}
+?rev=1-7d942f97b56213fdad95106fe1ab4876
+{"id":"some-id5","revision":"1-d56aef3bad411a571759590e395bbf3e","string":"some-string","label":"ASD"}
+{"id":"some-id6","revision":"1-50b4d1b4ca23f20ba423c466777ff673","string":"some-string","label":"ASD1"}
+{"id":"some-id4","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+{"id":"some-id7","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+{"id":"some-id8","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+{"id":"some-id2","revision":"1-78299f2b34ec4c913d69ebd13acc799f","string":"some-string","label":"label2"}
+{"id":"some-id1","revision":"1-98a16f006f38002461c5d593fa2b4acf","string":"some-string","label":"label3"}
+{"id":"some-id3","revision":"1-930bae1bffef14dfda5c5331fcdc2206","string":"some-string","label":"label35"}
+{"id":"some-id5","revision":"1-d56aef3bad411a571759590e395bbf3e","string":"some-string","label":"ASD"}
+{"id":"some-id3","revision":"1-930bae1bffef14dfda5c5331fcdc2206","string":"some-string","label":"label35"}
+{"id":"some-id1","revision":"1-98a16f006f38002461c5d593fa2b4acf","string":"some-string","label":"label3"}
+{"id":"some-id2","revision":"1-78299f2b34ec4c913d69ebd13acc799f","string":"some-string","label":"label2"}
+{"id":"some-id8","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+{"id":"some-id7","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+{"id":"some-id4","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+{"id":"some-id6","revision":"1-50b4d1b4ca23f20ba423c466777ff673","string":"some-string","label":"ASD1"}
+{"id":"some-id5","revision":"1-d56aef3bad411a571759590e395bbf3e","string":"some-string","label":"ASD"}
+{"id":"some-id6","revision":"1-50b4d1b4ca23f20ba423c466777ff673","string":"some-string","label":"ASD1"}
+{"id":"some-id4","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+{"id":"_design/testdes","revision":"1-7d942f97b56213fdad95106fe1ab4876","views":{"all":{"map":"doc => { emit(doc.label, doc) }"},"by_label":{"map":"doc => { if (doc.label != null) emit(doc.label, doc) }"},"asd_only":{"map":"doc => { if (doc.label === \"ASD\") { emit(doc.label, doc); } }"}}}
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

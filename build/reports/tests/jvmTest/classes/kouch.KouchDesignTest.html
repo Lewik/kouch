@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - Class kouch.KouchDesignTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>Class kouch.KouchDesignTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/kouch.html">kouch</a> &gt; KouchDesignTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">4</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">3.225s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Method name</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">create design document[jvm]</td>
+<td class="success">create design document</td>
+<td class="success">0.712s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">delete design document[jvm]</td>
+<td class="success">delete design document</td>
+<td class="success">1.342s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">get nonexistent design[jvm]</td>
+<td class="success">get nonexistent design</td>
+<td class="success">0.396s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">get view should return view[jvm]</td>
+<td class="success">get view should return view</td>
+<td class="success">0.775s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>{&quot;id&quot;:&quot;_design/testdes&quot;,&quot;revision&quot;:&quot;1-7d942f97b56213fdad95106fe1ab4876&quot;,&quot;views&quot;:{&quot;all&quot;:{&quot;map&quot;:&quot;doc =&gt; { emit(doc.label, doc) }&quot;},&quot;by_label&quot;:{&quot;map&quot;:&quot;doc =&gt; { if (doc.label != null) emit(doc.label, doc) }&quot;},&quot;asd_only&quot;:{&quot;map&quot;:&quot;doc =&gt; { if (doc.label === \&quot;ASD\&quot;) { emit(doc.label, doc); } }&quot;}}}
+?rev=1-7d942f97b56213fdad95106fe1ab4876
+{&quot;id&quot;:&quot;some-id5&quot;,&quot;revision&quot;:&quot;1-d56aef3bad411a571759590e395bbf3e&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;ASD&quot;}
+{&quot;id&quot;:&quot;some-id6&quot;,&quot;revision&quot;:&quot;1-50b4d1b4ca23f20ba423c466777ff673&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;ASD1&quot;}
+{&quot;id&quot;:&quot;some-id4&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+{&quot;id&quot;:&quot;some-id7&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+{&quot;id&quot;:&quot;some-id8&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+{&quot;id&quot;:&quot;some-id2&quot;,&quot;revision&quot;:&quot;1-78299f2b34ec4c913d69ebd13acc799f&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label2&quot;}
+{&quot;id&quot;:&quot;some-id1&quot;,&quot;revision&quot;:&quot;1-98a16f006f38002461c5d593fa2b4acf&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label3&quot;}
+{&quot;id&quot;:&quot;some-id3&quot;,&quot;revision&quot;:&quot;1-930bae1bffef14dfda5c5331fcdc2206&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label35&quot;}
+{&quot;id&quot;:&quot;some-id5&quot;,&quot;revision&quot;:&quot;1-d56aef3bad411a571759590e395bbf3e&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;ASD&quot;}
+{&quot;id&quot;:&quot;some-id3&quot;,&quot;revision&quot;:&quot;1-930bae1bffef14dfda5c5331fcdc2206&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label35&quot;}
+{&quot;id&quot;:&quot;some-id1&quot;,&quot;revision&quot;:&quot;1-98a16f006f38002461c5d593fa2b4acf&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label3&quot;}
+{&quot;id&quot;:&quot;some-id2&quot;,&quot;revision&quot;:&quot;1-78299f2b34ec4c913d69ebd13acc799f&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label2&quot;}
+{&quot;id&quot;:&quot;some-id8&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+{&quot;id&quot;:&quot;some-id7&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+{&quot;id&quot;:&quot;some-id4&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+{&quot;id&quot;:&quot;some-id6&quot;,&quot;revision&quot;:&quot;1-50b4d1b4ca23f20ba423c466777ff673&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;ASD1&quot;}
+{&quot;id&quot;:&quot;some-id5&quot;,&quot;revision&quot;:&quot;1-d56aef3bad411a571759590e395bbf3e&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;ASD&quot;}
+{&quot;id&quot;:&quot;some-id6&quot;,&quot;revision&quot;:&quot;1-50b4d1b4ca23f20ba423c466777ff673&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;ASD1&quot;}
+{&quot;id&quot;:&quot;some-id4&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+{&quot;id&quot;:&quot;_design/testdes&quot;,&quot;revision&quot;:&quot;1-7d942f97b56213fdad95106fe1ab4876&quot;,&quot;views&quot;:{&quot;all&quot;:{&quot;map&quot;:&quot;doc =&gt; { emit(doc.label, doc) }&quot;},&quot;by_label&quot;:{&quot;map&quot;:&quot;doc =&gt; { if (doc.label != null) emit(doc.label, doc) }&quot;},&quot;asd_only&quot;:{&quot;map&quot;:&quot;doc =&gt; { if (doc.label === \&quot;ASD\&quot;) { emit(doc.label, doc); } }&quot;}}}
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 6.3</a> at Sep 21, 2020 1:02:02 PM</p>
+</div>
+</div>
+</body>
+</html>

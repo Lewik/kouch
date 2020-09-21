@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kouch.kouch.KouchReplicationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2020-09-21T10:01:34" hostname="gemini" time="24.899">
+  <properties/>
+  <testcase name="continuouslyReplicateCreateTargetTest" classname="kouch.kouch.KouchReplicationTest" time="6.103"/>
+  <testcase name="singleReplicateTest" classname="kouch.kouch.KouchReplicationTest" time="1.825"/>
+  <testcase name="continuouslyReplicateAndCancelTest" classname="kouch.kouch.KouchReplicationTest" time="10.99"/>
+  <testcase name="singleReplicateCreateTargetTest" classname="kouch.kouch.KouchReplicationTest" time="5.981"/>
+  <system-out><![CDATA[pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=true, continuous=true, cancel=false)
+{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=true, continuous=true, cancel=true)
+pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=false, continuous=false, cancel=false)
+{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=false, continuous=true, cancel=false)
+{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=false, continuous=true, cancel=true)
+?rev=1-5724d63b4754675a7be8c24285f1bcb0
+{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=true, continuous=false, cancel=false)
+{"id":"some-id","revision":"1-5724d63b4754675a7be8c24285f1bcb0","string":"some-string","label":"label1"}
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

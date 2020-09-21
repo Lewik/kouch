@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - Class kouch.kouch.KouchReplicationTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>Class kouch.kouch.KouchReplicationTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/kouch.kouch.html">kouch.kouch</a> &gt; KouchReplicationTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">4</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">24.899s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Method name</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">continuouslyReplicateAndCancelTest[jvm]</td>
+<td class="success">continuouslyReplicateAndCancelTest</td>
+<td class="success">10.990s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">continuouslyReplicateCreateTargetTest[jvm]</td>
+<td class="success">continuouslyReplicateCreateTargetTest</td>
+<td class="success">6.103s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">singleReplicateCreateTargetTest[jvm]</td>
+<td class="success">singleReplicateCreateTargetTest</td>
+<td class="success">5.981s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">singleReplicateTest[jvm]</td>
+<td class="success">singleReplicateTest</td>
+<td class="success">1.825s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=true, continuous=true, cancel=false)
+{&quot;id&quot;:&quot;some-id&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=true, continuous=true, cancel=true)
+pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=false, continuous=false, cancel=false)
+{&quot;id&quot;:&quot;some-id&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=false, continuous=true, cancel=false)
+{&quot;id&quot;:&quot;some-id&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=false, continuous=true, cancel=true)
+?rev=1-5724d63b4754675a7be8c24285f1bcb0
+{&quot;id&quot;:&quot;some-id&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+pullReplicate: ReplicationRequest(source=UrlWithHeader(url=http://first:5984/sourcedb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), target=UrlWithHeader(url=targetdb, headers=DbHeader(Authorization=Basic ZGJhZG1pbjpkYmFkbWlu)), create_target=true, continuous=false, cancel=false)
+{&quot;id&quot;:&quot;some-id&quot;,&quot;revision&quot;:&quot;1-5724d63b4754675a7be8c24285f1bcb0&quot;,&quot;string&quot;:&quot;some-string&quot;,&quot;label&quot;:&quot;label1&quot;}
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 6.3</a> at Sep 21, 2020 1:02:02 PM</p>
+</div>
+</div>
+</body>
+</html>
