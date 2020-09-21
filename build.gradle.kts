@@ -31,16 +31,16 @@ kotlin {
             kotlinOptions.jvmTarget = JAVA_VERSION.toString()
         }
     }
-    js {
-        browser {
-            testTask {
-                useKarma {
-                    useChromeHeadless()
-                    webpackConfig.cssSupport.enabled = true
-                }
-            }
-        }
-    }
+//    js {
+//        browser {
+//            testTask {
+//                useKarma {
+//                    useChromeHeadless()
+//                    webpackConfig.cssSupport.enabled = true
+//                }
+//            }
+//        }
+//    }
 
     sourceSets {
         all {
@@ -76,19 +76,17 @@ kotlin {
                 implementation(kotlin("test-junit"))
             }
         }
-        val jsMain by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-js:$KTOR_VERSION")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$KOTLINX_COROUTINES_VERSION")
-            }
-        }
-        val jsTest by getting {
-            dependencies {
-                implementation(kotlin("test-js"))
-            }
-        }
-//        val nativeMain by getting
-//        val nativeTest by getting
+//        val jsMain by getting {
+//            dependencies {
+//                implementation("io.ktor:ktor-client-js:$KTOR_VERSION")
+//                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
+//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$KOTLINX_COROUTINES_VERSION")
+//            }
+//        }
+//        val jsTest by getting {
+//            dependencies {
+//                implementation(kotlin("test-js"))
+//            }
+//        }
     }
 }

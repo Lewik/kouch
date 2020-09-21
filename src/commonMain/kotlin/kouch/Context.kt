@@ -7,7 +7,6 @@ import io.ktor.client.utils.*
 import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.json.Json
-import kotlin.reflect.KClass
 
 class Context(
     val settings: Settings,
@@ -52,21 +51,6 @@ class Context(
 //     */
 //    val defaultAcceptHeader: String = "text/plain",
 
-    class NoMetadataAnnotationException(message: String) : Exception(message)
-
-
-    @PublishedApi
-    internal inline fun <reified T : KouchEntity> getMetadata(kClass: KClass<out T>): KouchMetadata.Entity {
-        val annotation = kClass.annotations.firstOrNull { it is KouchEntityMetadata } as? KouchEntityMetadata
-            ?: throw NoMetadataAnnotationException("No KouchEntityMetadata annotation for ${kClass.qualifiedName}. KouchEntityMetadata should be specified for each KouchEntity")
-
-        val databaseName = when (settings.databaseNaming) {
-            Settings.DatabaseNaming.DatabaseNameAnnotation -> annotation.databaseName
-            is Settings.DatabaseNaming.Predefined -> settings.databaseNaming.databaseName
-        }
-        val className = annotation.className
-        return KouchMetadata.Entity(DatabaseName(databaseName), ClassName(className))
-    }
 
     suspend fun request(
         method: HttpMethod,
