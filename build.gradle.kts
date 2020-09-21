@@ -41,29 +41,12 @@ kotlin {
             }
         }
     }
-    val hostOs = System.getProperty("os.name")
-    val isMingwX64 = hostOs.startsWith("Windows")
-    val nativeTarget = when {
-        hostOs == "Mac OS X" -> macosX64("native")
-        hostOs == "Linux" -> linuxX64("native")
-        isMingwX64 -> mingwX64("native")
-        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
-    }
-
 
     sourceSets {
         all {
             languageSettings.apply {
                 progressiveMode = true
-//                enableLanguageFeature("InlineClasses")
-//                useExperimentalAnnotation("kotlin.Experimental")
-//                useExperimentalAnnotation("kotlinx.serialization.ImplicitReflectionSerializer")
                 useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-//                useExperimentalAnnotation("kotlin.RequiresOptIn")
-//                useExperimentalAnnotation("kotlinx.serialization.UnstableDefault")
-//                useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
-//                useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
-//                useExperimentalAnnotation("kotlin.time.ExperimentalTime")
             }
         }
         val commonMain by getting {
