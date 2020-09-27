@@ -9,8 +9,9 @@ inline class ClassName(val value: String)
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class KouchEntityMetadata(
-    val databaseName: String,
-    val className: String
+    val databaseName: String = "",
+    val className: String = "",
+    val autoGenerate: Boolean = false
 )
 
 interface KouchEntity {

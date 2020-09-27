@@ -9,6 +9,8 @@ services:
       - "5984:5984"
     external_links:
       - couchdb2:second
+    volumes:
+      - "./couch.ini:/opt/couchdb/etc/local.d/docker.ini"
 
   couchdb2:
     image: "couchdb:3.1.1"
@@ -19,3 +21,5 @@ services:
       - "5985:5984"
     external_links:
       - couchdb:first
+    volumes:
+      - "./couch.ini:/opt/couchdb/etc/local.d/docker.ini"
