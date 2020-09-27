@@ -54,7 +54,6 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$KOTLINX_COROUTINES_VERSION")
             }
         }
         val jvmMain by getting {
@@ -74,7 +73,7 @@ kotlin {
 //            dependencies {
 //                implementation("io.ktor:ktor-client-js:$KTOR_VERSION")
 //                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
-//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$KOTLINX_COROUTINES_VERSION")
+//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$KOTLINX_COROUTINES_VERSION")
 //            }
 //        }
 //        val jsTest by getting {
