@@ -1,6 +1,7 @@
 package kouch
 
 import io.ktor.client.*
+import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.client.utils.*
@@ -10,7 +11,13 @@ import kotlinx.serialization.json.Json
 
 class Context(
     val settings: Settings,
-    val client: HttpClient = HttpClient { expectSuccess = false },
+    val client: HttpClient = HttpClient {
+        expectSuccess = false
+        install(HttpTimeout) {
+            connectTimeoutMillis = 60000
+            requestTimeoutMillis = 60000
+        }
+    },
     val strictSystemJson: Boolean = false,
 ) {
     val responseJson: Json = Json {}

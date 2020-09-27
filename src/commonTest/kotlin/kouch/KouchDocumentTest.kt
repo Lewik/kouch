@@ -6,7 +6,7 @@ import kouch.client.KouchDocument
 import kotlin.test.*
 
 internal class KouchDocumentTest {
-    @KouchEntityMetadata("test_entity", "test_entity")
+    @KouchEntityMetadata(autoGenerate = true)
     @Serializable
     data class TestEntity(
         override val id: String,
