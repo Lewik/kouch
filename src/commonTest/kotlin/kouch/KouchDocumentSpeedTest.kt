@@ -5,7 +5,6 @@ import kouch.KouchEntity
 import kouch.KouchEntityMetadata
 import kouch.KouchTestHelper
 import kouch.client.KouchClientImpl
-import kouch.client.KouchDocument
 import kouch.runTest
 import kotlin.test.*
 
@@ -37,12 +36,12 @@ internal class KouchDocumentSpeedTest {
 
     @Test
     fun notExistedId() = runTest {
-        val document = kouch.doc.get<TestEntity>("notExistedId1")
+        val document = kouch.doc.get<TestEntity>("notExistedId1",)
         assertNull(document)
     }
 
     @Test
-    fun `get should return the entity`() = runTest {
+    fun getShouldReturnTheEntity() = runTest {
         val entity = getEntity().copy(
             revision = null,
             label = "label1"
@@ -51,7 +50,7 @@ internal class KouchDocumentSpeedTest {
 
         val entityInserted = kouch.doc.insert(entity).getUpdatedEntity()
 
-        val entityReturned = kouch.doc.get<TestEntity>(entityInserted.id)
+        val entityReturned = kouch.doc.get<TestEntity>(entityInserted.id,)
         assertNotNull(entityReturned)
         assertEquals(entityReturned, entityInserted)
     }

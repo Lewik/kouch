@@ -33,12 +33,12 @@ internal class KouchDocumentTest {
 
     @Test
     fun notExistedId() = runTest {
-        val document = kouch.doc.get<TestEntity>("notExistedId1")
+        val document = kouch.doc.get<TestEntity>("notExistedId1",)
         assertNull(document)
     }
 
     @Test
-    fun `update with null revision should fails`() = runTest {
+    fun updateWithNullRevisionShouldFails() = runTest {
         val entity = getEntity().copy(
             revision = null,
             label = "label1"
@@ -52,7 +52,7 @@ internal class KouchDocumentTest {
 
 
     @Test
-    fun `update should update revision and data`() = runTest {
+    fun updateShouldUpdateRevisionAndData() = runTest {
         val entity = getEntity().copy(
             revision = null,
             label = "label1"
@@ -69,7 +69,7 @@ internal class KouchDocumentTest {
     }
 
     @Test
-    fun `upsert should update revision and data`() = runTest {
+    fun upsertShouldUpdateRevisionAndData() = runTest {
         val entity = getEntity().copy(
             revision = null,
             label = "label1"
@@ -90,7 +90,7 @@ internal class KouchDocumentTest {
 
 
     @Test
-    fun `delete should delete`() = runTest {
+    fun deleteShouldDelete() = runTest {
         val entity = getEntity().copy(
             revision = null,
             label = "label1"
@@ -101,13 +101,13 @@ internal class KouchDocumentTest {
 
         assertTrue(result3.ok ?: false)
 
-        val entity4 = kouch.doc.get<TestEntity>(entity1.id)
+        val entity4 = kouch.doc.get<TestEntity>(entity1.id,)
         assertNull(entity4)
     }
 
 
     @Test
-    fun `delete with null revision should fails`() = runTest {
+    fun deleteWithNullRevisionShouldFails() = runTest {
         val entity = getEntity().copy(
             revision = null,
             label = "label1"
@@ -118,7 +118,7 @@ internal class KouchDocumentTest {
     }
 
     @Test
-    fun `delete with wrong revision should fails`() = runTest {
+    fun deleteWithWrongRevisionShouldFails() = runTest {
         val entity = getEntity().copy(
             revision = null,
             label = "label1"
@@ -134,7 +134,7 @@ internal class KouchDocumentTest {
 
 
     @Test
-    fun `get should return the entity`() = runTest {
+    fun getShouldReturnTheEntity() = runTest {
         val entity = getEntity().copy(
             revision = null,
             label = "label1"
@@ -143,7 +143,7 @@ internal class KouchDocumentTest {
 
         val entityInserted = kouch.doc.insert(entity).getUpdatedEntity()
 
-        val entityReturned = kouch.doc.get<TestEntity>(entityInserted.id)
+        val entityReturned = kouch.doc.get<TestEntity>(entityInserted.id,)
         assertNotNull(entityReturned)
         assertEquals(entityReturned, entityInserted)
     }

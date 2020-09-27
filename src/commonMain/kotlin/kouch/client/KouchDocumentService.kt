@@ -218,7 +218,7 @@ class KouchDocumentService(
     }
 
 
-    suspend inline fun delete(
+    suspend fun delete(
         id: String,
         db: DatabaseName,
         deleteQueryParameters: KouchDocument.DeleteQueryParameters

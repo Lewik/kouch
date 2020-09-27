@@ -30,7 +30,7 @@ internal class KouchDesignTest {
     )
 
     @Test
-    fun `create design document`() = runTest {
+    fun createDesignDocument() = runTest {
         prepareData()
 
         val (_, getResult) = kouch.design.getWithResponse(
@@ -44,7 +44,7 @@ internal class KouchDesignTest {
     }
 
     @Test
-    fun `get nonexistent design`() = runTest {
+    fun getNonexistentDesign() = runTest {
         kouch.db.create(DatabaseName("test_entity"))
         val (_, nullResult) = kouch.design.getWithResponse(
             id = "devices2",
@@ -54,7 +54,7 @@ internal class KouchDesignTest {
     }
 
     @Test
-    fun `delete design document`() = runTest {
+    fun deleteDesignDocument() = runTest {
         prepareData()
 
         val (_, getResult) = kouch.design.getWithResponse(
@@ -78,7 +78,7 @@ internal class KouchDesignTest {
     }
 
     @Test
-    fun `get view should return view`() = runTest {
+    fun getViewShouldReturnView() = runTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(

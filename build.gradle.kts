@@ -26,12 +26,16 @@ kotlin {
     js {
         browser {
             testTask {
-                useKarma {
-                    useChromeHeadless()
-                    webpackConfig.cssSupport.enabled = true
-                }
+                enabled = false
             }
+//            testTask {
+//                useKarma {
+//                    useChromeHeadless()
+//                    webpackConfig.cssSupport.enabled = true
+//                }
+//            }
         }
+
     }
 
     sourceSets {

@@ -92,7 +92,7 @@ class KouchDatabaseService(
         }
     }
 
-    suspend inline fun <reified T : KouchEntity> createForEntity(
+    suspend fun <T : KouchEntity> createForEntity(
         entity: T,
         partitions: Int? = null,
         replicas: Int? = null,
@@ -104,7 +104,7 @@ class KouchDatabaseService(
         partitioned = partitioned
     )
 
-    suspend inline fun <reified T : KouchEntity> createForEntity(
+    suspend fun <T : KouchEntity> createForEntity(
         kClass: KClass<out T>,
         partitions: Int? = null,
         replicas: Int? = null,
@@ -122,7 +122,7 @@ class KouchDatabaseService(
 
 
     //TODO : speedup with parallel coroutines
-    suspend inline fun <reified T : KouchEntity> createForEntities(
+    suspend fun <T : KouchEntity> createForEntities(
         kClasses: List<KClass<out T>>,
         partitions: Int? = null,
         replicas: Int? = null,
@@ -137,7 +137,7 @@ class KouchDatabaseService(
             )
         }
 
-    suspend inline fun <reified T : KouchEntity> createForEntitiesIfNotExists(
+    suspend fun <T : KouchEntity> createForEntitiesIfNotExists(
         kClasses: List<KClass<out T>>,
         partitions: Int? = null,
         replicas: Int? = null,
