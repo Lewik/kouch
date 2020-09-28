@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 
 internal class KotlinSerializerTest {
 
-    @KouchEntityMetadata("test-data","test-data")
+    @KouchEntityMetadata("test-data", "test-data")
     @Serializable
     data class TestData(
         override val id: String,
@@ -16,7 +16,7 @@ internal class KotlinSerializerTest {
         val someDefData: String = "theDefData"
     ) : KouchEntity
 
-    @KouchEntityMetadata("test-data-not-sorted-fields","test-data-not-sorted-fields")
+    @KouchEntityMetadata("test-data-not-sorted-fields", "test-data-not-sorted-fields")
     @Serializable
     data class TestDataNotSortedFields(
         override val id: String,
@@ -103,8 +103,9 @@ internal class KotlinSerializerTest {
             """{"_id":"theId","_rev":"theRevision","someData":"someData","someDefData":"theDefData2","test":{"id":"SUBtheId","revision":"SUBtheRevision","someData":"SUBsomeData","someDefData":"SUBtheDefData2","test":null}}"""
 
 
-        val result = context.decodeKouchEntityFromJsonElement<TestDataNotSortedFields>(
-            context.responseJson.parseToJsonElement(json)
+        val result = context.decodeKouchEntityFromJsonElement(
+            context.responseJson.parseToJsonElement(json),
+            TestDataNotSortedFields::class
         )
         assertEquals(data, result)
     }

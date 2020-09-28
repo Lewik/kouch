@@ -85,7 +85,16 @@ internal class KouchDesignTest {
             db = DatabaseName("test_entity"),
             id = "testdes",
             viewName = "all"
-        ).also {
+        ).result.also {
+            assertEquals(8, it.size)
+            assertEquals("ASD", it.firstOrNull()?.label)
+            assertEquals("label35", it.lastOrNull()?.label)
+        }
+
+        kouch.design.getView<TestEntity, TestEntity>(
+            id = "testdes",
+            viewName = "all"
+        ).result.also {
             assertEquals(8, it.size)
             assertEquals("ASD", it.firstOrNull()?.label)
             assertEquals("label35", it.lastOrNull()?.label)
@@ -95,7 +104,7 @@ internal class KouchDesignTest {
             db = DatabaseName("test_entity"),
             id = "testdes",
             viewName = "asd_only"
-        ).also {
+        ).result.also {
             assertEquals(1, it.size)
             assertEquals("ASD", it.singleOrNull()?.label)
         }
@@ -105,7 +114,7 @@ internal class KouchDesignTest {
             id = "testdes",
             viewName = "all",
             request = ViewRequest(descending = true)
-        ).also {
+        ).result.also {
             assertEquals(8, it.size)
             assertEquals("label35", it.firstOrNull()?.label)
             assertEquals("ASD", it.lastOrNull()?.label)
@@ -119,7 +128,7 @@ internal class KouchDesignTest {
                 limit = 2,
                 skip = 1
             )
-        ).also {
+        ).result.also {
             assertEquals(2, it.size)
             assertEquals("ASD1", it.firstOrNull()?.label)
             assertEquals("label1", it.lastOrNull()?.label)

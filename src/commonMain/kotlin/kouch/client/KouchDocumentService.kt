@@ -47,8 +47,9 @@ class KouchDocumentService(
         val text = response.readText()
         return when (response.status) {
             //TODO : error if <T> removed
-            OK -> context.decodeKouchEntityFromJsonElement<T>(
-                context.responseJson.parseToJsonElement(text).filterNonUnderscoredFieldsWithIdRev()
+            OK -> context.decodeKouchEntityFromJsonElement(
+                context.responseJson.parseToJsonElement(text).filterNonUnderscoredFieldsWithIdRev(),
+                T::class
             )
             NotFound -> null
             NotModified,
@@ -82,7 +83,7 @@ class KouchDocumentService(
                     .let { (responseJson, entityJson) ->
                         Pair(
                             context.systemJson.decodeFromJsonElement(responseJson),
-                            context.decodeKouchEntityFromJsonElement<T>(entityJson),
+                            context.decodeKouchEntityFromJsonElement(entityJson, T::class),
                         )
                     }
             }

@@ -2,6 +2,8 @@ package kouch
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
+import kotlinx.serialization.serializer
+import kotlin.reflect.KClass
 
 
 inline fun <reified T : KouchEntity> Context.encodeToKouchEntity(
@@ -42,23 +44,21 @@ inline fun <reified T : KouchEntity> Context.encodeToKouchDesign(
     .toMap()
     .let { JsonObject(it) })
 
-inline fun <reified T> Context.decodeKouchEntityFromJsonElement(jsonElement: JsonElement): T {
-    val decodeFromJsonElement = entityJson.decodeFromJsonElement<T>(
-        jsonElement.jsonObject
-            .mapNotNull { (key, value) ->
-                when (key) {
-                    "_id" -> "id" to value
-                    "_rev" -> "revision" to value
-                    "class__" -> null
-                    else -> key to value
-                }
+fun <T : Any> Context.decodeKouchEntityFromJsonElement(jsonElement: JsonElement, resultKClass: KClass<T>) = entityJson.decodeFromJsonElement(
+    resultKClass.serializer(),
+    jsonElement.jsonObject
+        .mapNotNull { (key, value) ->
+            when (key) {
+                "_id" -> "id" to value
+                "_rev" -> "revision" to value
+                "class__" -> null
+                else -> key to value
             }
-            .toMap()
-            .let { JsonObject(it) }
-            .also { println(it) }
-    )
-    return decodeFromJsonElement
-}
+        }
+        .toMap()
+        .let { JsonObject(it) }
+        .also { println(it) }
+)
 
 
 inline fun <reified T : Any> Json.encodeNullableToUrl(data: T?) = if (data == null) "" else encodeToUrl(data)

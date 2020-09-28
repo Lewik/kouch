@@ -10,6 +10,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kouch.*
+import kotlin.reflect.KClass
 
 
 class KouchDesignService(val context: Context, val kouchDocumentService: KouchDocumentService) {
@@ -102,19 +103,43 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     ) = kouchDocumentService.delete(entity, batch, databaseName)
 
 
-    suspend inline fun <reified T> getView(
+    suspend inline fun <reified T : Any> getView(
         db: DatabaseName,
         id: String,
         viewName: String,
         request: ViewRequest = ViewRequest()
-    ) = getViewWithResponse<T>(db, id, viewName, request).first
+    ) = getView(
+        db = db,
+        id = id,
+        viewName = viewName,
+        request = request,
+        resultKClass = T::class
+    )
 
-    suspend inline fun <reified T> getViewWithResponse(
-        db: DatabaseName,
+    suspend inline fun <reified T : Any, reified KE : KouchEntity> getView(
         id: String,
         viewName: String,
         request: ViewRequest = ViewRequest()
-    ): Pair<List<T>, ViewResponse> {
+    ) = getView(
+        db = context.getMetadata(KE::class).databaseName,
+        id = id,
+        viewName = viewName,
+        request = request,
+        resultKClass = T::class
+    )
+
+    class Result<T>(
+        val result: List<T>,
+        val response: ViewResponse
+    )
+
+    suspend fun <T : Any> getView(
+        db: DatabaseName,
+        id: String,
+        viewName: String,
+        request: ViewRequest = ViewRequest(),
+        resultKClass: KClass<out T>
+    ): Result<T> {
         val queryString = context.systemQueryParametersJson.encodeNullableToUrl(request)
 
         val response = context.request(
@@ -127,12 +152,14 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
             HttpStatusCode.OK -> {
                 val intermediateResponse = context.systemJson.decodeFromString<IntermediateViewResponse>(text)
                 val entities = intermediateResponse.rows.map {
-                    context.decodeKouchEntityFromJsonElement<T>(it.value)
+                    context.decodeKouchEntityFromJsonElement(it.value, resultKClass)
                 }
-                entities to ViewResponse(
-                    offset = intermediateResponse.offset,
-                    total_rows = intermediateResponse.total_rows,
-                    update_seq = intermediateResponse.update_seq
+                Result(
+                    entities, ViewResponse(
+                        offset = intermediateResponse.offset,
+                        total_rows = intermediateResponse.total_rows,
+                        update_seq = intermediateResponse.update_seq
+                    )
                 )
             }
             HttpStatusCode.NotFound,
