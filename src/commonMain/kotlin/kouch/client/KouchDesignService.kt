@@ -103,7 +103,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     ) = kouchDocumentService.delete(entity, batch, databaseName)
 
 
-    suspend inline fun <reified T : Any> getView(
+    suspend inline fun <reified RESULT : Any> getView(
         db: DatabaseName,
         id: String,
         viewName: String,
@@ -113,19 +113,19 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         id = id,
         viewName = viewName,
         request = request,
-        resultKClass = T::class
+        resultKClass = RESULT::class
     )
 
-    suspend inline fun <reified T : Any, reified KE : KouchEntity> getView(
+    suspend inline fun <reified RESULT : Any, reified SOURCE_ENTITY : KouchEntity> getView(
         id: String,
         viewName: String,
         request: ViewRequest = ViewRequest()
     ) = getView(
-        db = context.getMetadata(KE::class).databaseName,
+        db = context.getMetadata(SOURCE_ENTITY::class).databaseName,
         id = id,
         viewName = viewName,
         request = request,
-        resultKClass = T::class
+        resultKClass = RESULT::class
     )
 
     class Result<T>(
@@ -133,13 +133,13 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         val response: ViewResponse
     )
 
-    suspend fun <T : Any> getView(
+    suspend fun <RESULT : Any> getView(
         db: DatabaseName,
         id: String,
         viewName: String,
         request: ViewRequest = ViewRequest(),
-        resultKClass: KClass<out T>
-    ): Result<T> {
+        resultKClass: KClass<out RESULT>
+    ): Result<RESULT> {
         val queryString = context.systemQueryParametersJson.encodeNullableToUrl(request)
 
         val response = context.request(
