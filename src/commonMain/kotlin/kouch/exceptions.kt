@@ -15,6 +15,8 @@ class RevisionIsNullException(message: String) : Exception(message)
 class RevisionIsNotNullException(message: String) : Exception(message)
 class ResponseRevisionIsNullException(message: String) : Exception(message)
 
+class DocIsNullException(message: String) : Exception(message)
+
 class BlankUserNameException(message: String) : Exception(message)
 
 

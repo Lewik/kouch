@@ -3,9 +3,11 @@ package kouch.client
 
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -74,7 +76,8 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         class ViewRow(
             val id: String,
             val key: JsonElement,
-            val value: JsonElement
+            val value: JsonElement,
+            val doc: JsonElement? = null
         )
     }
 
@@ -140,11 +143,14 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>
     ): Result<RESULT> {
-        val queryString = context.systemQueryParametersJson.encodeNullableToUrl(request)
 
         val response = context.request(
-            method = HttpMethod.Get,
-            path = "${db.value}/_design/$id/_view/$viewName$queryString"
+            method = HttpMethod.Post,
+            path = "${db.value}/_design/$id/_view/$viewName",
+            body = TextContent(
+                text = context.systemJson.encodeToString(request),
+                contentType = ContentType.Application.Json
+            )
         )
 
         val text = response.readText()
@@ -152,7 +158,12 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
             HttpStatusCode.OK -> {
                 val intermediateResponse = context.systemJson.decodeFromString<IntermediateViewResponse>(text)
                 val entities = intermediateResponse.rows.map {
-                    context.decodeKouchEntityFromJsonElement(it.value, resultKClass)
+                    val resultJson = if (request.include_docs) {
+                        it.doc ?: throw DocIsNullException(text)
+                    } else {
+                        it.value
+                    }
+                    context.decodeKouchEntityFromJsonElement(resultJson, resultKClass)
                 }
                 Result(
                     entities, ViewResponse(
@@ -171,60 +182,4 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
             else -> throw UnsupportedStatusCodeException("$response: $text")
         }
     }
-//
-//    //TODO RENAME
-//    suspend fun updateView(
-//        db: DatabaseName,
-//        id: String,
-//        viewName: String,
-//        request: KouchDesign.ViewRequest
-//    ): KouchDesign.ViewResponse? {
-//        val body = context.systemJson.encodeToString(KouchDesign.ViewRequest.serializer(), request)
-//
-//        val response = context.request(
-//            method = Post,
-//            path = "$db/_design/$id/_view/$viewName",
-//            body = TextContent(body, contentType = ContentType.Application.Json)
-//        )
-//
-//        return when (response.status) {
-//            OK,
-//            Accepted,
-//            BadRequest,
-//            Unauthorized,
-//            NotFound,
-//            Conflict
-//            -> {
-//                val responseBody = context.systemJson.decodeFromString<KouchDesign.ViewResponse>(response.readText())
-//                when {
-//                    responseBody.error != null -> throw KouchDesignViewResponseException(responseBody.error + " " + responseBody.reason, responseBody)
-//                    else -> responseBody
-//                }
-//            }
-//            else -> throw UnsupportedStatusCodeException("$response: $text")
-//        }
-//    }
-//
-//    suspend fun sendQueries(
-//        db: DatabaseName,
-//        id: String,
-//        viewName: String,
-//        queries: JsonArray
-//    ): JsonObject {
-//        val response = context.request(
-//            method = Post,
-//            path = "$db/_design/$id/_view/$viewName/queries",
-//            body = TextContent(Json.encodeToString(buildJsonObject { put("queries", queries) }), contentType = ContentType.Application.Json)
-//        )
-//
-//        return when (response.status) {
-//            OK -> context.systemJson.decodeFromString(response.readText())
-//            BadRequest,
-//            Unauthorized,
-//            NotFound,
-//            InternalServerError
-//            -> throw IllegalStateException(context.systemJson.decodeFromString<JsonObject>(response.readText()).toString())
-//            else -> throw UnsupportedStatusCodeException("$response: $text")
-//        }
-//    }
 }
