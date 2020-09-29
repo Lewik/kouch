@@ -1,6 +1,8 @@
 package kouch
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDesignService.ViewRequest
 import kotlin.test.*
@@ -118,6 +120,20 @@ internal class KouchDesignTest {
             assertEquals(8, it.size)
             assertEquals("label35", it.firstOrNull()?.label)
             assertEquals("ASD", it.lastOrNull()?.label)
+        }
+
+
+
+        kouch.design.getView<TestEntity>(
+            db = DatabaseName("test_entity"),
+            id = "testdes",
+            viewName = "all",
+            request = ViewRequest(
+                key = JsonPrimitive("\"label35\"")
+            )
+        ).result.also {
+            assertEquals(1, it.size)
+            assertEquals("label35", it.singleOrNull()?.label)
         }
 
         kouch.design.getView<TestEntity>(
