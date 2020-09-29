@@ -89,5 +89,5 @@ kotlin {
     }
 }
 tasks {
-//    withType<Test>() { enabled = false }
+    withType<Test>() { enabled = false }
 }
