@@ -1,4 +1,4 @@
-# kouch (in deep beta)
+# kouch (pre alfa)
 
 [![](https://jitpack.io/v/lewik/kouch.svg)](https://jitpack.io/#lewik/kouch)
 
