@@ -1,11 +1,9 @@
 package kouch.kouch
 
-import kouch.DatabaseName
-import kouch.KouchDatabaseException
-import kouch.KouchTestHelper
+import kotlinx.serialization.Serializable
+import kouch.*
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDatabaseService
-import kouch.runTest
 import kotlin.test.*
 
 internal class KouchDatabaseTest {
@@ -96,40 +94,82 @@ internal class KouchDatabaseTest {
         }
     }
 
+    @KouchEntityMetadata(autoGenerate = true)
+    @Serializable
+    data class TestEntity1(
+        override val id: String,
+        override val revision: String? = null,
+        val string: String,
+        val label: String,
+    ) : KouchEntity
 
-//
-//    @Ignore
-//    @Test
-//    fun findDevicesTest() = runTest {
-//        val settings = KouchTestHelper.defaultSettings
-//        val database = KouchTestHelper.getDatabaseService(settings)
-//        client.db.put("test")
-//        val document = KouchTestHelper.getDocumentService(settings)
-//        listOf(
-//            KouchTestHelper.getEntity().copy(_rev = null, label = "label3"),
-//            KouchTestHelper.getEntity().copy(_rev = null, label = "label2"),
-//            KouchTestHelper.getEntity().copy(_rev = null, label = "label35"),
-//            KouchTestHelper.getEntity().copy(_rev = null, label = "label1"),
-//            KouchTestHelper.getEntity().copy(_rev = null, label = "asd_only"),
-//            KouchTestHelper.getEntity().copy(_rev = null, label = "ASD1"),
-//            KouchTestHelper.getEntity().copy(_rev = null, label = "label1"),
-//            KouchTestHelper.getEntity().copy(_rev = null, label = "label1")
-//        )
-//            .forEach {
-//                val result = document.insert(it, adminUser, { e, r -> e.copy(_rev = r) })
-//                assertTrue(result.second.ok ?: false)
-//            }
-//
-//        val selector = buildJsonObject { put("label", "label1") }
-//
-//        val result = database.find(
-//            KouchDatabase.SearchRequest(
-//                selector = selector
-//            )
-//        )
-//
-//        assertNotNull(result)
-//        assertNotNull(result.docs)
-//        assertEquals(2, result.docs!!.size)
-//    }
+    @KouchEntityMetadata(autoGenerate = true)
+    @Serializable
+    data class TestEntity2(
+        override val id: String,
+        override val revision: String? = null,
+        val string: String,
+        val label: String,
+    ) : KouchEntity
+
+    @KouchEntityMetadata(autoGenerate = true)
+    @Serializable
+    data class TestEntity3(
+        override val id: String,
+        override val revision: String? = null,
+        val string: String,
+        val label: String,
+    ) : KouchEntity
+
+    @Test
+    fun createForEntity() = runTest {
+        kouch.db.createForEntity(kClass = TestEntity1::class)
+        kouch.db.getAll().also {
+            assertEquals(KouchDatabaseService.systemDbs.size + 1, it.size)
+            assertTrue(DatabaseName("test_entity1") in it)
+        }
+    }
+
+    @Test
+    fun createForEntity1() = runTest {
+        kouch.db.createForEntity(TestEntity1(
+            id = "id",
+            revision = null,
+            string = "string",
+            label = "label"
+        ))
+        kouch.db.getAll().also {
+            assertEquals(KouchDatabaseService.systemDbs.size + 1, it.size)
+            assertTrue(DatabaseName("test_entity1") in it)
+        }
+    }
+
+    @Test
+    fun createForEntities() = runTest {
+        kouch.db.createForEntities(kClasses = listOf(TestEntity1::class, TestEntity2::class))
+        kouch.db.getAll().also {
+            assertEquals(KouchDatabaseService.systemDbs.size + 2, it.size)
+            assertTrue(DatabaseName("test_entity1") in it)
+            assertTrue(DatabaseName("test_entity2") in it)
+        }
+    }
+
+    @Test
+    fun createForEntitiesIfNotExists() = runTest {
+        kouch.db.createForEntities(kClasses = listOf(TestEntity1::class, TestEntity2::class))
+        kouch.db.getAll().also {
+            assertEquals(KouchDatabaseService.systemDbs.size + 2, it.size)
+            assertTrue(DatabaseName("test_entity1") in it)
+            assertTrue(DatabaseName("test_entity2") in it)
+            assertTrue(DatabaseName("test_entity3") !in it)
+        }
+
+        kouch.db.createForEntitiesIfNotExists(kClasses = listOf(TestEntity2::class, TestEntity3::class))
+        kouch.db.getAll().also {
+            assertEquals(KouchDatabaseService.systemDbs.size + 3, it.size)
+            assertTrue(DatabaseName("test_entity1") in it)
+            assertTrue(DatabaseName("test_entity2") in it)
+            assertTrue(DatabaseName("test_entity3") in it)
+        }
+    }
 }
