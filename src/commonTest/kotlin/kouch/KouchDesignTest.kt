@@ -79,8 +79,9 @@ internal class KouchDesignTest {
         assertNull(getResult2)
     }
 
+
     @Test
-    fun getViewShouldReturnView() = runTest {
+    fun viewSimple() = runTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
@@ -92,6 +93,39 @@ internal class KouchDesignTest {
             assertEquals("ASD", it.firstOrNull()?.label)
             assertEquals("label35", it.lastOrNull()?.label)
         }
+    }
+
+    @Test
+    fun viewSimple2() = runTest {
+        prepareData()
+
+        kouch.design.getView<TestEntity>(
+            db = DatabaseName("test_entity"),
+            id = "testdes",
+            viewName = "asd_only"
+        ).result.also {
+            assertEquals(1, it.size)
+            assertEquals("ASD", it.singleOrNull()?.label)
+        }
+    }
+
+    @Test
+    fun viewDatabaseFromEntity() = runTest {
+        prepareData()
+
+        kouch.design.getView<TestEntity, TestEntity>(
+            id = "testdes",
+            viewName = "all"
+        ).result.also {
+            assertEquals(8, it.size)
+            assertEquals("ASD", it.firstOrNull()?.label)
+            assertEquals("label35", it.lastOrNull()?.label)
+        }
+    }
+
+    @Test
+    fun viewIncludeDocs() = runTest {
+        prepareData()
 
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
@@ -105,24 +139,11 @@ internal class KouchDesignTest {
             assertEquals("ASD", it.firstOrNull()?.label)
             assertEquals("label35", it.lastOrNull()?.label)
         }
+    }
 
-        kouch.design.getView<TestEntity, TestEntity>(
-            id = "testdes",
-            viewName = "all"
-        ).result.also {
-            assertEquals(8, it.size)
-            assertEquals("ASD", it.firstOrNull()?.label)
-            assertEquals("label35", it.lastOrNull()?.label)
-        }
-
-        kouch.design.getView<TestEntity>(
-            db = DatabaseName("test_entity"),
-            id = "testdes",
-            viewName = "asd_only"
-        ).result.also {
-            assertEquals(1, it.size)
-            assertEquals("ASD", it.singleOrNull()?.label)
-        }
+    @Test
+    fun viewDescending() = runTest {
+        prepareData()
 
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
@@ -136,6 +157,11 @@ internal class KouchDesignTest {
         }
 
 
+    }
+
+    @Test
+    fun viewWithKey() = runTest {
+        prepareData()
 
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
@@ -148,6 +174,11 @@ internal class KouchDesignTest {
             assertEquals(1, it.size)
             assertEquals("label35", it.singleOrNull()?.label)
         }
+    }
+
+    @Test
+    fun viewWithComplexKey() = runTest {
+        prepareData()
 
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
@@ -161,6 +192,11 @@ internal class KouchDesignTest {
             assertEquals("label1", it.singleOrNull()?.label)
             assertEquals("string3", it.singleOrNull()?.string)
         }
+    }
+
+    @Test
+    fun viewWithSkipAndLimit() = runTest {
+        prepareData()
 
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
