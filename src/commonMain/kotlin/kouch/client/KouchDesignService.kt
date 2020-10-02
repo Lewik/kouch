@@ -76,7 +76,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         class ViewRow(
             val id: String,
             val key: JsonElement,
-            val value: JsonElement,
+            val value: JsonElement?,
             val doc: JsonElement? = null,
         )
     }
@@ -142,7 +142,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         viewName: String,
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>,
-    ): Result<RESULT> {
+    ): Result<RESULT?> {
 
         val response = context.request(
             method = HttpMethod.Post,
@@ -157,18 +157,13 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         return when (response.status) {
             HttpStatusCode.OK -> {
                 val intermediateResponse = context.systemJson.decodeFromString<IntermediateViewResponse>(text)
-                val entities = intermediateResponse.rows.map {
+                val entities = intermediateResponse.rows.map { viewRow ->
                     val resultJson = if (request.include_docs) {
-                        it.doc ?: throw DocIsNullException(text)
+                        viewRow.doc ?: throw DocIsNullException(text)
                     } else {
-                        it.value
+                        viewRow.value
                     }
-                    try {
-                        context.decodeKouchEntityFromJsonElement(resultJson, resultKClass)
-                    } catch (t: Throwable) {
-                        println(text)
-                        throw t
-                    }
+                    resultJson?.let { context.decodeKouchEntityFromJsonElement(it, resultKClass) }
                 }
                 Result(
                     entities, ViewResponse(

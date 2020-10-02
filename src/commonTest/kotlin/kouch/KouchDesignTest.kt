@@ -143,6 +143,21 @@ internal class KouchDesignTest {
     }
 
     @Test
+    fun viewNullValues() = runTest {
+        prepareData()
+
+        kouch.design.getView<TestEntity>(
+            db = DatabaseName("test_entity"),
+            id = "testdes",
+            viewName = "allnull",
+            request = ViewRequest()
+        ).result.also { list ->
+            assertEquals(8, list.size)
+            assertTrue(list.all { it == null })
+        }
+    }
+
+    @Test
     fun viewDescending() = runTest {
         prepareData()
 
