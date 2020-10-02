@@ -58,7 +58,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     data class ViewResponse(
         val offset: Int,
         val total_rows: Int,
-        val update_seq: JsonObject? = null
+        val update_seq: JsonObject? = null,
     )
 
     @Serializable
@@ -70,27 +70,27 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         val offset: Int,
         val rows: List<ViewRow>,
         val total_rows: Int,
-        val update_seq: JsonObject? = null
+        val update_seq: JsonObject? = null,
     ) {
         @Serializable
         class ViewRow(
             val id: String,
             val key: JsonElement,
             val value: JsonElement,
-            val doc: JsonElement? = null
+            val doc: JsonElement? = null,
         )
     }
 
     suspend fun getWithResponse(
         id: String,
         db: DatabaseName,
-        getQueryParameters: KouchDocument.GetQueryParameters? = null
+        getQueryParameters: KouchDocument.GetQueryParameters? = null,
     ) = kouchDocumentService.getWithResponse<KouchDesign>(id, db, getQueryParameters)
 
     suspend fun upsert(
         designDocument: KouchDesign,
         databaseName: DatabaseName,
-        putQueryParameters: KouchDocument.PutQueryParameters? = null
+        putQueryParameters: KouchDocument.PutQueryParameters? = null,
     ) = kouchDocumentService.upsert(
         entity = designDocument,
         metadata = KouchMetadata.Design(
@@ -110,7 +110,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         db: DatabaseName,
         id: String,
         viewName: String,
-        request: ViewRequest = ViewRequest()
+        request: ViewRequest = ViewRequest(),
     ) = getView(
         db = db,
         id = id,
@@ -122,7 +122,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     suspend inline fun <reified RESULT : Any, reified SOURCE_ENTITY : KouchEntity> getView(
         id: String,
         viewName: String,
-        request: ViewRequest = ViewRequest()
+        request: ViewRequest = ViewRequest(),
     ) = getView(
         db = context.getMetadata(SOURCE_ENTITY::class).databaseName,
         id = id,
@@ -133,7 +133,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
 
     class Result<T>(
         val result: List<T>,
-        val response: ViewResponse
+        val response: ViewResponse,
     )
 
     suspend fun <RESULT : Any> getView(
@@ -141,7 +141,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         id: String,
         viewName: String,
         request: ViewRequest = ViewRequest(),
-        resultKClass: KClass<out RESULT>
+        resultKClass: KClass<out RESULT>,
     ): Result<RESULT> {
 
         val response = context.request(
@@ -163,7 +163,12 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
                     } else {
                         it.value
                     }
-                    context.decodeKouchEntityFromJsonElement(resultJson, resultKClass)
+                    try {
+                        context.decodeKouchEntityFromJsonElement(resultJson, resultKClass)
+                    } catch (t: Throwable) {
+                        println(text)
+                        throw t
+                    }
                 }
                 Result(
                     entities, ViewResponse(
@@ -177,7 +182,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
             HttpStatusCode.NotModified,
             HttpStatusCode.BadRequest,
             HttpStatusCode.Unauthorized,
-            HttpStatusCode.Forbidden
+            HttpStatusCode.Forbidden,
             -> throw KouchDocumentException("$response: $text")
             else -> throw UnsupportedStatusCodeException("$response: $text")
         }

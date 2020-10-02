@@ -27,7 +27,7 @@ inline fun <reified T : KouchEntity> Context.encodeToKouchEntity(
     .let { JsonObject(it) })
 
 inline fun <reified T : KouchEntity> Context.encodeToKouchDesign(
-    entity: T
+    entity: T,
 ) = designJson.encodeToString(designJson.encodeToJsonElement(entity)
     .jsonObject
     .mapNotNull { (key, value) ->
@@ -57,7 +57,6 @@ fun <T : Any> Context.decodeKouchEntityFromJsonElement(jsonElement: JsonElement,
         }
         .toMap()
         .let { JsonObject(it) }
-        .also { println(it) }
 )
 
 

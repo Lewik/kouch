@@ -2,6 +2,7 @@ package kouch
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDesignService.ViewRequest
@@ -191,6 +192,38 @@ internal class KouchDesignTest {
             assertEquals(1, it.size)
             assertEquals("label1", it.singleOrNull()?.label)
             assertEquals("string3", it.singleOrNull()?.string)
+        }
+    }
+
+    @Test
+    fun viewWithNotExistingComplexKey() = runTest {
+        prepareData()
+
+        kouch.design.getView<TestEntity>(
+            db = DatabaseName("test_entity"),
+            id = "testdes",
+            viewName = "by_label_and_string",
+            request = ViewRequest(
+                key = JsonArray(listOf(JsonPrimitive("notExistingKey"), JsonPrimitive("string3")))
+            )
+        ).result.also {
+            assertEquals(0, it.size)
+        }
+    }
+
+    @Test
+    fun viewWithNotExistingComplexKey2() = runTest {
+        prepareData()
+
+        kouch.design.getView<JsonElement, TestEntity>(
+//            db = DatabaseName("test_entity"),
+            id = "testdes",
+            viewName = "by_label_and_string",
+            request = ViewRequest(
+                key = JsonArray(listOf(JsonPrimitive("notExistingKey"), JsonPrimitive("notExistingKey")))
+            )
+        ).result.also {
+            assertEquals(0, it.size)
         }
     }
 
