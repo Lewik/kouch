@@ -1,8 +1,12 @@
 package kouch.kouch
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
 import kouch.*
 import kouch.client.KouchClientImpl
+import kouch.client.KouchDatabase
 import kouch.client.KouchDatabaseService
 import kotlin.test.*
 
@@ -171,5 +175,63 @@ internal class KouchDatabaseTest {
             assertTrue(DatabaseName("test_entity2") in it)
             assertTrue(DatabaseName("test_entity3") in it)
         }
+    }
+
+    @Test
+    fun changesTest() = runTest {
+        kouch.db.createForEntity(TestEntity1::class)
+
+        insertDocs(100)
+
+        val results = mutableListOf<KouchDatabase.ChangesResponse.Result>()
+
+        val job = kouch.db.changesContinuous(
+            scope = GlobalScope,
+            db = DatabaseName("test_entity1"),
+            request = KouchDatabase.ChangesRequest(),
+        ) { result ->
+            results.add(result)
+        }
+        delay(1000)
+
+        insertDocs(200)
+        delay(1000)
+
+        job.cancelAndJoin()
+
+        assertEquals(24, results.size)
+        assertEquals(8, results.count { it.deleted })
+    }
+
+    private fun getEntity() = TestEntity1(
+        id = "some-id",
+        revision = "some-revision",
+        string = "some-string",
+        label = "some label"
+    )
+
+    private suspend fun insertDocs(startI: Int) {
+        var i = startI
+        listOf(
+            getEntity().copy(id = "some-id${i++}", revision = null, label = "label3", string = "string1"),
+            getEntity().copy(id = "some-id${i++}", revision = null, label = "label2", string = "string1"),
+            getEntity().copy(id = "some-id${i++}", revision = null, label = "label35", string = "string2"),
+            getEntity().copy(id = "some-id${i++}", revision = null, label = "label1", string = "string3"),
+            getEntity().copy(id = "some-id${i++}", revision = null, label = "ASD", string = "string2"),
+            getEntity().copy(id = "some-id${i++}", revision = null, label = "ASD1", string = "string3"),
+            getEntity().copy(id = "some-id${i++}", revision = null, label = "label1", string = "string4"),
+            getEntity().copy(id = "some-id${i++}", revision = null, label = "label1", string = "string4"),
+            getEntity().copy(id = "some-id${i++}", revision = null, label = "label1", string = "string4"),
+            getEntity().copy(id = "some-id${i}", revision = null, label = "label1", string = "string1"),
+        )
+            .forEachIndexed { index, doc ->
+                val putResult = kouch.doc.insert(doc)
+                assertTrue(putResult.getResponse().ok ?: false)
+
+                if (index % 3 == 0) {
+                    val deleteResult = kouch.doc.delete(putResult.getUpdatedEntity())()
+                    assertTrue(deleteResult.ok ?: false)
+                }
+            }
     }
 }

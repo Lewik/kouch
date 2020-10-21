@@ -1,10 +1,13 @@
 package kouch.client
 
 
+import io.ktor.client.call.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Head
+import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
 import io.ktor.http.HttpStatusCode.Companion.Accepted
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
@@ -13,15 +16,22 @@ import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.PreconditionFailed
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
+import io.ktor.http.content.*
+import io.ktor.utils.io.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.*
 import kouch.*
 import kotlin.reflect.KClass
 
 class KouchDatabaseService(
-    val context: Context
+    val context: Context,
 ) {
     companion object {
         val systemDbs = listOf(
@@ -82,11 +92,11 @@ class KouchDatabaseService(
         val text = response.readText()
         when (response.status) {
             Created,
-            Accepted
+            Accepted,
             -> Unit
             BadRequest,
             Unauthorized,
-            PreconditionFailed
+            PreconditionFailed,
             -> throw KouchDatabaseException("$response: $text")
             else -> throw UnsupportedStatusCodeException("$response: $text")
         }
@@ -96,7 +106,7 @@ class KouchDatabaseService(
         entity: T,
         partitions: Int? = null,
         replicas: Int? = null,
-        partitioned: Boolean = false
+        partitioned: Boolean = false,
     ) = createForEntity(
         kClass = entity::class,
         partitions = partitions,
@@ -108,7 +118,7 @@ class KouchDatabaseService(
         kClass: KClass<out T>,
         partitions: Int? = null,
         replicas: Int? = null,
-        partitioned: Boolean = false
+        partitioned: Boolean = false,
     ) = if (context.settings.databaseNaming is Settings.DatabaseNaming.DatabaseNameAnnotation) {
         create(
             db = context.getMetadata(kClass).databaseName,
@@ -126,7 +136,7 @@ class KouchDatabaseService(
         kClasses: List<KClass<out T>>,
         partitions: Int? = null,
         replicas: Int? = null,
-        partitioned: Boolean = false
+        partitioned: Boolean = false,
     ) = kClasses
         .forEach {
             createForEntity(
@@ -141,7 +151,7 @@ class KouchDatabaseService(
         kClasses: List<KClass<out T>>,
         partitions: Int? = null,
         replicas: Int? = null,
-        partitioned: Boolean = false
+        partitioned: Boolean = false,
     ) = if (context.settings.databaseNaming is Settings.DatabaseNaming.DatabaseNameAnnotation) {
         val existedDatabase = getAll()
         kClasses
@@ -156,11 +166,11 @@ class KouchDatabaseService(
         val text = response.readText()
         when (response.status) {
             OK,
-            Accepted
+            Accepted,
             -> Unit
             BadRequest, // To avoid deleting a database, CouchDB will respond with the HTTP status code 400 when the request URL includes a ?rev= parameter. This suggests that one wants to delete a document but forgot to add the document id to the URL.
             Unauthorized,
-            PreconditionFailed
+            PreconditionFailed,
             -> throw KouchDatabaseException("$response: $text")
             else -> throw UnsupportedStatusCodeException("$response: $text")
         }
@@ -169,89 +179,52 @@ class KouchDatabaseService(
     suspend fun createSystemDbs() = systemDbs.forEach { create(db = it) }
 
 
-    //
-//    suspend fun find(db: DatabaseName, request: KouchDatabase.SearchRequest): KouchDatabase.SearchResponse {
-//        val json = settings.standardJson
-//        val bodyJson = json.encodeToString(KouchDatabase.SearchRequest.serializer(), request)
-//
-//        val response = settings.client.post<HttpResponse>(
-//            scheme = settings.scheme,
-//            host = settings.host,
-//            port = settings.port,
-//            path = "$db/_find",
-//            body = TextContent(bodyJson, contentType = ContentType.Application.Json)
-//        ) {
-//            headers[HttpHeaders.Authorization] = settings.getAdminBasic();
-//        }
-//
-//        return when (response.status) {
-//            HttpStatusCode.OK,
-//            HttpStatusCode.BadRequest,
-//            HttpStatusCode.Unauthorized,
-//            HttpStatusCode.NotFound,
-//            HttpStatusCode.InternalServerError,
-//            HttpStatusCode.Forbidden
-//            -> {
-//                val body = settings.standardJson
-//                    .decodeFromString<KouchDatabase.SearchResponse>(response.readText())
-//                when {
-//                    body.error != null -> throw IllegalStateException(body.reason)
-//                    else -> body
-//                }
-//            }
-//            else -> throw UnsupportedStatusCodeException("$response: $text")
-//        }
-//    }
-//
-//    suspend fun getAllDocs(db: DatabaseName): JsonObject? {
-//        val response = settings.client.get<HttpResponse>(
-//            scheme = settings.scheme,
-//            host = settings.host,
-//            port = settings.port,
-//            path = "$db/_all_docs"
-//        ) {
-//            headers[HttpHeaders.Authorization] = settings.getAdminBasic();
-//        }
-//
-//        return when (response.status) {
-//            HttpStatusCode.OK
-//            -> {
-//                settings
-//                    .standardJson
-//                    .decodeFromString<JsonObject>(response.readText())
-//            }
-//            HttpStatusCode.NotFound -> null
-//            else -> throw UnsupportedStatusCodeException("$response: $text")
-//        }
-//    }
-//
-//    suspend fun setRoles(db: DatabaseName, request: KouchDatabase.RolesRequest, user: KouchUser.User? = null): KouchDatabase.StandardResponse {
-//        val json = settings.standardJson
-//        val bodyJson = json.encodeToString(KouchDatabase.RolesRequest.serializer(), request)
-//        val response = settings.client.put<HttpResponse>(
-//            scheme = settings.scheme,
-//            host = settings.host,
-//            port = settings.port,
-//            path = "$db/_security",
-//            body = TextContent(bodyJson, contentType = ContentType.Application.Json)
-//        ) {
-//            headers[HttpHeaders.Authorization] = settings.getAdminBasic()
-//        }
-//
-//        return when (response.status) {
-//            HttpStatusCode.OK,
-//            HttpStatusCode.Unauthorized,
-//            HttpStatusCode.Forbidden
-//            -> {
-//                val body = settings.standardJson
-//                    .decodeFromString<KouchDatabase.StandardResponse>(response.readText())
-//                when {
-//                    body.error != null -> throw IllegalStateException(body.reason)
-//                    else -> body
-//                }
-//            }
-//            else -> throw UnsupportedStatusCodeException("$response: $text")
-//        }
-//    }
-//
+    suspend fun changesContinuous(
+        scope: CoroutineScope,
+        db: DatabaseName,
+        request: KouchDatabase.ChangesRequest,
+        listener: suspend (entry: KouchDatabase.ChangesResponse.Result) -> Unit,
+    ) = scope.launch {
+        val queryString = context.systemJson
+            .encodeToJsonElement(request)
+            .jsonObject
+            .plus("feed" to JsonPrimitive("continuous"))
+            .minus("doc_ids")
+            .let { context.systemJson.encodeToUrl(JsonObject(it)) }
+
+        val bodyMap = if (request.doc_ids.isEmpty()) {
+            emptyMap()
+        } else {
+            mapOf("doc_ids" to JsonArray(request.doc_ids.map { JsonPrimitive(it) }))
+        }
+        val body = context.systemJson.encodeToString(JsonObject(bodyMap))
+
+        context.requestStatement(
+            method = Post,
+            path = "${db.value}/_changes$queryString",
+            body = TextContent(
+                text = body,
+                contentType = ContentType.Application.Json
+            )
+        ).execute { response ->
+            val channel = response.receive<ByteReadChannel>()
+            val flow = channel.readAsFlow()
+            flow.collect(listener)
+        }
+    }
+
+    private suspend fun ByteReadChannel.readAsFlow() = channelFlow {
+
+        while (isActive) {
+            val line = readUTF8Line()
+            if (line?.isNotEmpty() == true) {
+                val result = context.systemJson.decodeFromString<KouchDatabase.ChangesResponse.Result>(line)
+                send(result)
+            }
+        }
+
+        awaitClose {
+            this@readAsFlow.cancel()
+        }
+    }
 }

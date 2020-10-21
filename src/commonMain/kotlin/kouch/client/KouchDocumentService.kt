@@ -225,7 +225,6 @@ class KouchDocumentService(
         deleteQueryParameters: KouchDocument.DeleteQueryParameters
     ): () -> KouchDocument.DeleteResponse {
         val queryString = context.systemQueryParametersJson.encodeToUrl(deleteQueryParameters)
-        println(queryString)
         val response = context.request(
             method = Delete,
             path = "${db.value}/$id$queryString",

@@ -35,38 +35,30 @@ class Context(
     val systemQueryParametersJson: Json = Json {
         encodeDefaults = false
     }
-//    val standardJson: Json = Json {
-//        isLenient = true
-//        ignoreUnknownKeys = true
-//        allowSpecialFloatingPointValues = true
-//        useArrayPolymorphism = true
-//    },
-
-//    val jsonSkipNull: Json = Json { encodeDefaults = false },
-//
-//    val jsonUnquoted: Json = Json {
-//        prettyPrint = true
-////        unquotedPrint = true
-//        useArrayPolymorphism = true
-//        isLenient = true
-//    },
-
-    //    /**
-//     * @See https://docs.couchdb.org/en/stable/intro/api.html#documents
-//     *
-//     * Sending an application/json Content-Type header will make a browser offer you the returned JSON for download
-//     * instead of just displaying it. Sending a text/plain content type, and browsers will display the JSON as text.
-//     */
-//    val defaultAcceptHeader: String = "text/plain",
-
 
     suspend fun request(
         method: HttpMethod,
         path: String,
         body: Any = EmptyContent,
         parameters: Map<String, Any?> = emptyMap(),
-        headers: Map<String, String> = emptyMap()
-    ) = client.request<HttpResponse> {
+        headers: Map<String, String> = emptyMap(),
+    ) = client.request<HttpResponse> { buildRequest(path, method, body, headers, parameters) }
+
+    suspend fun requestStatement(
+        method: HttpMethod,
+        path: String,
+        body: Any = EmptyContent,
+        parameters: Map<String, Any?> = emptyMap(),
+        headers: Map<String, String> = emptyMap(),
+    ) = client.request<HttpStatement> { buildRequest(path, method, body, headers, parameters) }
+
+    private fun HttpRequestBuilder.buildRequest(
+        path: String,
+        method: HttpMethod,
+        body: Any,
+        headers: Map<String, String>,
+        parameters: Map<String, Any?>,
+    ) {
         url(settings.scheme, settings.host, settings.port, path)
         this.method = method
         this.body = body

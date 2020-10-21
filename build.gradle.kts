@@ -43,6 +43,7 @@ kotlin {
             languageSettings.apply {
                 progressiveMode = true
                 useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
+                useExperimentalAnnotation("kotlinx.coroutines.ExperimentalCoroutinesApi")
             }
         }
         val commonMain by getting {

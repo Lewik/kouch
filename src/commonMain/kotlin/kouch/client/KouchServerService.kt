@@ -41,7 +41,7 @@ class KouchServerService(val context: Context) {
         input: KouchDatabase.PullReplicationRequestInput
     ): KouchDatabase.ReplicationResponse {
         val request = input.toPullReplicationRequest()
-        println("pullReplicate: $request")
+//        println("pullReplicate: $request")
         val bodyJson = context.systemJson.encodeToString(request)
         val response = context.request(
             method = HttpMethod.Post,

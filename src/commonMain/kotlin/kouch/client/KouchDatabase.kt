@@ -1,5 +1,6 @@
 package kouch.client
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kouch.DatabaseName
 import kouch.Settings
@@ -46,7 +47,7 @@ class KouchDatabase {
 
         @Serializable
         data class Props(
-            val partitioned: Boolean? = null
+            val partitioned: Boolean? = null,
         )
     }
 
@@ -62,7 +63,7 @@ class KouchDatabase {
         val missing_found: Int,
         val docs_read: Int,
         val docs_written: Int,
-        val doc_write_failures: Int
+        val doc_write_failures: Int,
     )
 
     /**
@@ -74,7 +75,7 @@ class KouchDatabase {
         val targetDb: DatabaseName,
         val createTargetDb: Boolean = false,
         val continuous: Boolean = false,
-        val cancel: Boolean = false
+        val cancel: Boolean = false,
     )
 
     @Serializable
@@ -83,7 +84,7 @@ class KouchDatabase {
         val target: UrlWithHeader,
         val create_target: Boolean = false,
         val continuous: Boolean = false,
-        val cancel: Boolean = false
+        val cancel: Boolean = false,
     )
 
     @Serializable
@@ -101,11 +102,76 @@ class KouchDatabase {
     @Serializable
     data class UrlWithHeader(
         val url: String = "",
-        val headers: DbHeader = DbHeader()
+        val headers: DbHeader = DbHeader(),
     )
 
     @Serializable
     data class DbHeader(
-        val Authorization: String = ""
+        val Authorization: String = "",
     )
+
+
+    @Serializable
+    data class ChangesRequest(
+        val doc_ids: List<String> = emptyList(),
+        val conflicts: Boolean = false,
+        val descending: Boolean = false,
+//        val feed: Feed,
+        val filter: String? = null,
+        val heartbeat: Int = 60_000,
+        val include_docs: Boolean = false,
+        val attachments: Boolean = false,
+        val att_encoding_info: Boolean = false,
+        val `last-event-id`: Boolean = false,
+        val limit: Int? = null,
+        val since: String = "0",
+        val style: Style = Style.MAIN_ONLY,
+        val timeout: Int? = null,
+        val view: String? = null,
+        val seq_interval: Int? = null,
+    ) {
+//        @Serializable
+//        enum class Feed {
+//            @SerialName("normal")
+//            NORMAL,
+//
+//            @SerialName("longpoll")
+//            LONG_POLL,
+//
+//            @SerialName("continuous")
+//            CONTINUOUS,
+//
+//            @SerialName("eventsource")
+//            EVENT_SOURCE,
+//        }
+
+        @Serializable
+        enum class Style {
+            @SerialName("main_only")
+            MAIN_ONLY,
+
+            @SerialName("all_docs")
+            ALL_DOCS,
+        }
+    }
+
+    @Serializable
+    data class ChangesResponse(
+        val last_seq: String,
+        val pending: Int,
+        val results: List<Result>,
+    ) {
+        @Serializable
+        data class Result(
+            val changes: List<RevOnly>,
+            val id: String,
+            val seq: String,
+            val deleted: Boolean = false,
+        ) {
+            @Serializable
+            class RevOnly (
+                val rev: String
+            )
+        }
+    }
 }
