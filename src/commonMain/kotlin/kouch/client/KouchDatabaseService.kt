@@ -119,16 +119,12 @@ class KouchDatabaseService(
         partitions: Int? = null,
         replicas: Int? = null,
         partitioned: Boolean = false,
-    ) = if (context.settings.databaseNaming is Settings.DatabaseNaming.DatabaseNameAnnotation) {
-        create(
-            db = context.getMetadata(kClass).databaseName,
-            partitions = partitions,
-            replicas = replicas,
-            partitioned = partitioned
-        )
-    } else {
-        println("No need to call createForEntities: Settings.DatabaseNaming.DatabaseNameAnnotation used")
-    }
+    ) = create(
+        db = context.getMetadata(kClass).databaseName,
+        partitions = partitions,
+        replicas = replicas,
+        partitioned = partitioned
+    )
 
 
     //TODO : speedup with parallel coroutines
@@ -152,13 +148,11 @@ class KouchDatabaseService(
         partitions: Int? = null,
         replicas: Int? = null,
         partitioned: Boolean = false,
-    ) = if (context.settings.databaseNaming is Settings.DatabaseNaming.DatabaseNameAnnotation) {
+    ) {
         val existedDatabase = getAll()
         kClasses
             .filter { context.getMetadata(it).databaseName !in existedDatabase }
             .forEach { createForEntity(it, partitions, replicas, partitioned) }
-    } else {
-        println("No need to call createForEntitiesIfNotExists: Settings.DatabaseNaming.DatabaseNameAnnotation used")
     }
 
     suspend fun delete(db: DatabaseName) {

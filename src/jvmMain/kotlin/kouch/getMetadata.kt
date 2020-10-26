@@ -7,10 +7,7 @@ actual fun <T : KouchEntity> Context.getMetadata(kClass: KClass<out T>): KouchMe
         ?: throw NoMetadataAnnotationException("No KouchEntityMetadata annotation for ${kClass.qualifiedName}. KouchEntityMetadata should be specified for each KouchEntity")
 
 
-    val databaseName = when (settings.databaseNaming) {
-        Settings.DatabaseNaming.DatabaseNameAnnotation -> annotation.databaseName
-        is Settings.DatabaseNaming.Predefined -> settings.databaseNaming.databaseName
-    }
+    val databaseName = annotation.databaseName
         .takeIf { it.isNotEmpty() }
         ?: settings.autoGenerate.generateDatabaseName(kClass)
 
