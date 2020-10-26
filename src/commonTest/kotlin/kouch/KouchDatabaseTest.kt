@@ -98,7 +98,7 @@ internal class KouchDatabaseTest {
         }
     }
 
-    @KouchEntityMetadata(autoGenerate = true)
+    @KouchEntityMetadata
     @Serializable
     data class TestEntity1(
         override val id: String,
@@ -107,7 +107,7 @@ internal class KouchDatabaseTest {
         val label: String,
     ) : KouchEntity
 
-    @KouchEntityMetadata(autoGenerate = true)
+    @KouchEntityMetadata
     @Serializable
     data class TestEntity2(
         override val id: String,
@@ -116,7 +116,7 @@ internal class KouchDatabaseTest {
         val label: String,
     ) : KouchEntity
 
-    @KouchEntityMetadata(autoGenerate = true)
+    @KouchEntityMetadata
     @Serializable
     data class TestEntity3(
         override val id: String,
