@@ -122,7 +122,8 @@ class KouchDatabase {
         val include_docs: Boolean = false,
         val attachments: Boolean = false,
         val att_encoding_info: Boolean = false,
-        val `last-event-id`: Boolean = false,
+        @SerialName("last-event-id")
+        val last_event_id: Boolean = false,
         val limit: Int? = null,
         val since: String = "0",
         val style: Style = Style.MAIN_ONLY,
@@ -169,7 +170,7 @@ class KouchDatabase {
             val deleted: Boolean = false,
         ) {
             @Serializable
-            class RevOnly (
+            class RevOnly(
                 val rev: String
             )
         }
