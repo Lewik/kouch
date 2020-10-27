@@ -44,6 +44,8 @@ kotlin {
                 progressiveMode = true
                 useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
                 useExperimentalAnnotation("kotlinx.coroutines.ExperimentalCoroutinesApi")
+                useExperimentalAnnotation("kotlinx.coroutines.ExperimentalCoroutinesApi")
+                useExperimentalAnnotation("kotlin.time.ExperimentalTime")
             }
         }
         val commonMain by getting {

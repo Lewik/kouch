@@ -20,6 +20,7 @@ import io.ktor.http.content.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.isActive
@@ -29,6 +30,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import kouch.*
 import kotlin.reflect.KClass
+import kotlin.time.Duration
+import kotlin.time.seconds
 
 class KouchDatabaseService(
     val context: Context,
@@ -177,33 +180,46 @@ class KouchDatabaseService(
         scope: CoroutineScope,
         db: DatabaseName,
         request: KouchDatabase.ChangesRequest,
-        listener: suspend (entry: KouchDatabase.ChangesResponse.Result) -> Unit,
+        reconnectionDelay: Duration = 2.seconds,
+        listener: suspend (entry: KouchDatabase.ChangesResponse.Result) -> Unit
     ) = scope.launch {
-        val queryString = context.systemJson
-            .encodeToJsonElement(request)
-            .jsonObject
-            .plus("feed" to JsonPrimitive("continuous"))
-            .minus("doc_ids")
-            .let { context.systemJson.encodeToUrl(JsonObject(it)) }
+        var since = request.since
+        while (true) {
+            try {
+                val queryString = context.systemJson
+                    .encodeToJsonElement(request.copy(since = since))
+                    .jsonObject
+                    .plus("feed" to JsonPrimitive("continuous"))
+                    .minus("doc_ids")
+                    .let { context.systemJson.encodeToUrl(JsonObject(it)) }
 
-        val bodyMap = if (request.doc_ids.isEmpty()) {
-            emptyMap()
-        } else {
-            mapOf("doc_ids" to JsonArray(request.doc_ids.map { JsonPrimitive(it) }))
-        }
-        val body = context.systemJson.encodeToString(JsonObject(bodyMap))
+                val bodyMap = if (request.doc_ids.isEmpty()) {
+                    emptyMap()
+                } else {
+                    mapOf("doc_ids" to JsonArray(request.doc_ids.map { JsonPrimitive(it) }))
+                }
+                val body = context.systemJson.encodeToString(JsonObject(bodyMap))
 
-        context.requestStatement(
-            method = Post,
-            path = "${db.value}/_changes$queryString",
-            body = TextContent(
-                text = body,
-                contentType = ContentType.Application.Json
-            )
-        ).execute { response ->
-            val channel = response.receive<ByteReadChannel>()
-            val flow = channel.readAsFlow()
-            flow.collect(listener)
+                val requestStatement = context.requestStatement(
+                    method = Post,
+                    path = "${db.value}/_changes$queryString",
+                    body = TextContent(
+                        text = body,
+                        contentType = ContentType.Application.Json
+                    )
+                )
+                requestStatement.execute { response ->
+                    val channel = response.receive<ByteReadChannel>()
+                    val flow = channel.readAsFlow()
+                    flow.collect {
+                        since = it.seq
+                        listener(it)
+                    }
+                }
+            } catch (t: Throwable) {
+                println(t)
+                delay(reconnectionDelay)
+            }
         }
     }
 

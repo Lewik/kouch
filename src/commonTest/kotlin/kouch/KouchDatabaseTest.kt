@@ -136,12 +136,14 @@ internal class KouchDatabaseTest {
 
     @Test
     fun createForEntity1() = runTest {
-        kouch.db.createForEntity(TestEntity1(
-            id = "id",
-            revision = null,
-            string = "string",
-            label = "label"
-        ))
+        kouch.db.createForEntity(
+            TestEntity1(
+                id = "id",
+                revision = null,
+                string = "string",
+                label = "label"
+            )
+        )
         kouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 1, it.size)
             assertTrue(DatabaseName("test_entity1") in it)
@@ -199,8 +201,40 @@ internal class KouchDatabaseTest {
 
         job.cancelAndJoin()
 
+        println(results.map { it.id }.sorted())
         assertEquals(24, results.size)
         assertEquals(8, results.count { it.deleted })
+    }
+
+
+    @Ignore
+    @Test
+    fun changesReconnectionTest() = runTest {
+        kouch.db.createForEntity(TestEntity1::class)
+
+        insertDocs(100)
+
+        val results = mutableListOf<KouchDatabase.ChangesResponse.Result>()
+
+        val job = kouch.db.changesContinuous(
+            scope = GlobalScope,
+            db = DatabaseName("test_entity1"),
+            request = KouchDatabase.ChangesRequest(),
+        ) { result ->
+            results.add(result)
+        }
+        println("make reconnect")
+        delay(20000)
+
+        insertDocs(200)
+        delay(1000)
+
+        job.cancelAndJoin()
+
+        println(results.map { it.id }.sorted())
+        assertEquals(24, results.size)
+        assertEquals(8, results.count { it.deleted })
+
     }
 
     private fun getEntity() = TestEntity1(
