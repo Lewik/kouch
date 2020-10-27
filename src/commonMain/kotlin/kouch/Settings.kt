@@ -10,6 +10,8 @@ data class Settings(
     val adminName: String,
     val adminPassword: String,
 
+    val predefinedDatabaseName: DatabaseName? = null,
+
     val autoGenerate: AutoGenerate = object : AutoGenerate {
         override fun <T : KouchEntity> generateDatabaseName(kClass: KClass<T>) = kClass.simpleName!!.camelToSnakeCase()
         override fun <T : KouchEntity> generateClassName(kClass: KClass<T>) = kClass.simpleName!!.camelToSnakeCase()
