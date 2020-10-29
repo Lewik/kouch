@@ -178,7 +178,7 @@ class KouchDatabaseService(
 
     suspend fun changesContinuous(
         scope: CoroutineScope,
-        db: DatabaseName,
+        db: DatabaseName = context.settings.predefinedDatabaseName!!,
         request: KouchDatabase.ChangesRequest,
         reconnectionDelay: Duration = 2.seconds,
         entities: List<KClass<out KouchEntity>>,
