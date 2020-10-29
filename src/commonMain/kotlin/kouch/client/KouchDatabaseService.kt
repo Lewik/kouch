@@ -181,8 +181,10 @@ class KouchDatabaseService(
         db: DatabaseName,
         request: KouchDatabase.ChangesRequest,
         reconnectionDelay: Duration = 2.seconds,
+        entities: List<KClass<out KouchEntity>>,
         listener: suspend (entry: KouchDatabase.ChangesResponse.Result) -> Unit
     ) = scope.launch {
+        val classNameToKClass = entities.associateBy { context.getMetadata(it).className.value }
         var since = request.since
         while (true) {
             try {
@@ -210,31 +212,48 @@ class KouchDatabaseService(
                 )
                 requestStatement.execute { response ->
                     val channel = response.receive<ByteReadChannel>()
-                    val flow = channel.readAsFlow()
-                    flow.collect {
-                        since = it.seq
-                        listener(it)
-                    }
+                    channel
+                        .readByLineAsFlow()
+                        .collect { line ->
+                            val result = context.systemJson.decodeFromString<KouchDatabase.ChangesResponse.RawResult>(line)
+                            val doc = if (request.include_docs && !result.deleted) {
+                                val jsonDoc = result.doc!!
+
+                                val kClass = classNameToKClass.getValue(jsonDoc.getValue(context.classField).jsonPrimitive.content)
+                                context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
+                            } else {
+                                null
+                            }
+                            since = result.seq
+                            listener(
+                                KouchDatabase.ChangesResponse.Result(
+                                    changes = result.changes,
+                                    id = result.id,
+                                    seq = result.seq,
+                                    deleted = result.deleted,
+                                    doc = doc
+                                )
+                            )
+                        }
                 }
             } catch (t: Throwable) {
-                println(t)
+                t.printStackTrace()
                 delay(reconnectionDelay)
             }
         }
     }
 
-    private suspend fun ByteReadChannel.readAsFlow() = channelFlow {
+    private suspend fun ByteReadChannel.readByLineAsFlow() = channelFlow {
 
         while (isActive) {
             val line = readUTF8Line()
             if (line?.isNotEmpty() == true) {
-                val result = context.systemJson.decodeFromString<KouchDatabase.ChangesResponse.Result>(line)
-                send(result)
+                send(line)
             }
         }
 
         awaitClose {
-            this@readAsFlow.cancel()
+            this@readByLineAsFlow.cancel()
         }
     }
 }

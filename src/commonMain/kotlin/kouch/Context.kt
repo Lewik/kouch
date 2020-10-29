@@ -19,23 +19,23 @@ class Context(
         }
     },
     val strictSystemJson: Boolean = false,
-) {
-    val responseJson: Json = Json {}
+    val classField: String = "class__",
+    val responseJson: Json = Json {},
     val entityJson: Json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
-    }
+    },
     val systemJson: Json = Json {
         ignoreUnknownKeys = !strictSystemJson
-    }
+    },
     val designJson: Json = Json {
         ignoreUnknownKeys = !strictSystemJson
         encodeDefaults = false
-    }
+    },
     val systemQueryParametersJson: Json = Json {
         encodeDefaults = false
     }
-
+) {
     suspend fun request(
         method: HttpMethod,
         path: String,

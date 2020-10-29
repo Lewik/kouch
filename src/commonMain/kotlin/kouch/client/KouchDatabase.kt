@@ -2,7 +2,9 @@ package kouch.client
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import kouch.DatabaseName
+import kouch.KouchEntity
 import kouch.Settings
 
 class KouchDatabase {
@@ -168,11 +170,22 @@ class KouchDatabase {
             val id: String,
             val seq: String,
             val deleted: Boolean = false,
+            val doc: KouchEntity? = null
         ) {
             @Serializable
             class RevOnly(
                 val rev: String
             )
         }
+
+        @Serializable
+        data class RawResult(
+            val changes: List<Result.RevOnly>,
+            val id: String,
+            val seq: String,
+            val deleted: Boolean = false,
+            val doc: JsonObject? = null
+        )
+
     }
 }

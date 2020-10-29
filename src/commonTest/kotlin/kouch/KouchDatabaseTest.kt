@@ -190,7 +190,14 @@ internal class KouchDatabaseTest {
         val job = kouch.db.changesContinuous(
             scope = GlobalScope,
             db = DatabaseName("test_entity1"),
-            request = KouchDatabase.ChangesRequest(),
+            request = KouchDatabase.ChangesRequest(
+                include_docs = true
+            ),
+            entities = listOf(
+                TestEntity1::class,
+                TestEntity2::class,
+                TestEntity3::class
+            )
         ) { result ->
             results.add(result)
         }
@@ -219,7 +226,14 @@ internal class KouchDatabaseTest {
         val job = kouch.db.changesContinuous(
             scope = GlobalScope,
             db = DatabaseName("test_entity1"),
-            request = KouchDatabase.ChangesRequest(),
+            request = KouchDatabase.ChangesRequest(
+                include_docs = true
+            ),
+            entities = listOf(
+                TestEntity1::class,
+                TestEntity2::class,
+                TestEntity3::class
+            )
         ) { result ->
             results.add(result)
         }

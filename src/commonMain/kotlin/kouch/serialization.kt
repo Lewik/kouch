@@ -22,7 +22,7 @@ inline fun <reified T : KouchEntity> Context.encodeToKouchEntity(
             else -> key to value
         }
     }
-    .plus("class__" to JsonPrimitive(className.value))
+    .plus(classField to JsonPrimitive(className.value))
     .toMap()
     .let { JsonObject(it) })
 
@@ -51,7 +51,7 @@ fun <T : Any> Context.decodeKouchEntityFromJsonElement(jsonElement: JsonElement,
             when (key) {
                 "_id" -> "id" to value
                 "_rev" -> "revision" to value
-                "class__" -> null
+                classField -> null
                 else -> key to value
             }
         }
