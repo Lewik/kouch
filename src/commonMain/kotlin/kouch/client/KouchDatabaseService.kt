@@ -219,7 +219,8 @@ class KouchDatabaseService(
                             val doc = if (request.include_docs && !result.deleted) {
                                 val jsonDoc = result.doc!!
 
-                                val kClass = classNameToKClass.getValue(jsonDoc.getValue(context.classField).jsonPrimitive.content)
+                                val className = jsonDoc[context.classField]?.jsonPrimitive?.content ?: return@collect
+                                val kClass = classNameToKClass.getValue(className)
                                 context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
                             } else {
                                 null
