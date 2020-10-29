@@ -127,7 +127,7 @@ class KouchDatabase {
         @SerialName("last-event-id")
         val last_event_id: Boolean = false,
         val limit: Int? = null,
-        val since: String = "0",
+        val since: String = "now",
         val style: Style = Style.MAIN_ONLY,
         val timeout: Int? = null,
         val view: String? = null,
