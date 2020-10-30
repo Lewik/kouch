@@ -219,7 +219,7 @@ class KouchDatabaseService(
                             val responseJson = context.systemJson.parseToJsonElement(line).jsonObject
                             if (responseJson["error"] != null) {
                                 val error = context.systemJson.decodeFromJsonElement<ErrorResponse>(responseJson)
-                                println(error)
+                                IllegalStateException("$error").printStackTrace()
                             } else {
                                 val result = context.systemJson.decodeFromJsonElement<KouchDatabase.ChangesResponse.RawResult>(responseJson)
                                 val doc = if (request.include_docs && !result.deleted) {
