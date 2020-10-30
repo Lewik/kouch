@@ -7,7 +7,8 @@ internal object KouchTestHelper {
 
     val defaultSettings = Settings(
         adminName = "dbadmin",
-        adminPassword = "dbadmin"
+        adminPassword = "dbadmin",
+        databaseNaming = Settings.DatabaseNaming.AutoGenerate
     )
     val defaultContext = Context(
         settings = defaultSettings,
@@ -17,7 +18,8 @@ internal object KouchTestHelper {
     val secondarySettings = Settings(
         adminName = "dbadmin",
         adminPassword = "dbadmin",
-        port = 5985
+        port = 5985,
+        databaseNaming = Settings.DatabaseNaming.AutoGenerate
     )
     val secondaryContext = Context(
         settings = secondarySettings,
