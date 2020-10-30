@@ -7,7 +7,7 @@ import kouch.getMetadata
 import kotlin.reflect.KClass
 
 class KouchClientImpl(
-    val context: Context
+    override val context: Context
 ) : KouchClient() {
     override val server = KouchServerService(context)
     override val db = KouchDatabaseService(context)
