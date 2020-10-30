@@ -201,10 +201,10 @@ internal class KouchDatabaseTest {
         ) { result ->
             results.add(result)
         }
-        delay(1000)
+        delay(80000)
 
         insertDocs(200)
-        delay(1000)
+        delay(80000)
 
         job.cancelAndJoin()
 

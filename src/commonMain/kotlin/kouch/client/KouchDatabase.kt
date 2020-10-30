@@ -176,5 +176,10 @@ class KouchDatabase {
             val deleted: Boolean = false,
             val doc: JsonObject? = null
         )
+        @Serializable
+        data class RawLastResult(
+            val last_seq: String,
+            val pending: Int
+        )
     }
 }

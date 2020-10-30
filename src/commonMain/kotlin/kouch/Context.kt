@@ -42,7 +42,8 @@ class Context(
         body: Any = EmptyContent,
         parameters: Map<String, Any?> = emptyMap(),
         headers: Map<String, String> = emptyMap(),
-    ) = client.request<HttpResponse> { buildRequest(path, method, body, headers, parameters) }
+        timeout: Long? = null
+    ) = client.request<HttpResponse> { buildRequest(path, method, body, headers, parameters, timeout) }
 
     suspend fun requestStatement(
         method: HttpMethod,
@@ -50,7 +51,8 @@ class Context(
         body: Any = EmptyContent,
         parameters: Map<String, Any?> = emptyMap(),
         headers: Map<String, String> = emptyMap(),
-    ) = client.request<HttpStatement> { buildRequest(path, method, body, headers, parameters) }
+        timeout: Long? = null
+    ) = client.request<HttpStatement> { buildRequest(path, method, body, headers, parameters, timeout) }
 
     private fun HttpRequestBuilder.buildRequest(
         path: String,
@@ -58,6 +60,7 @@ class Context(
         body: Any,
         headers: Map<String, String>,
         parameters: Map<String, Any?>,
+        timeout: Long? = null
     ) {
         url(settings.scheme, settings.host, settings.port, path)
         this.method = method
@@ -67,6 +70,11 @@ class Context(
             this.headers[key] = value
         }
         parameters.forEach { parameter(it.key, it.value) }
+        if (timeout != null) {
+            timeout {
+                requestTimeoutMillis = timeout
+            }
+        }
     }
 
     fun getAdminBasic() = "Basic ${"${settings.adminName}:${settings.adminPassword}".toByteArray().toBase64()}"

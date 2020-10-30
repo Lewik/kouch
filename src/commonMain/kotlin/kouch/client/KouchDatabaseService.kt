@@ -2,6 +2,7 @@ package kouch.client
 
 
 import io.ktor.client.call.*
+import io.ktor.client.features.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.HttpMethod.Companion.Delete
@@ -208,39 +209,45 @@ class KouchDatabaseService(
                     body = TextContent(
                         text = body,
                         contentType = ContentType.Application.Json
-                    )
+                    ),
+                    timeout = HttpTimeout.INFINITE_TIMEOUT_MS
                 )
                 requestStatement.execute { response ->
                     val channel = response.receive<ByteReadChannel>()
                     channel
                         .readByLineAsFlow()
                         .collect { line ->
-
+                            println(line)
                             val responseJson = context.systemJson.parseToJsonElement(line).jsonObject
                             if (responseJson["error"] != null) {
                                 val error = context.systemJson.decodeFromJsonElement<ErrorResponse>(responseJson)
                                 IllegalStateException("$error").printStackTrace()
                             } else {
-                                val result = context.systemJson.decodeFromJsonElement<KouchDatabase.ChangesResponse.RawResult>(responseJson)
-                                val doc = if (request.include_docs && !result.deleted) {
-                                    val jsonDoc = result.doc!!
-
-                                    val className = jsonDoc[context.classField]?.jsonPrimitive?.content ?: return@collect
-                                    val kClass = classNameToKClass.getValue(className)
-                                    context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
+                                if (responseJson.containsKey("last_seq")) {
+                                    val result = context.systemJson.decodeFromJsonElement<KouchDatabase.ChangesResponse.RawLastResult>(responseJson)
+                                    println(result)
                                 } else {
-                                    null
-                                }
-                                since = result.seq
-                                listener(
-                                    KouchDatabase.ChangesResponse.Result(
-                                        changes = result.changes,
-                                        id = result.id,
-                                        seq = result.seq,
-                                        deleted = result.deleted,
-                                        doc = doc
+                                    val result = context.systemJson.decodeFromJsonElement<KouchDatabase.ChangesResponse.RawResult>(responseJson)
+                                    val doc = if (request.include_docs && !result.deleted) {
+                                        val jsonDoc = result.doc!!
+
+                                        val className = jsonDoc[context.classField]?.jsonPrimitive?.content ?: return@collect
+                                        val kClass = classNameToKClass.getValue(className)
+                                        context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
+                                    } else {
+                                        null
+                                    }
+                                    since = result.seq
+                                    listener(
+                                        KouchDatabase.ChangesResponse.Result(
+                                            changes = result.changes,
+                                            id = result.id,
+                                            seq = result.seq,
+                                            deleted = result.deleted,
+                                            doc = doc
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                 }
