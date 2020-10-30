@@ -35,7 +35,7 @@ class KouchDocument {
 
         val error: String? = null,
         val reason: String? = null,
-    ) : KouchResponse {
+    ) {
         @Serializable
         class Attachments
 
@@ -63,7 +63,7 @@ class KouchDocument {
         val rev: String? = null,
         val error: String? = null,
         val reason: String? = null,
-    ) : KouchResponse
+    )
 
     @Serializable
     class DeleteQueryParameters(
@@ -81,5 +81,5 @@ class KouchDocument {
         val rev: String? = null,
         val error: String? = null,
         val reason: String? = null,
-    ) : KouchResponse
+    )
 }

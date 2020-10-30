@@ -215,26 +215,33 @@ class KouchDatabaseService(
                     channel
                         .readByLineAsFlow()
                         .collect { line ->
-                            val result = context.systemJson.decodeFromString<KouchDatabase.ChangesResponse.RawResult>(line)
-                            val doc = if (request.include_docs && !result.deleted) {
-                                val jsonDoc = result.doc!!
 
-                                val className = jsonDoc[context.classField]?.jsonPrimitive?.content ?: return@collect
-                                val kClass = classNameToKClass.getValue(className)
-                                context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
+                            val responseJson = context.systemJson.parseToJsonElement(line).jsonObject
+                            if (responseJson["error"] != null) {
+                                val error = context.systemJson.decodeFromJsonElement<ErrorResponse>(responseJson)
+                                println(error)
                             } else {
-                                null
-                            }
-                            since = result.seq
-                            listener(
-                                KouchDatabase.ChangesResponse.Result(
-                                    changes = result.changes,
-                                    id = result.id,
-                                    seq = result.seq,
-                                    deleted = result.deleted,
-                                    doc = doc
+                                val result = context.systemJson.decodeFromJsonElement<KouchDatabase.ChangesResponse.RawResult>(responseJson)
+                                val doc = if (request.include_docs && !result.deleted) {
+                                    val jsonDoc = result.doc!!
+
+                                    val className = jsonDoc[context.classField]?.jsonPrimitive?.content ?: return@collect
+                                    val kClass = classNameToKClass.getValue(className)
+                                    context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
+                                } else {
+                                    null
+                                }
+                                since = result.seq
+                                listener(
+                                    KouchDatabase.ChangesResponse.Result(
+                                        changes = result.changes,
+                                        id = result.id,
+                                        seq = result.seq,
+                                        deleted = result.deleted,
+                                        doc = doc
+                                    )
                                 )
-                            )
+                            }
                         }
                 }
             } catch (t: Throwable) {

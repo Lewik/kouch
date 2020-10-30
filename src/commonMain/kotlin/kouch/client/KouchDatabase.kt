@@ -8,16 +8,6 @@ import kouch.KouchEntity
 import kouch.Settings
 
 class KouchDatabase {
-//
-//    @Serializable
-//    data class StandardResponse(
-//        val ok: Boolean? = null,
-//        val id: String? = null,
-//        val rev: String? = null,
-//        val error: String? = null,
-//        val reason: String? = null
-//    )
-
     @Serializable
     data class GetResponse(
         val cluster: Cluster,
@@ -31,7 +21,7 @@ class KouchDatabase {
         val sizes: Sizes,
         val update_seq: String,
         val props: Props,
-    ) : KouchResponse {
+    ) {
         @Serializable
         data class Cluster(
             val n: Int,
@@ -96,9 +86,9 @@ class KouchDatabase {
         val source_last_seq: String? = null,
         val replication_id_version: Int? = null,
         val history: List<HistoryResponse>? = null,
+        val _local_id: String? = null,
         val error: String? = null,
         val reason: String? = null,
-        val _local_id: String? = null,
     )
 
     @Serializable
@@ -186,6 +176,5 @@ class KouchDatabase {
             val deleted: Boolean = false,
             val doc: JsonObject? = null
         )
-
     }
 }

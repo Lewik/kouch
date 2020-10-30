@@ -63,10 +63,6 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
 
     @Serializable
     class IntermediateViewResponse(
-//        val id: String? = null,
-//        val rev: String? = null,
-//        val error: String? = null,
-//        val reason: String? = null,
         val offset: Int,
         val rows: List<ViewRow>,
         val total_rows: Int,
