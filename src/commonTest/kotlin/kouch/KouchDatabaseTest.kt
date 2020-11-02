@@ -206,6 +206,7 @@ internal class KouchDatabaseTest {
         insertDocs(200)
         delay(80000)
 
+        //TODO how to deal with this exception?
         job.cancelAndJoin()
 
         println(results.map { it.id }.sorted())

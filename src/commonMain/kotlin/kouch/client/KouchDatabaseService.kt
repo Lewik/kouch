@@ -217,7 +217,7 @@ class KouchDatabaseService(
                     channel
                         .readByLineAsFlow()
                         .collect { line ->
-                            println(line)
+//                            println(line)
                             val responseJson = context.systemJson.parseToJsonElement(line).jsonObject
                             if (responseJson["error"] != null) {
                                 val error = context.systemJson.decodeFromJsonElement<ErrorResponse>(responseJson)

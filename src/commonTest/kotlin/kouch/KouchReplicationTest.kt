@@ -9,7 +9,7 @@ import kouch.client.KouchDatabaseService
 import kotlin.test.*
 
 internal class KouchReplicationTest {
-    private val replicationDelay = 5_000L
+    private val replicationDelay = 10_000L
 
     @KouchEntityMetadata("test_entity", "test_entity")
     @Serializable
