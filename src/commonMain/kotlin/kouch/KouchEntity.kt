@@ -3,8 +3,13 @@ package kouch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
-inline class DatabaseName(val value: String)
-inline class ClassName(val value: String)
+inline class DatabaseName(val value: String) {
+    override fun toString() = value
+}
+
+inline class ClassName(val value: String) {
+    override fun toString() = value
+}
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
