@@ -47,7 +47,9 @@ class KouchDatabaseService(
     }
 
 
-    suspend fun isExist(db: DatabaseName): Boolean {
+    suspend fun isExist(
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+    ): Boolean {
         val response = context.request(method = Head, path = db.value)
         val text = response.readText()
         return when (response.status) {
@@ -57,7 +59,9 @@ class KouchDatabaseService(
         }
     }
 
-    suspend fun get(db: DatabaseName): KouchDatabase.GetResponse? {
+    suspend fun get(
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+    ): KouchDatabase.GetResponse? {
         val response = context.request(method = Get, path = db.value)
         val text = response.readText()
         return when (response.status) {
@@ -67,7 +71,9 @@ class KouchDatabaseService(
         }
     }
 
-    suspend fun getAll(request: KouchServer.AllDbsRequest = KouchServer.AllDbsRequest()): List<DatabaseName> {
+    suspend fun getAll(
+        request: KouchServer.AllDbsRequest = KouchServer.AllDbsRequest()
+    ): List<DatabaseName> {
         val response = context.request(
             method = Get,
             path = "_all_dbs",
@@ -82,7 +88,12 @@ class KouchDatabaseService(
         }
     }
 
-    suspend fun create(db: DatabaseName, partitions: Int? = null, replicas: Int? = null, partitioned: Boolean = false) {
+    suspend fun create(
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        partitions: Int? = null,
+        replicas: Int? = null,
+        partitioned: Boolean = false
+    ) {
 
         val response = context.request(
             method = Put,
@@ -159,7 +170,9 @@ class KouchDatabaseService(
             .forEach { createForEntity(it, partitions, replicas, partitioned) }
     }
 
-    suspend fun delete(db: DatabaseName) {
+    suspend fun delete(
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+    ) {
         val response = context.request(method = Delete, path = db.value)
         val text = response.readText()
         when (response.status) {
@@ -179,7 +192,7 @@ class KouchDatabaseService(
 
     suspend fun changesContinuous(
         scope: CoroutineScope,
-        db: DatabaseName,
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
         request: KouchDatabase.ChangesRequest,
         reconnectionDelay: Duration = 2.seconds,
         entities: List<KClass<out KouchEntity>>,

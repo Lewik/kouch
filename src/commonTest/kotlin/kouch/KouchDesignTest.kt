@@ -69,7 +69,7 @@ internal class KouchDesignTest {
         assertEquals(5, getResult.views!!.size)
 
         val deleteResult = kouch.design
-            .delete(entity = getResult, databaseName = DatabaseName("test_entity"))()
+            .delete(entity = getResult, db = DatabaseName("test_entity"))()
 
         assertEquals(true, deleteResult.ok)
 
@@ -88,7 +88,7 @@ internal class KouchDesignTest {
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
             id = "testdes",
-            viewName = "all"
+            view = "all"
         ).result.also {
             assertEquals(8, it.size)
             assertEquals("ASD", it.firstOrNull()?.label)
@@ -103,7 +103,7 @@ internal class KouchDesignTest {
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
             id = "testdes",
-            viewName = "asd_only"
+            view = "asd_only"
         ).result.also {
             assertEquals(1, it.size)
             assertEquals("ASD", it.singleOrNull()?.label)
@@ -116,7 +116,7 @@ internal class KouchDesignTest {
 
         kouch.design.getView<TestEntity, TestEntity>(
             id = "testdes",
-            viewName = "all"
+            view = "all"
         ).result.also {
             assertEquals(8, it.size)
             assertEquals("ASD", it.firstOrNull()?.label)
@@ -131,7 +131,7 @@ internal class KouchDesignTest {
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
             id = "testdes",
-            viewName = "allnull",
+            view = "allnull",
             request = ViewRequest(
                 include_docs = true
             )
@@ -149,7 +149,7 @@ internal class KouchDesignTest {
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
             id = "testdes",
-            viewName = "allnull",
+            view = "allnull",
             request = ViewRequest()
         ).result.also { list ->
             assertEquals(8, list.size)
@@ -164,7 +164,7 @@ internal class KouchDesignTest {
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
             id = "testdes",
-            viewName = "all",
+            view = "all",
             request = ViewRequest(descending = true)
         ).result.also {
             assertEquals(8, it.size)
@@ -182,7 +182,7 @@ internal class KouchDesignTest {
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
             id = "testdes",
-            viewName = "all",
+            view = "all",
             request = ViewRequest(
                 key = JsonPrimitive("label35")
             )
@@ -199,7 +199,7 @@ internal class KouchDesignTest {
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
             id = "testdes",
-            viewName = "by_label_and_string",
+            view = "by_label_and_string",
             request = ViewRequest(
                 key = JsonArray(listOf(JsonPrimitive("label1"), JsonPrimitive("string3")))
             )
@@ -217,7 +217,7 @@ internal class KouchDesignTest {
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
             id = "testdes",
-            viewName = "by_label_and_string",
+            view = "by_label_and_string",
             request = ViewRequest(
                 key = JsonArray(listOf(JsonPrimitive("notExistingKey"), JsonPrimitive("string3")))
             )
@@ -233,7 +233,7 @@ internal class KouchDesignTest {
         kouch.design.getView<JsonElement, TestEntity>(
 //            db = DatabaseName("test_entity"),
             id = "testdes",
-            viewName = "by_label_and_string",
+            view = "by_label_and_string",
             request = ViewRequest(
                 key = JsonArray(listOf(JsonPrimitive("notExistingKey"), JsonPrimitive("notExistingKey")))
             )
@@ -249,7 +249,7 @@ internal class KouchDesignTest {
         kouch.design.getView<TestEntity>(
             db = DatabaseName("test_entity"),
             id = "testdes",
-            viewName = "all",
+            view = "all",
             request = ViewRequest(
                 limit = 2,
                 skip = 1
@@ -301,8 +301,8 @@ internal class KouchDesignTest {
         )
         val updateResult = kouch.design
             .upsert(
-                designDocument = design,
-                databaseName = DatabaseName("test_entity")
+                ddoc = design,
+                db = DatabaseName("test_entity")
             )
             .getResponse()
         assertTrue(updateResult.ok ?: false)

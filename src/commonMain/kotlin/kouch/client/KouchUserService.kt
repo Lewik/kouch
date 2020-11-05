@@ -21,8 +21,9 @@ import kouch.*
 class KouchUserService(val context: Context) {
 
 
-
-    suspend fun create(request: KouchUser.Request): KouchUser.StandardResponse {
+    suspend fun create(
+        request: KouchUser.Request
+    ): KouchUser.StandardResponse {
         val bodyJson = context.systemJson.encodeToString(KouchUser.Request.serializer(), request)
 
         val response = context.request(
@@ -52,7 +53,9 @@ class KouchUserService(val context: Context) {
         }
     }
 
-    suspend fun delete(user: KouchUser.User): KouchUser.StandardResponse {
+    suspend fun delete(
+        user: KouchUser.User
+    ): KouchUser.StandardResponse {
         when {
             user.name.isBlank() -> throw BlankUserNameException(user.toString())
             user.revision == null -> throw RevisionIsNullException(user.toString())
@@ -84,7 +87,10 @@ class KouchUserService(val context: Context) {
         }
     }
 
-    suspend fun delete(id: String, revision: String): KouchUser.StandardResponse {
+    suspend fun delete(
+        id: String,
+        revision: String
+    ): KouchUser.StandardResponse {
         val response = context.request(
             method = Delete,
             path = "_users/${id}",

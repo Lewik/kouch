@@ -79,50 +79,50 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
 
     suspend fun getWithResponse(
         id: String,
-        db: DatabaseName,
-        getQueryParameters: KouchDocument.GetQueryParameters? = null,
-    ) = kouchDocumentService.getWithResponse<KouchDesign>(id, db, getQueryParameters)
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        parameters: KouchDocument.GetQueryParameters? = null,
+    ) = kouchDocumentService.getWithResponse<KouchDesign>(id, db, parameters)
 
     suspend fun upsert(
-        designDocument: KouchDesign,
-        databaseName: DatabaseName,
-        putQueryParameters: KouchDocument.PutQueryParameters? = null,
+        ddoc: KouchDesign,
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        parameters: KouchDocument.PutQueryParameters? = null,
     ) = kouchDocumentService.upsert(
-        entity = designDocument,
+        entity = ddoc,
         metadata = KouchMetadata.Design(
-            databaseName = databaseName
+            databaseName = db
         ),
-        putQueryParameters = putQueryParameters
+        parameters = parameters
     )
 
     suspend inline fun delete(
         entity: KouchDesign,
         batch: Boolean = false,
-        databaseName: DatabaseName,
-    ) = kouchDocumentService.delete(entity, batch, databaseName)
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+    ) = kouchDocumentService.delete(entity, batch, db)
 
 
     suspend inline fun <reified RESULT : Any> getView(
-        db: DatabaseName,
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
         id: String,
-        viewName: String,
+        view: String,
         request: ViewRequest = ViewRequest(),
     ) = getView(
         db = db,
         id = id,
-        viewName = viewName,
+        view = view,
         request = request,
         resultKClass = RESULT::class
     )
 
     suspend inline fun <reified RESULT : Any, reified SOURCE_ENTITY : KouchEntity> getView(
         id: String,
-        viewName: String,
+        view: String,
         request: ViewRequest = ViewRequest(),
     ) = getView(
         db = context.getMetadata(SOURCE_ENTITY::class).databaseName,
         id = id,
-        viewName = viewName,
+        view = view,
         request = request,
         resultKClass = RESULT::class
     )
@@ -133,16 +133,16 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     )
 
     suspend fun <RESULT : Any> getView(
-        db: DatabaseName,
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
         id: String,
-        viewName: String,
+        view: String,
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>,
     ): Result<RESULT?> {
 
         val response = context.request(
             method = HttpMethod.Post,
-            path = "${db.value}/_design/$id/_view/$viewName",
+            path = "${db.value}/_design/$id/_view/$view",
             body = TextContent(
                 text = context.systemJson.encodeToString(request),
                 contentType = ContentType.Application.Json

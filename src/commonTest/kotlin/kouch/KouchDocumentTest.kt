@@ -33,7 +33,7 @@ internal class KouchDocumentTest {
 
     @Test
     fun notExistedId() = runTest {
-        val document = kouch.doc.get<TestEntity>("notExistedId1",)
+        val document = kouch.doc.get<TestEntity>("notExistedId1")
         assertNull(document)
     }
 
@@ -78,7 +78,7 @@ internal class KouchDocumentTest {
         kouch.db.createForEntity(entity)
         val insertResult = kouch.doc.insert(entity).getUpdatedEntity()
         val entity2 = insertResult.copy(label = "label2")
-        val (updateResponse,updatedEntity) = kouch.doc.upsert(entity2).getResponseAndUpdatedEntity()
+        val (updateResponse, updatedEntity) = kouch.doc.upsert(entity2).getResponseAndUpdatedEntity()
 
         assertNotNull(updateResponse.ok)
         assertTrue(updateResponse.ok!!)
@@ -101,7 +101,7 @@ internal class KouchDocumentTest {
 
         assertTrue(result3.ok ?: false)
 
-        val entity4 = kouch.doc.get<TestEntity>(entity1.id,)
+        val entity4 = kouch.doc.get<TestEntity>(entity1.id)
         assertNull(entity4)
     }
 
@@ -143,7 +143,7 @@ internal class KouchDocumentTest {
 
         val entityInserted = kouch.doc.insert(entity).getUpdatedEntity()
 
-        val entityReturned = kouch.doc.get<TestEntity>(entityInserted.id,)
+        val entityReturned = kouch.doc.get<TestEntity>(entityInserted.id)
         assertNotNull(entityReturned)
         assertEquals(entityReturned, entityInserted)
     }
@@ -161,7 +161,8 @@ internal class KouchDocumentTest {
         val entity2 = insertedEntity.copy(label = "label2")
         val updatedEntity = kouch.doc.update(entity2).getUpdatedEntity()
         val revisionsResult = kouch.doc.getWithResponse<TestEntity>(
-            updatedEntity.id, getQueryParameters = KouchDocument.GetQueryParameters(
+            id = updatedEntity.id,
+            parameters = KouchDocument.GetQueryParameters(
                 revs = true
             )
         )

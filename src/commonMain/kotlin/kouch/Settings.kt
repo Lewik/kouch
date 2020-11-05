@@ -26,4 +26,6 @@ data class Settings(
         object AutoGenerate : DatabaseNaming()
         class Predefined(val databaseName: DatabaseName) : DatabaseNaming()
     }
+
+    fun getPredefinedDatabaseName() = (databaseNaming as? DatabaseNaming.Predefined)?.databaseName
 }
