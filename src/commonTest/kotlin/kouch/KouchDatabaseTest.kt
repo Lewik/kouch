@@ -13,6 +13,7 @@ import kotlin.test.*
 internal class KouchDatabaseTest {
 
     private val kouch = KouchClientImpl(KouchTestHelper.defaultContext)
+    private val perEntityDbKouch = KouchClientImpl(KouchTestHelper.perEntityDbContext)
 
     @BeforeTest
     fun beforeTest() = runTest {
@@ -130,12 +131,28 @@ internal class KouchDatabaseTest {
         kouch.db.createForEntity(kClass = TestEntity1::class)
         kouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 1, it.size)
-            assertTrue(DatabaseName("test_entity1") in it)
+            assertTrue(kouch.context.getMetadata(TestEntity1::class).databaseName in it)
         }
     }
 
     @Test
     fun createForEntity1() = runTest {
+        perEntityDbKouch.db.createForEntity(
+            TestEntity1(
+                id = "id",
+                revision = null,
+                string = "string",
+                label = "label"
+            )
+        )
+        perEntityDbKouch.db.getAll().also {
+            assertEquals(KouchDatabaseService.systemDbs.size + 1, it.size)
+            assertTrue(DatabaseName("test_entity1") in it)
+        }
+    }
+
+    @Test
+    fun createForEntity11() = runTest {
         kouch.db.createForEntity(
             TestEntity1(
                 id = "id",
@@ -146,14 +163,14 @@ internal class KouchDatabaseTest {
         )
         kouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 1, it.size)
-            assertTrue(DatabaseName("test_entity1") in it)
+            assertTrue(kouch.context.getMetadata(TestEntity1::class).databaseName in it)
         }
     }
 
     @Test
     fun createForEntities() = runTest {
-        kouch.db.createForEntities(kClasses = listOf(TestEntity1::class, TestEntity2::class))
-        kouch.db.getAll().also {
+        perEntityDbKouch.db.createForEntities(kClasses = listOf(TestEntity1::class, TestEntity2::class))
+        perEntityDbKouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 2, it.size)
             assertTrue(DatabaseName("test_entity1") in it)
             assertTrue(DatabaseName("test_entity2") in it)
@@ -162,16 +179,16 @@ internal class KouchDatabaseTest {
 
     @Test
     fun createForEntitiesIfNotExists() = runTest {
-        kouch.db.createForEntities(kClasses = listOf(TestEntity1::class, TestEntity2::class))
-        kouch.db.getAll().also {
+        perEntityDbKouch.db.createForEntities(kClasses = listOf(TestEntity1::class, TestEntity2::class))
+        perEntityDbKouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 2, it.size)
             assertTrue(DatabaseName("test_entity1") in it)
             assertTrue(DatabaseName("test_entity2") in it)
             assertTrue(DatabaseName("test_entity3") !in it)
         }
 
-        kouch.db.createForEntitiesIfNotExists(kClasses = listOf(TestEntity2::class, TestEntity3::class))
-        kouch.db.getAll().also {
+        perEntityDbKouch.db.createForEntitiesIfNotExists(kClasses = listOf(TestEntity2::class, TestEntity3::class))
+        perEntityDbKouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 3, it.size)
             assertTrue(DatabaseName("test_entity1") in it)
             assertTrue(DatabaseName("test_entity2") in it)
@@ -189,7 +206,7 @@ internal class KouchDatabaseTest {
 
         val job = kouch.db.changesContinuous(
             scope = GlobalScope,
-            db = DatabaseName("test_entity1"),
+            db = kouch.context.getMetadata(TestEntity1::class).databaseName,
             request = KouchDatabase.ChangesRequest(
                 include_docs = true
             ),
