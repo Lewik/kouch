@@ -207,7 +207,7 @@ class KouchDatabaseService(
                     .jsonObject
                     .plus("feed" to JsonPrimitive("continuous"))
                     .minus("doc_ids")
-                    .let { context.systemJson.encodeToUrl(JsonObject(it)) }
+                    .let { context.systemJson.encodeToUrl(JsonObject(it), JsonObject::class) }
 
                 val bodyMap = if (request.doc_ids.isEmpty()) {
                     emptyMap()

@@ -37,7 +37,7 @@ class KouchDocumentService(
         db: DatabaseName = context.getMetadata(T::class).databaseName,
         parameters: KouchDocument.GetQueryParameters? = null
     ): T? {
-        val queryString = context.systemQueryParametersJson.encodeNullableToUrl(parameters)
+        val queryString = context.systemQueryParametersJson.encodeNullableToUrl(parameters, KouchDocument.GetQueryParameters::class)
 
         val response = context.request(
             method = Get,
@@ -66,7 +66,7 @@ class KouchDocumentService(
         db: DatabaseName = context.getMetadata(T::class).databaseName,
         parameters: KouchDocument.GetQueryParameters? = null
     ): Pair<KouchDocument.GetResponse, T?> {
-        val queryString = context.systemQueryParametersJson.encodeNullableToUrl(parameters)
+        val queryString = context.systemQueryParametersJson.encodeNullableToUrl(parameters, KouchDocument.GetQueryParameters::class)
 
         val response = context.request(
             method = Get,
@@ -143,18 +143,18 @@ class KouchDocumentService(
         metadata: KouchMetadata = context.getMetadata(T::class),
         parameters: KouchDocument.PutQueryParameters? = null
     ): PutResult<T> {
-        val queryString = context.systemQueryParametersJson.encodeNullableToUrl(parameters)
+        val queryString = context.systemQueryParametersJson.encodeNullableToUrl(parameters, KouchDocument.PutQueryParameters::class)
 
         val response = when (metadata) {
             is KouchMetadata.Entity -> context.request(
                 method = Put,
                 path = "${metadata.databaseName.value}/$pathPart${entity.id}$queryString",
-                body = context.encodeToKouchEntity(entity, metadata.className)
+                body = context.encodeToKouchEntity(entity, T::class, metadata.className)
             )
             is KouchMetadata.Design -> context.request(
                 method = Put,
                 path = "${metadata.databaseName.value}/$pathPart${entity.id}$queryString",
-                body = context.encodeToKouchDesign(entity)
+                body = context.encodeToKouchDesign(entity, T::class)
             )
         }
 
@@ -233,7 +233,7 @@ class KouchDocumentService(
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
         parameters: KouchDocument.DeleteQueryParameters
     ): () -> KouchDocument.DeleteResponse {
-        val queryString = context.systemQueryParametersJson.encodeToUrl(parameters)
+        val queryString = context.systemQueryParametersJson.encodeToUrl(parameters, KouchDocument.DeleteQueryParameters::class)
         val response = context.request(
             method = Delete,
             path = "${db.value}/$id$queryString",

@@ -39,7 +39,7 @@ internal class KotlinSerializerTest {
         val json =
             """{"_id":"theId","_rev":"theRevision","someData":"someData","someDefData":"theDefData2","class__":"test-data"}"""
 
-        val str = context.encodeToKouchEntity(data, context.getMetadata(data::class).className)
+        val str = context.encodeToKouchEntity(data, TestData::class, context.getMetadata(data::class).className)
         assertEquals(json, str)
     }
 
@@ -52,7 +52,7 @@ internal class KotlinSerializerTest {
         )
         val json = """{"_id":"theId","someData":"someData","someDefData":"theDefData2","class__":"test-data"}"""
 
-        val str = context.encodeToKouchEntity(data, context.getMetadata(data::class).className)
+        val str = context.encodeToKouchEntity(data, TestData::class, context.getMetadata(data::class).className)
         assertEquals(json, str)
     }
 
@@ -67,7 +67,7 @@ internal class KotlinSerializerTest {
         val json =
             """{"_id":"theId","_rev":"theRevision","someData":"someData","someDefData":"theDefData","class__":"test-data"}"""
 
-        val str = context.encodeToKouchEntity(data, context.getMetadata(data::class).className)
+        val str = context.encodeToKouchEntity(data, TestData::class, context.getMetadata(data::class).className)
         assertEquals(json, str)
     }
 
@@ -80,7 +80,7 @@ internal class KotlinSerializerTest {
         )
         val json = """{"_id":"theId","someData":"someData","someDefData":"theDefData","class__":"test-data"}"""
 
-        val str = context.encodeToKouchEntity(data, context.getMetadata(data::class).className)
+        val str = context.encodeToKouchEntity(data, TestData::class, context.getMetadata(data::class).className)
         assertEquals(json, str)
     }
 

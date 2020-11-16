@@ -196,6 +196,7 @@ internal class KouchDatabaseTest {
         }
     }
 
+    @Ignore
     @Test
     fun changesTest() = runTest {
         kouch.db.createForEntity(TestEntity1::class)

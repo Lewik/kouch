@@ -6,10 +6,11 @@ import kotlinx.serialization.serializer
 import kotlin.reflect.KClass
 
 
-inline fun <reified T : KouchEntity> Context.encodeToKouchEntity(
+fun <T : KouchEntity> Context.encodeToKouchEntity(
     entity: T,
+    kClass: KClass<T>,
     className: ClassName,
-) = entityJson.encodeToString(entityJson.encodeToJsonElement(entity)
+) = entityJson.encodeToString(entityJson.encodeToJsonElement(kClass.serializer(), entity)
     .jsonObject
     .mapNotNull { (key, value) ->
         when (key) {
@@ -26,9 +27,10 @@ inline fun <reified T : KouchEntity> Context.encodeToKouchEntity(
     .toMap()
     .let { JsonObject(it) })
 
-inline fun <reified T : KouchEntity> Context.encodeToKouchDesign(
+fun <T : KouchEntity> Context.encodeToKouchDesign(
     entity: T,
-) = designJson.encodeToString(designJson.encodeToJsonElement(entity)
+    kClass: KClass<T>,
+) = designJson.encodeToString(designJson.encodeToJsonElement(kClass.serializer(), entity)
     .jsonObject
     .mapNotNull { (key, value) ->
         when (key) {
@@ -60,10 +62,16 @@ fun <T : Any> Context.decodeKouchEntityFromJsonElement(jsonElement: JsonElement,
 )
 
 
-inline fun <reified T : Any> Json.encodeNullableToUrl(data: T?) = if (data == null) "" else encodeToUrl(data)
+fun <T : Any> Json.encodeNullableToUrl(
+    data: T?,
+    kClass: KClass<T>,
+) = if (data == null) "" else encodeToUrl(data, kClass)
 
-inline fun <reified T : Any> Json.encodeToUrl(data: T): String {
-    val string = encodeToJsonElement(data)
+fun <T : Any> Json.encodeToUrl(
+    data: T,
+    kClass: KClass<T>,
+): String {
+    val string = encodeToJsonElement(kClass.serializer(), data)
         .jsonObject
         .entries
         .joinToString(separator = "&") { "${it.key}=${it.value.jsonPrimitive.content}" }
