@@ -10,22 +10,25 @@ fun <T : KouchEntity> Context.encodeToKouchEntity(
     entity: T,
     kClass: KClass<T>,
     className: ClassName,
-) = entityJson.encodeToString(entityJson.encodeToJsonElement(kClass.serializer(), entity)
-    .jsonObject
-    .mapNotNull { (key, value) ->
-        when (key) {
-            "id" -> "_id" to value
-            "revision" -> if (value.jsonPrimitive.contentOrNull == null) {
-                null
-            } else {
-                "_rev" to value
-            }
-            else -> key to value
-        }
-    }
-    .plus(classField to JsonPrimitive(className.value))
-    .toMap()
-    .let { JsonObject(it) })
+) = entityJson.encodeToString(encodeToKouchEntityJson(kClass, entity, className))
+
+fun <T : KouchEntity> Context.encodeToKouchEntityJson(kClass: KClass<T>, entity: T, className: ClassName) =
+    entityJson.encodeToJsonElement(kClass.serializer(), entity)
+           .jsonObject
+           .mapNotNull { (key, value) ->
+               when (key) {
+                   "id" -> "_id" to value
+                   "revision" -> if (value.jsonPrimitive.contentOrNull == null) {
+                       null
+                   } else {
+                       "_rev" to value
+                   }
+                   else -> key to value
+               }
+           }
+           .plus(classField to JsonPrimitive(className.value))
+           .toMap()
+           .let { JsonObject(it) }
 
 fun <T : KouchEntity> Context.encodeToKouchDesign(
     entity: T,

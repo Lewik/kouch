@@ -2,6 +2,7 @@ package kouch.client
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kouch.DatabaseName
 import kouch.KouchEntity
@@ -176,10 +177,57 @@ class KouchDatabase {
             val deleted: Boolean = false,
             val doc: JsonObject? = null
         )
+
         @Serializable
         data class RawLastResult(
             val last_seq: String,
             val pending: Int
         )
     }
+
+    @Serializable
+    data class BulkGetRawResult(
+        val results: List<Result>
+    ) {
+        @Serializable
+        data class Result(
+            val id: String,
+            val docs: List<Doc>,
+        ) {
+            @Serializable
+            data class Doc(
+                val ok: JsonObject? = null,
+                val error: Error? = null
+            ) {
+                @Serializable
+                data class Error(
+                    val id: String,
+                    val rev: String,
+                    val error: String,
+                    val reason: String,
+                )
+            }
+        }
+    }
+
+    @Serializable
+    data class BulkGetResult<T : KouchEntity>(
+        val entities: List<T>,
+        val errors: List<BulkGetRawResult.Result.Doc.Error>
+    )
+
+    @Serializable
+    data class BulkUpsertRequest(
+        val docs: JsonArray,
+        val new_edits: Boolean = true
+    )
+
+    @Serializable
+    data class BulkUpsertResponse(
+        val id: String,
+        val rev: String? = null,
+        val ok: Boolean? = null,
+        val error: String? = null,
+        val reason: String? = null
+    )
 }

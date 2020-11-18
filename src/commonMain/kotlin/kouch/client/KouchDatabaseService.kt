@@ -17,6 +17,7 @@ import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.PreconditionFailed
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
+import io.ktor.http.HttpStatusCode.Companion.UnsupportedMediaType
 import io.ktor.http.content.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
@@ -166,8 +167,10 @@ class KouchDatabaseService(
     ) {
         val existedDatabase = getAll()
         kClasses
-            .filter { context.getMetadata(it).databaseName !in existedDatabase }
-            .forEach { createForEntity(it, partitions, replicas, partitioned) }
+            .map { context.getMetadata(it).databaseName }
+            .toSet()
+            .filter { it !in existedDatabase }
+            .forEach { create(it, partitions, replicas, partitioned) }
     }
 
     suspend fun delete(
@@ -270,6 +273,145 @@ class KouchDatabaseService(
             }
         }
     }
+
+    suspend inline fun <reified T : KouchEntity> bulkGet(
+        ids: Iterable<String>,
+        db: DatabaseName = context.getMetadata(T::class).databaseName
+    ): KouchDatabase.BulkGetResult<T> {
+        val ret = bulkGet(
+            db = db,
+            ids = ids,
+            entityClasses = listOf(T::class)
+        )
+        val entities = ret.entities.filterIsInstance<T>()
+        if (entities.size != ret.entities.size) {
+            throw IllegalArgumentException("Not all entities is ${T::class}, $ret")
+        }
+        return KouchDatabase.BulkGetResult(entities, ret.errors)
+    }
+
+    suspend fun bulkGet(
+        ids: Iterable<String>,
+        entityClasses: List<KClass<out KouchEntity>>,
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+    ): KouchDatabase.BulkGetResult<KouchEntity> {
+        val classNameToKClass = entityClasses.associateBy { context.getMetadata(it).className.value }
+        val body = buildJsonObject {
+            put(
+                key = "docs",
+                element = buildJsonArray {
+                    ids.forEach { add(buildJsonObject { put("id", it) }) }
+                }
+            )
+        }
+
+        val response = context.request(
+            method = Post,
+            path = "${db.value}/_bulk_get",
+            body = TextContent(
+                text = context.systemJson.encodeToString(body),
+                contentType = ContentType.Application.Json
+            ),
+        )
+
+
+        val text = response.readText()
+        return when (response.status) {
+            OK
+            -> {
+                val responseJson = context.systemJson.parseToJsonElement(text).jsonObject
+                val result = context.systemJson.decodeFromJsonElement<KouchDatabase.BulkGetRawResult>(responseJson)
+
+                val results = result.results
+                    .mapNotNull {
+                        val doc = it.docs.single()
+                        when {
+                            doc.ok != null -> {
+                                val jsonDoc = doc.ok
+                                if (jsonDoc["_deleted"]?.jsonPrimitive?.boolean == true) {
+                                    null
+                                } else {
+                                    val className = jsonDoc[context.classField]?.jsonPrimitive?.content
+                                        ?: throw IllegalArgumentException("Can't find classField value $jsonDoc")
+                                    val kClass = classNameToKClass.getValue(className)
+                                    context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
+                                }
+                            }
+                            doc.error != null -> doc.error
+                            else -> throw IllegalArgumentException("ok or error should be not null")
+                        }
+                    }
+
+                val entities = results.filterIsInstance<KouchEntity>()
+                val errors = results.filterIsInstance<KouchDatabase.BulkGetRawResult.Result.Doc.Error>()
+                if (results.any { it !is KouchEntity && it !is KouchDatabase.BulkGetRawResult.Result.Doc.Error }) {
+                    throw IllegalArgumentException("Unsupported results: $results")
+                }
+                KouchDatabase.BulkGetResult(entities, errors)
+            }
+            BadRequest,
+            Unauthorized,
+            NotFound,
+            UnsupportedMediaType
+            -> throw KouchDocumentException("$response: $text")
+            else -> throw UnsupportedStatusCodeException("$response: $text")
+        }
+    }
+
+
+    suspend inline fun <reified T : KouchEntity> bulkUpsert(
+        entities: Iterable<T> = emptyList(),
+        entitiesToDelete: Iterable<KouchEntity> = emptyList()
+    ) = bulkUpsert(
+        entities = entities,
+        entitiesToDelete = entitiesToDelete,
+        kClass = T::class,
+        db = context.getMetadata(T::class).databaseName
+    )
+
+
+    suspend fun <T : KouchEntity> bulkUpsert(
+        entities: Iterable<T> = emptyList(),
+        entitiesToDelete: Iterable<KouchEntity> = emptyList(),
+        kClass: KClass<T>,
+        db: DatabaseName
+    ): List<KouchDatabase.BulkUpsertResponse> {
+
+        val className = context.getMetadata(kClass).className
+        val jsonArray = buildJsonArray {
+            entities.forEach { add(element = context.encodeToKouchEntityJson(kClass, it, className)) }
+            entitiesToDelete.forEach {
+                add(element = buildJsonObject {
+                    put("_id", it.id)
+                    put("_rev", it.revision)
+                    put("_deleted", true)
+                })
+            }
+        }
+
+        val request = KouchDatabase.BulkUpsertRequest(
+            docs = jsonArray
+        )
+
+        val response = context.request(
+            method = Post,
+            path = "${db.value}/_bulk_docs",
+            body = TextContent(
+                text = context.systemJson.encodeToString(request),
+                contentType = ContentType.Application.Json
+            ),
+        )
+        val text = response.readText()
+        return when (response.status) {
+            Created
+            -> context.systemJson.decodeFromString(text)
+            BadRequest,
+            NotFound
+            -> throw KouchDocumentException("$response: $text")
+            else -> throw UnsupportedStatusCodeException("$response: $text")
+        }
+    }
+
 
     private suspend fun ByteReadChannel.readByLineAsFlow() = channelFlow {
 
