@@ -25,6 +25,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
@@ -232,9 +234,10 @@ class KouchDatabaseService(
                     val channel = response.receive<ByteReadChannel>()
                     channel
                         .readByLineAsFlow()
-                        .collect { line ->
+                        .map { context.systemJson.parseToJsonElement(it).jsonObject }
+                        .takeWhile { !it.containsKey("last_seq") }
+                        .collect { responseJson ->
 //                            println(line)
-                            val responseJson = context.systemJson.parseToJsonElement(line).jsonObject
                             if (responseJson["error"] != null) {
                                 val error = context.systemJson.decodeFromJsonElement<ErrorResponse>(responseJson)
                                 IllegalStateException("$error").printStackTrace()
