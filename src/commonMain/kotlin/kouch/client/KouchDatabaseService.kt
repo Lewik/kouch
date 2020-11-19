@@ -248,7 +248,8 @@ class KouchDatabaseService(
                                         val jsonDoc = result.doc!!
 
                                         val className = jsonDoc[context.classField]?.jsonPrimitive?.content ?: return@collect
-                                        val kClass = classNameToKClass.getValue(className)
+                                        val kClass = classNameToKClass[className]
+                                            ?: throw IllegalArgumentException("changesContinuous: Unknown classField value: $className")
                                         context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
                                     } else {
                                         null
@@ -333,7 +334,8 @@ class KouchDatabaseService(
                                 } else {
                                     val className = jsonDoc[context.classField]?.jsonPrimitive?.content
                                         ?: throw IllegalArgumentException("Can't find classField value $jsonDoc")
-                                    val kClass = classNameToKClass.getValue(className)
+                                    val kClass = classNameToKClass[className]
+                                        ?: throw IllegalArgumentException("bulkGet: Unknown classField value: $className")
                                     context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
                                 }
                             }
