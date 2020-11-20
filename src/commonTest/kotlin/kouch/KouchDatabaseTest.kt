@@ -220,7 +220,8 @@ internal class KouchDatabaseTest {
             scope = GlobalScope,
             db = kouch.context.getMetadata(TestEntity1::class).databaseName,
             request = KouchDatabase.ChangesRequest(
-                include_docs = true
+                include_docs = true,
+                heartbeat = 20000
             ),
             entities = listOf(
                 TestEntity1::class,
@@ -257,7 +258,8 @@ internal class KouchDatabaseTest {
             scope = GlobalScope,
             db = DatabaseName("test_entity1"),
             request = KouchDatabase.ChangesRequest(
-                include_docs = true
+                include_docs = true,
+                heartbeat = 20000
             ),
             entities = listOf(
                 TestEntity1::class,

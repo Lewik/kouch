@@ -240,8 +240,8 @@ class KouchDatabaseService(
                                 IllegalStateException("$error").printStackTrace()
                             } else {
                                 if (responseJson.containsKey("last_seq")) {
-                                    val result = context.systemJson.decodeFromJsonElement<KouchDatabase.ChangesResponse.RawLastResult>(responseJson)
-                                    println(result)
+//                                    val result = context.systemJson.decodeFromJsonElement<KouchDatabase.ChangesResponse.RawLastResult>(responseJson)
+                                    //println(result)
                                 } else {
                                     val result = context.systemJson.decodeFromJsonElement<KouchDatabase.ChangesResponse.RawResult>(responseJson)
                                     val doc = if (request.include_docs && !result.deleted) {
@@ -272,6 +272,18 @@ class KouchDatabaseService(
                 t.printStackTrace()
                 delay(reconnectionDelay)
             }
+        }
+    }
+
+    private suspend fun ByteReadChannel.readByLineAsFlow() = channelFlow {
+        while (isActive) {
+            val line = readUTF8Line() ?: break
+            if (line.isNotEmpty()) {
+                send(line)
+            }
+        }
+        awaitClose {
+            this@readByLineAsFlow.cancel()
         }
     }
 
@@ -411,21 +423,6 @@ class KouchDatabaseService(
             NotFound
             -> throw KouchDocumentException("$response: $text")
             else -> throw UnsupportedStatusCodeException("$response: $text")
-        }
-    }
-
-
-    private suspend fun ByteReadChannel.readByLineAsFlow() = channelFlow {
-
-        while (isActive) {
-            val line = readUTF8Line()
-            if (line?.isNotEmpty() == true) {
-                send(line)
-            }
-        }
-
-        awaitClose {
-            this@readByLineAsFlow.cancel()
         }
     }
 }
