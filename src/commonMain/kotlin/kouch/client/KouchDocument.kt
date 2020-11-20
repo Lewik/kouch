@@ -4,6 +4,10 @@ import kotlinx.serialization.Serializable
 
 class KouchDocument {
 
+    companion object {
+        const val HIGHEST_KEY = '\ufff0'
+    }
+
     @Serializable
     class GetQueryParameters(
         val attachments: Boolean = false,

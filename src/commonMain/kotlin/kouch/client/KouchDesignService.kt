@@ -115,6 +115,18 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         resultKClass = RESULT::class
     )
 
+    suspend inline fun <reified RESULT_AND_SOURCE_ENTITY : KouchEntity> getView1(
+        id: String,
+        view: String,
+        request: ViewRequest = ViewRequest(),
+    ) = getView(
+        db = context.getMetadata(RESULT_AND_SOURCE_ENTITY::class).databaseName,
+        id = id,
+        view = view,
+        request = request,
+        resultKClass = RESULT_AND_SOURCE_ENTITY::class
+    )
+
     suspend inline fun <reified RESULT : Any, reified SOURCE_ENTITY : KouchEntity> getView(
         id: String,
         view: String,
