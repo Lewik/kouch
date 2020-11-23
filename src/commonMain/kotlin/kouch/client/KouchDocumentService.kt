@@ -143,7 +143,7 @@ class KouchDocumentService(
         parameters: KouchDocument.PutQueryParameters? = null
     ) = update(entity, T::class, metadata, parameters)
 
-    suspend inline fun <reified T : KouchEntity> update(
+    suspend fun <T : KouchEntity> update(
         entity: T,
         kClass: KClass<T>,
         metadata: KouchMetadata.Entity = context.getMetadata(kClass),
