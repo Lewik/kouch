@@ -103,40 +103,16 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
 
 
     suspend inline fun <reified RESULT : Any> getView(
+        id: String,
+        view: String,
+        request: ViewRequest = ViewRequest(),
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
-        id: String,
-        view: String,
-        request: ViewRequest = ViewRequest(),
     ) = getView(
-        db = db,
         id = id,
         view = view,
         request = request,
-        resultKClass = RESULT::class
-    )
-
-    suspend inline fun <reified RESULT_AND_SOURCE_ENTITY : KouchEntity> getView1(
-        id: String,
-        view: String,
-        request: ViewRequest = ViewRequest(),
-    ) = getView(
-        db = context.getMetadata(RESULT_AND_SOURCE_ENTITY::class).databaseName,
-        id = id,
-        view = view,
-        request = request,
-        resultKClass = RESULT_AND_SOURCE_ENTITY::class
-    )
-
-    suspend inline fun <reified RESULT : Any, reified SOURCE_ENTITY : KouchEntity> getView(
-        id: String,
-        view: String,
-        request: ViewRequest = ViewRequest(),
-    ) = getView(
-        db = context.getMetadata(SOURCE_ENTITY::class).databaseName,
-        id = id,
-        view = view,
-        request = request,
-        resultKClass = RESULT::class
+        resultKClass = RESULT::class,
+        db = db
     )
 
     class Result<T>(
@@ -145,11 +121,11 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     )
 
     suspend fun <RESULT : Any> getView(
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
         id: String,
         view: String,
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>,
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
     ): Result<RESULT?> {
 
         val response = context.request(
