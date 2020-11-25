@@ -349,18 +349,20 @@ internal class KouchDatabaseTest {
         val docsToUpsert = newDocs + updatedDocs
         val docsToDelete = listOf(insertedDocs.getValue("some-id104"), insertedDocs.getValue("some-id105"))
 
-        val result = kouch.db.bulkUpsert(docsToUpsert.values, docsToDelete)
+        val (response, updatedEntities) = kouch.db.bulkUpsert(docsToUpsert.values, docsToDelete)
+            .getResponseAndUpdatedEntities()
 
-        assertEquals(9, result.size)
+        assertEquals(6, updatedEntities.size)
+        assertEquals(9, response.size)
         assertEquals(
             expected = 7,
-            actual = result.count { it.ok == true },
-            message = Json { prettyPrint = true }.encodeToString(result)
+            actual = response.count { it.ok == true },
+            message = Json { prettyPrint = true }.encodeToString(response)
         )
         assertEquals(
             expected = 2,
-            actual = result.count { it.error == "conflict" && it.reason == "Document update conflict." },
-            message = Json { prettyPrint = true }.encodeToString(result)
+            actual = response.count { it.error == "conflict" && it.reason == "Document update conflict." },
+            message = Json { prettyPrint = true }.encodeToString(response)
         )
 
 

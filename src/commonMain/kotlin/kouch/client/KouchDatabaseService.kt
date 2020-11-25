@@ -376,6 +376,14 @@ class KouchDatabaseService(
         }
     }
 
+    class BulkUpsertResult<T>(
+        private val getResponseCallback: () -> List<KouchDatabase.BulkUpsertResponse>,
+        private val getUpdatedEntitiesCallback: () -> List<T>
+    ) {
+        fun getResponseAndUpdatedEntities() = getResponseCallback() to getUpdatedEntitiesCallback()
+        fun getResponse() = getResponseCallback()
+        fun getUpdatedEntities() = getUpdatedEntitiesCallback()
+    }
 
     suspend inline fun <reified T : KouchEntity> bulkUpsert(
         entities: Iterable<T> = emptyList(),
@@ -393,7 +401,7 @@ class KouchDatabaseService(
         entitiesToDelete: Iterable<KouchEntity> = emptyList(),
         kClass: KClass<T>,
         db: DatabaseName
-    ): List<KouchDatabase.BulkUpsertResponse> {
+    ): BulkUpsertResult<T> {
 
         val className = context.getMetadata(kClass).className
         val jsonArray = buildJsonArray {
@@ -422,7 +430,22 @@ class KouchDatabaseService(
         val text = response.readText()
         return when (response.status) {
             Created
-            -> context.systemJson.decodeFromString(text)
+            -> {
+                val getResponseCallback = {
+                    context.systemJson.decodeFromString<List<KouchDatabase.BulkUpsertResponse>>(text)
+                }
+                val getUpdatedEntitiesCallback = {
+                    val idToRev = getResponseCallback()
+                        .filter { it.ok == true }
+                        .associateBy({ it.id }, { it.rev ?: throw ResponseRevisionIsNullException(text) })
+                    entities
+                        .mapNotNull { it.copyWithRevision(idToRev[it.id] ?: return@mapNotNull null) }
+                }
+                BulkUpsertResult(
+                    getUpdatedEntitiesCallback = getUpdatedEntitiesCallback,
+                    getResponseCallback = getResponseCallback
+                )
+            }
             BadRequest,
             NotFound
             -> throw KouchDocumentException("$response: $text")
