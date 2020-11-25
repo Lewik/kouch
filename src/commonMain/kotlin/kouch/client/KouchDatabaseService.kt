@@ -60,6 +60,10 @@ class KouchDatabaseService(
         }
     }
 
+    suspend fun <T : KouchEntity> isExistFor(
+        kClass: KClass<out T>,
+    ) = isExist(context.getMetadata(kClass).databaseName)
+
     suspend fun get(
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
     ): KouchDatabase.GetResponse? {

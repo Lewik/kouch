@@ -22,13 +22,26 @@ internal class KouchDatabaseTest {
         KouchTestHelper.removeAllDbsAndCreateSystemDbsServer(KouchTestHelper.defaultContext)
     }
 
+    @Test
+    fun dbIsExistForTest1() = runTest {
+        val db = DatabaseName("defaultdb")
+        kouch.db.createForEntity(TestEntity1::class)
+        assertTrue(kouch.db.isExist(db))
+        assertTrue(kouch.db.isExistFor(TestEntity1::class))
+        kouch.db.delete(db)
+        assertFalse(kouch.db.isExist(db))
+        assertFalse(kouch.db.isExistFor(TestEntity1::class))
+    }
 
     @Test
-    fun dbIsExistTest() = runTest {
-        kouch.db.create(DatabaseName("test1"))
-        assertTrue(kouch.db.isExist(DatabaseName("test1")))
-        kouch.db.delete(DatabaseName("test1"))
-        assertFalse(kouch.db.isExist(DatabaseName("test1")))
+    fun dbIsExistForTest2() = runTest {
+        val db = DatabaseName("test_entity1")
+        perEntityDbKouch.db.createForEntity(TestEntity1::class)
+        assertTrue(perEntityDbKouch.db.isExist(db))
+        assertTrue(perEntityDbKouch.db.isExistFor(TestEntity1::class))
+        perEntityDbKouch.db.delete(db)
+        assertFalse(perEntityDbKouch.db.isExist(db))
+        assertFalse(perEntityDbKouch.db.isExistFor(TestEntity1::class))
     }
 
 
