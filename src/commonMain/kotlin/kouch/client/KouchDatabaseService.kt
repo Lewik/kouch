@@ -382,7 +382,15 @@ class KouchDatabaseService(
     ) {
         fun getResponseAndUpdatedEntities() = getResponseCallback() to getUpdatedEntitiesCallback()
         fun getResponse() = getResponseCallback()
-        fun getUpdatedEntities() = getUpdatedEntitiesCallback()
+        fun getUpdatedEntities(failOnError: Boolean = true): List<T> {
+            if (failOnError) {
+                val responses = getResponseCallback()
+                if (responses.any { it.ok != true }) {
+                    throw BulkUpsertFailed("${responses.filter { it.ok != true }}")
+                }
+            }
+            return getUpdatedEntitiesCallback()
+        }
     }
 
     suspend inline fun <reified T : KouchEntity> bulkUpsert(

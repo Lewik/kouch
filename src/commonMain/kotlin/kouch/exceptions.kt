@@ -19,5 +19,5 @@ class DocIsNullException(message: String) : Exception(message)
 
 class BlankUserNameException(message: String) : Exception(message)
 
-
-
+class BulkUpsertFailed(message: String) : Exception(message)
+class PutFailed(message: String) : Exception(message)

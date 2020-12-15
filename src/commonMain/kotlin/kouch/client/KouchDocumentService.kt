@@ -166,7 +166,15 @@ class KouchDocumentService(
     ) {
         fun getResponseAndUpdatedEntity() = getResponseCallback() to getUpdatedEntityCallback()
         fun getResponse() = getResponseCallback()
-        fun getUpdatedEntity() = getUpdatedEntityCallback()
+        fun getUpdatedEntity(failOnError: Boolean = true): T {
+            if (failOnError) {
+                val response = getResponseCallback()
+                if (response.ok != true) {
+                    throw PutFailed("$response")
+                }
+            }
+            return getUpdatedEntityCallback()
+        }
     }
 
     suspend inline fun <reified T : KouchEntity> upsert(
