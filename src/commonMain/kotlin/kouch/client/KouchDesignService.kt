@@ -11,6 +11,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import kouch.*
 import kotlin.reflect.KClass
 
@@ -64,14 +65,14 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     @Serializable
     class IntermediateViewResponse(
         val offset: Int?,
-        val rows: List<ViewRow>,
+        val rows: List<JsonElement>,
         val total_rows: Int?,
         val update_seq: JsonObject? = null,
     ) {
         @Serializable
         class ViewRow(
-            val id: String?,
-            val key: JsonElement,
+            val id: String? = null,
+            val key: JsonElement?,
             val value: JsonElement?,
             val doc: JsonElement? = null,
         )
@@ -125,7 +126,38 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         view: String,
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>,
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+    ): Result<RESULT?> = internalGetView(
+        id = id,
+        view = view,
+        request = request,
+        resultKClass = resultKClass,
+        db = db,
+        rawRow = false
+    )
+
+    suspend fun getRawView(
+        id: String,
+        view: String,
+        request: ViewRequest = ViewRequest(),
+        resultKClass: KClass<out IntermediateViewResponse.ViewRow>,
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+    ): Result<IntermediateViewResponse.ViewRow?> = internalGetView(
+        id = id,
+        view = view,
+        request = request,
+        resultKClass = resultKClass,
+        db = db,
+        rawRow = true
+    )
+
+    private suspend fun <RESULT : Any> internalGetView(
+        id: String,
+        view: String,
+        request: ViewRequest = ViewRequest(),
+        resultKClass: KClass<out RESULT>,
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        rawRow: Boolean
     ): Result<RESULT?> {
 
         val response = context.request(
@@ -142,15 +174,16 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
             HttpStatusCode.OK -> {
                 val intermediateResponse = context.systemJson.decodeFromString<IntermediateViewResponse>(text)
                 val entities = intermediateResponse.rows.map { viewRow ->
-                    val resultJson = if (request.include_docs) {
-                        viewRow.doc ?: throw DocIsNullException(text)
-                    } else {
-                        viewRow.value
+                    val resultJson = when {
+                        rawRow -> viewRow
+                        request.include_docs -> viewRow.jsonObject["doc"] ?: throw DocIsNullException(text)
+                        else -> viewRow.jsonObject["value"]
                     }
                     resultJson?.let { context.decodeKouchEntityFromJsonElement(it, resultKClass) }
                 }
                 Result(
-                    entities, ViewResponse(
+                    result = entities,
+                    response = ViewResponse(
                         offset = intermediateResponse.offset,
                         total_rows = intermediateResponse.total_rows,
                         update_seq = intermediateResponse.update_seq
