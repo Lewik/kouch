@@ -64,9 +64,9 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
 
     @Serializable
     class IntermediateViewResponse(
-        val offset: Int?,
+        val offset: Int? = null,
         val rows: List<JsonElement>,
-        val total_rows: Int?,
+        val total_rows: Int? = null,
         val update_seq: JsonObject? = null,
     ) {
         @Serializable
@@ -140,13 +140,12 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         id: String,
         view: String,
         request: ViewRequest = ViewRequest(),
-        resultKClass: KClass<out IntermediateViewResponse.ViewRow>,
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
     ): Result<IntermediateViewResponse.ViewRow?> = internalGetView(
         id = id,
         view = view,
         request = request,
-        resultKClass = resultKClass,
+        resultKClass = IntermediateViewResponse.ViewRow::class,
         db = db,
         rawRow = true
     )

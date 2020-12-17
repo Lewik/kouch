@@ -43,7 +43,7 @@ internal class KouchDesignTest {
         assertNotNull(getResult)
         assertEquals("javascript", getResult.language)
         assertNotNull(getResult.views)
-        assertEquals(5, getResult.views!!.size)
+        assertEquals(6, getResult.views!!.size)
     }
 
     @Test
@@ -66,7 +66,7 @@ internal class KouchDesignTest {
         )
         assertNotNull(getResult)
         assertEquals("javascript", getResult.language)
-        assertEquals(5, getResult.views!!.size)
+        assertEquals(6, getResult.views!!.size)
 
         val deleteResult = kouch.design
             .delete(entity = getResult, db = DatabaseName("test_entity"))()
@@ -244,6 +244,22 @@ internal class KouchDesignTest {
     }
 
     @Test
+    fun viewGroup() = runTest {
+        prepareData()
+
+        kouch.design.getRawView(
+            db = DatabaseName("test_entity"),
+            id = "testdes",
+            view = "reduce",
+            request = ViewRequest(
+                group = true
+            )
+        ).result.also {
+            assertEquals(6, it.size)
+        }
+    }
+
+    @Test
     fun viewWithSkipAndLimit() = runTest {
         prepareData()
 
@@ -298,6 +314,10 @@ internal class KouchDesignTest {
                 "by_label_and_string" to KouchDesign.View(
                     /*language=js*/ map = """doc => { emit([doc.label, doc.string], doc) }"""
                 ),
+                "reduce" to KouchDesign.View(
+                    /*language=js*/ map = """doc => { emit(doc.label, doc) }""",
+                    /*language=js*/ reduce = """(key, value) => { return true }"""
+                )
             )
         )
         val updateResult = kouch.design
