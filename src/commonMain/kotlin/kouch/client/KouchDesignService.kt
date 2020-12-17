@@ -56,21 +56,21 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     }
 
     data class ViewResponse(
-        val offset: Int,
-        val total_rows: Int,
+        val offset: Int?,
+        val total_rows: Int?,
         val update_seq: JsonObject? = null,
     )
 
     @Serializable
     class IntermediateViewResponse(
-        val offset: Int,
+        val offset: Int?,
         val rows: List<ViewRow>,
-        val total_rows: Int,
+        val total_rows: Int?,
         val update_seq: JsonObject? = null,
     ) {
         @Serializable
         class ViewRow(
-            val id: String,
+            val id: String?,
             val key: JsonElement,
             val value: JsonElement?,
             val doc: JsonElement? = null,
