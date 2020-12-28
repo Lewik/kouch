@@ -17,9 +17,9 @@ Use https://jitpack.io repository
 ```
 Use these dependencies per kotlin module respectively:
 ```
-implementation 'com.github.lewik.kouch:kouch-metadata:0.0.48' //for common modules
-implementation 'com.github.lewik.kouch:kouch-js:0.0.48'  //for js modules TODO
-implementation 'com.github.lewik.kouch:kouch-jvm:0.0.48'  //for jvm modules
+implementation 'com.github.lewik.kouch:kouch-metadata:0.0.50' //for common modules
+implementation 'com.github.lewik.kouch:kouch-js:0.0.50'  //for js modules TODO
+implementation 'com.github.lewik.kouch:kouch-jvm:0.0.50'  //for jvm modules
 ```
 
 ## Usage      
