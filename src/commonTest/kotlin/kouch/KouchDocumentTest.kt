@@ -3,7 +3,6 @@ package kouch
 import kotlinx.serialization.Serializable
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDocument
-import kotlin.random.Random
 import kotlin.test.*
 
 internal class KouchDocumentTest {
@@ -14,26 +13,7 @@ internal class KouchDocumentTest {
         override val revision: String? = null,
         val string: String,
         val label: String,
-    ) : KouchEntity {
-        companion object {
-            private val charPool = ('a'..'z') + ('A'..'Z') + ('0'..'9')
-
-            fun randomString(length: Long = 10): String {
-                return (0..length).map { Random.nextInt(0, charPool.size) }
-                    .map(charPool::get)
-                    .joinToString("")
-            }
-
-            fun randomEntity(): TestEntity {
-                return TestEntity(
-                    id = randomString(16),
-                    string = randomString(16),
-                    label = randomString(24),
-                )
-            }
-        }
-    }
-
+    ) : KouchEntity
 
     private val kouch = KouchClientImpl(KouchTestHelper.defaultContext)
 
@@ -43,7 +23,6 @@ internal class KouchDocumentTest {
         string = "some-string",
         label = "some label"
     )
-
 
     @BeforeTest
     fun beforeTest() = runTest {
@@ -187,16 +166,5 @@ internal class KouchDocumentTest {
         )
 
         assertEquals(2, revisionsResult.first._revisions?.ids?.count())
-    }
-
-    @Test
-    fun testManyUpserts() = runTest {
-        kouch.db.createForEntity(TestEntity.randomEntity())
-
-        val count = 1000
-        (0..100).forEach { _ ->
-            val entities = (0..count).map { TestEntity.randomEntity() }
-            kouch.db.bulkUpsert(entities)
-        }
     }
 }

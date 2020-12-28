@@ -16,6 +16,7 @@ class Context(
         install(HttpTimeout) {
             connectTimeoutMillis = 60000
             requestTimeoutMillis = 60000
+            socketTimeoutMillis = 60000
         }
     },
     val strictSystemJson: Boolean = false,
