@@ -6,6 +6,7 @@ class KouchDesignViewResponseException(message: String) : Exception(message)
 class KouchDesignStandardResponseException(message: String) : Exception(message)
 class KouchDocumentException(message: String) : Exception(message)
 class KouchUserException(message: String) : Exception(message)
+class KouchServerException(message: String): Exception(message)
 
 class UnsupportedStatusCodeException(message: String) : Exception(message)
 

@@ -6,8 +6,13 @@ import io.ktor.http.*
 import io.ktor.http.HttpMethod.Companion.Get
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import kouch.Context
 import kouch.KouchDatabaseException
+import kouch.KouchServerException
 import kouch.UnsupportedStatusCodeException
 
 
@@ -80,4 +85,23 @@ class KouchServerService(val context: Context) {
         continuous = continuous,
         cancel = cancel
     )
+
+    suspend fun activeTasks(): List<KouchServer.ActiveTaskResponse> {
+        val response = context.request(
+            method = Get,
+            path = "/_active_tasks"
+        )
+
+        val text = response.readText()
+        return when (response.status) {
+            HttpStatusCode.OK -> {
+                val json = Json(context.systemJson) {
+                    ignoreUnknownKeys = true
+                }
+                json.decodeFromString(text)
+            }
+            HttpStatusCode.Unauthorized -> throw KouchServerException("$response: $text")
+            else -> throw UnsupportedStatusCodeException("$response: $text")
+        }
+    }
 }

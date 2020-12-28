@@ -27,4 +27,18 @@ class KouchServer {
         val skip: Int? = null,
         val startKey: String? = null
     )
+
+    @Serializable
+    data class ActiveTaskResponse(
+        val changes_done: Int,
+        val database: String,
+        val pid: String,
+        val progress: Int,
+        val started_on: Int,
+        val status: String? = null,
+        val task: String? = null,
+        val total_changes: Int,
+        val type: String,
+        val update_on: Int? = null,
+    )
 }
