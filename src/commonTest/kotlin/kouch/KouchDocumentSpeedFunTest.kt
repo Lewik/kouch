@@ -8,6 +8,7 @@ import kouch.*
 import kouch.client.KouchClientImpl
 import kotlin.random.Random
 import kotlin.test.*
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 import kotlin.time.seconds
@@ -129,20 +130,27 @@ internal class KouchDocumentSpeedFunTest {
             assertNotNull(updateResult.rev)
         }
 
-
+        var waitTime = Duration.ZERO
+        var insertTime = Duration.ZERO
         val time = measureTime {
             val bulkSize = 10000
             (0..100).forEach { step ->
-                while (kouch.server.activeTasks().isNotEmpty()) {
-                    println("Waiting...")
-                    delay(5.seconds)
+                val wt = measureTime {
+                    while (kouch.server.activeTasks().filter { it.type == "indexer" }.isNotEmpty()) {
+                        delay(5.seconds)
+                    }
                 }
+                println("wait $step, $wt")
+                waitTime += wt
                 val entities = (0..bulkSize).map { randomEntity() }
                 val time = measureTime { kouch.db.bulkUpsert(entities) }
+                insertTime += time
                 println("step $step, $time")
             }
         }
-        println("Time: ${time.inSeconds}")
+        println("Time: $time, Wait: $waitTime, Insert: $insertTime")
+        println("Insertions per second: ${1000000 / time.inSeconds}")
+        println("Insertions per second w/o waiting: ${1000000 / insertTime.inSeconds}")
     }
 
     private fun getJsDesignDoc(i: Int): KouchDesign {
