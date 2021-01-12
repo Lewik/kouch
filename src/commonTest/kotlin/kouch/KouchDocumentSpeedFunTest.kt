@@ -85,6 +85,23 @@ internal class KouchDocumentSpeedFunTest {
         println(result)
     }
 
+    @Ignore
+    @Test
+    fun bulkSpeed() = runTest {
+        kouch.db.createForEntity(kClass = TestEntity::class)
+        val entities = (1..10000).map { randomEntity() }
+
+        println("Write")
+        val result = measureTime {
+            kouch.db.bulkUpsert(entities)
+        }
+        println("Read")
+        val result2 = measureTime {
+            kouch.db.bulkGet<TestEntity>(entities.map { it.id })
+        }
+        println("Write: $result; Read: $result2")
+    }
+
 
     private val charPool = ('a'..'z') + ('A'..'Z') + ('0'..'9')
 
