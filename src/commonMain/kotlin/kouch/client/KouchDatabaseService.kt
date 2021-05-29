@@ -201,7 +201,7 @@ class KouchDatabaseService(
         scope: CoroutineScope,
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
         request: KouchDatabase.ChangesRequest,
-        reconnectionDelay: Duration = 2.seconds,
+        reconnectionDelay: Duration = Duration.seconds(2),
         entities: List<KClass<out KouchEntity>>,
         listener: suspend (entry: KouchDatabase.ChangesResponse.Result) -> Unit
     ) = scope.launch {

@@ -2,12 +2,15 @@ package kouch
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import kotlin.jvm.JvmInline
 
-inline class DatabaseName(val value: String) {
+@JvmInline
+value class DatabaseName(val value: String) {
     override fun toString() = value
 }
 
-inline class ClassName(val value: String) {
+@JvmInline
+value class ClassName(val value: String) {
     override fun toString() = value
 }
 

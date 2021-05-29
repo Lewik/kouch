@@ -4,16 +4,16 @@ plugins {
     `maven-publish`
 }
 group = "kouch"
-version = "1.0-SNAPSHOT"
+version = "0.0.51"
 
 repositories {
     jcenter()
     mavenCentral()
     maven("https://repo.maven.apache.org/maven2")
-    maven("http://download.java.net/maven/2")
+    maven("https://download.java.net/maven/2")
     gradlePluginPortal()
     maven("https://kotlin.bintray.com/kotlinx")
-    maven("http://dl.bintray.com/kotlin/kotlin-eap")
+    maven("https://dl.bintray.com/kotlin/kotlin-eap")
     maven("https://www.jitpack.io")
     maven("https://jcenter.bintray.com/")
 }
@@ -23,19 +23,14 @@ kotlin {
             kotlinOptions.jvmTarget = JAVA_VERSION.toString()
         }
     }
-    js {
+    js(IR) {
+        useCommonJs()
         browser {
             testTask {
                 enabled = false
             }
-//            testTask {
-//                useKarma {
-//                    useChromeHeadless()
-//                    webpackConfig.cssSupport.enabled = true
-//                }
-//            }
         }
-
+        binaries.executable()
     }
 
     sourceSets {
