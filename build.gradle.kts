@@ -23,7 +23,8 @@ kotlin {
             kotlinOptions.jvmTarget = JAVA_VERSION.toString()
         }
     }
-    js(IR) {
+    js(LEGACY) {
+        moduleName = project.name
         useCommonJs()
         browser {
             testTask {
