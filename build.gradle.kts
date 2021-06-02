@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 group = "kouch"
-version = "0.0.51"
+version = "0.0.51.LEGACY1"
 
 repositories {
     jcenter()
