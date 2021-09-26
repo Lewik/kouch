@@ -4,18 +4,13 @@ plugins {
     `maven-publish`
 }
 group = "kouch"
-version = "0.0.51.IR"
+version = "0.0.51.IR.2"
 
 repositories {
     jcenter()
     mavenCentral()
     maven("https://repo.maven.apache.org/maven2")
-    maven("https://download.java.net/maven/2")
-    gradlePluginPortal()
-    maven("https://kotlin.bintray.com/kotlinx")
-    maven("https://dl.bintray.com/kotlin/kotlin-eap")
     maven("https://www.jitpack.io")
-    maven("https://jcenter.bintray.com/")
 }
 kotlin {
     jvm {
