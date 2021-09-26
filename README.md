@@ -1,5 +1,5 @@
 # kouch (pre alfa)
-
+## Abandoned
 [![](https://jitpack.io/v/lewik/kouch.svg)](https://jitpack.io/#lewik/kouch)
 
 Kotlin client for CouchDB
