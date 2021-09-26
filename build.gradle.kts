@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 group = "kouch"
-version = "0.0.51.LEGACY1"
+version = "0.0.51.IR"
 
 repositories {
     jcenter()
@@ -23,7 +23,7 @@ kotlin {
             kotlinOptions.jvmTarget = JAVA_VERSION.toString()
         }
     }
-    js(LEGACY) {
+    js(IR) {
         moduleName = project.name
         useCommonJs()
         browser {
