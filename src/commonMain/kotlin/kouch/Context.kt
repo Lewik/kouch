@@ -35,7 +35,7 @@ class Context(
     },
     val systemQueryParametersJson: Json = Json {
         encodeDefaults = false
-    }
+    },
 ) {
     suspend fun request(
         method: HttpMethod,
@@ -43,7 +43,7 @@ class Context(
         body: Any = EmptyContent,
         parameters: Map<String, Any?> = emptyMap(),
         headers: Map<String, String> = emptyMap(),
-        timeout: Long? = null
+        timeout: Long? = null,
     ) = client.request<HttpResponse> { buildRequest(path, method, body, headers, parameters, timeout) }
 
     suspend fun requestStatement(
@@ -52,7 +52,7 @@ class Context(
         body: Any = EmptyContent,
         parameters: Map<String, Any?> = emptyMap(),
         headers: Map<String, String> = emptyMap(),
-        timeout: Long? = null
+        timeout: Long? = null,
     ) = client.request<HttpStatement> { buildRequest(path, method, body, headers, parameters, timeout) }
 
     private fun HttpRequestBuilder.buildRequest(
@@ -61,14 +61,14 @@ class Context(
         body: Any,
         headers: Map<String, String>,
         parameters: Map<String, Any?>,
-        timeout: Long? = null
+        timeout: Long? = null,
     ) {
         url(settings.scheme, settings.host, settings.port, path)
         this.method = method
         this.body = body
-        this.headers[HttpHeaders.Authorization] = getAdminBasic()
+        this.header(HttpHeaders.Authorization, getAdminBasic())
         headers.forEach { (key, value) ->
-            this.headers[key] = value
+            this.header(key, value)
         }
         parameters.forEach { parameter(it.key, it.value) }
         if (timeout != null) {
