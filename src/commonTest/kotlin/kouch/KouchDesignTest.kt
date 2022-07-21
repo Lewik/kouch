@@ -5,7 +5,6 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kouch.KouchDesign.ViewName
-import kouch.KouchEntity.Id
 import kouch.KouchEntity.Rev
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDesignService.ViewRequest
@@ -40,7 +39,7 @@ internal class KouchDesignTest {
         prepareData()
 
         val (_, getResult) = kouch.design.getWithResponse(
-            id = Id("testdes"),
+            id = KouchDesign.Id("testdes"),
             db = DatabaseName("test_entity")
         )
         assertNotNull(getResult)
@@ -53,7 +52,7 @@ internal class KouchDesignTest {
     fun getNonexistentDesign() = runTest {
         kouch.db.create(DatabaseName("test_entity"))
         val (_, nullResult) = kouch.design.getWithResponse(
-            id = Id("devices2"),
+            id = KouchDesign.Id("devices2"),
             db = DatabaseName("test_entity")
         )
         assertNull(nullResult)
@@ -64,7 +63,7 @@ internal class KouchDesignTest {
         prepareData()
 
         val (_, getResult) = kouch.design.getWithResponse(
-            id = Id("testdes"),
+            id = KouchDesign.Id("testdes"),
             db = DatabaseName("test_entity")
         )
         assertNotNull(getResult)
@@ -77,7 +76,7 @@ internal class KouchDesignTest {
         assertEquals(true, deleteResult.ok)
 
         val (_, getResult2) = kouch.design.getWithResponse(
-            id = Id("testdes"),
+            id = KouchDesign.Id("testdes"),
             db = DatabaseName("test_entity")
         )
         assertNull(getResult2)
@@ -300,7 +299,7 @@ internal class KouchDesignTest {
             }
 
         val design = KouchDesign(
-            id = Id("testdes"),
+            id = KouchDesign.Id("testdes"),
             views = mapOf(
                 ViewName("all") to KouchDesign.View(
                     /*language=js*/ map = """doc => { emit(doc.label, doc) }"""

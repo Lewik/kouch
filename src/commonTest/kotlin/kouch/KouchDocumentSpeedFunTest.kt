@@ -175,7 +175,7 @@ internal class KouchDocumentSpeedFunTest {
     private fun getJsDesignDoc(i: Int): KouchDesign {
         val prefix = if (i == 0) "" else i.toString()
         val design = KouchDesign(
-            id = Id("testdes$i"),
+            id = KouchDesign.Id("testdes$i"),
             views = mapOf(
                 ViewName("all$prefix") to KouchDesign.View(
                     /*language=js*/
@@ -206,7 +206,7 @@ internal class KouchDocumentSpeedFunTest {
     private fun getErlangDesignDoc(i: Int): KouchDesign {
         val prefix = if (i == 0) "" else i.toString()
         val design = KouchDesign(
-            id = Id("testdes$i"),
+            id = KouchDesign.Id("testdes$i"),
             language = "Erlang",
             views = mapOf(
                 ViewName("all$prefix") to KouchDesign.View(

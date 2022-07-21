@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kouch.*
-import kouch.KouchEntity.Id
+import kouch.KouchEntity.CommonId
 import kouch.KouchEntity.Rev
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDatabase
@@ -246,10 +246,10 @@ internal class KouchDatabaseTest {
         ) { result ->
             results.add(result)
         }
-        delay(80000)
+        delay(5000)
 
         insertDocs1(200)
-        delay(80000)
+        delay(5000)
 
         //TODO how to deal with this exception?
         job.cancelAndJoin()
@@ -304,7 +304,7 @@ internal class KouchDatabaseTest {
         val result = kouch.db.bulkGet<TestEntity1>(ids = (100..110).map { Id("some-id$it") })
         assertEquals(listOf("some-id101", "some-id102", "some-id104", "some-id105", "some-id107", "some-id108"), result.entities.map { it.id.value }.sorted())
         val error = result.errors.singleOrNull()
-        assertEquals(Id("some-id110"), error?.id)
+        assertEquals(CommonId("some-id110"), error?.id)
         assertEquals("not_found", error?.error)
     }
 
@@ -327,7 +327,7 @@ internal class KouchDatabaseTest {
         val expected2 = listOf("some-id201", "some-id202", "some-id204", "some-id205", "some-id207", "some-id208")
         assertEquals(expected1 + expected2, result.entities.map { it.id.value }.sorted())
         val error = result.errors
-        assertEquals(listOf(Id("some-id110"), Id("some-id210")), error.map { it.id })
+        assertEquals(listOf(CommonId("some-id110"), CommonId("some-id210")), error.map { it.id })
         assertEquals(listOf("not_found", "not_found"), error.map { it.error })
     }
 

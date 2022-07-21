@@ -49,7 +49,7 @@ class KouchDocumentService(
 
         val response = context.request(
             method = Get,
-            path = "$db/$pathPart$id$queryString"
+            path = "$db/$pathPart${id.value}$queryString"
         )
 
         val text = response.bodyAsText()
@@ -85,7 +85,7 @@ class KouchDocumentService(
 
         val response = context.request(
             method = Get,
-            path = "$db/$pathPart$id$queryString"
+            path = "$db/$pathPart${id.value}$queryString"
         )
 
         val text = response.bodyAsText()
@@ -194,12 +194,12 @@ class KouchDocumentService(
         val response = when (metadata) {
             is KouchMetadata.Entity -> context.request(
                 method = Put,
-                path = "${metadata.databaseName}/$pathPart${entity.id}$queryString",
+                path = "${metadata.databaseName}/$pathPart${entity.id.value}$queryString",
                 body = context.encodeToKouchEntity(entity, kClass, metadata.className)
             )
             is KouchMetadata.Design -> context.request(
                 method = Put,
-                path = "${metadata.databaseName}/$pathPart${entity.id}$queryString",
+                path = "${metadata.databaseName}/$pathPart${entity.id.value}$queryString",
                 body = context.encodeToKouchDesign(entity, kClass)
             )
         }
@@ -289,7 +289,7 @@ class KouchDocumentService(
         val queryString = context.systemQueryParametersJson.encodeToUrl(parameters, KouchDocument.DeleteQueryParameters::class)
         val response = context.request(
             method = Delete,
-            path = "$db/$id$queryString",
+            path = "$db/${id.value}$queryString",
         )
 
         val text = response.bodyAsText()

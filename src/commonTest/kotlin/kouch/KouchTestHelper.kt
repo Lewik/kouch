@@ -1,6 +1,12 @@
 package kouch
 
+import kotlinx.serialization.Serializable
 import kouch.client.KouchClientImpl
+
+@Serializable
+@JvmInline
+internal value class Id(override val value: String) : KouchEntity.Id
+
 
 @Suppress("MemberVisibilityCanBePrivate")
 internal object KouchTestHelper {

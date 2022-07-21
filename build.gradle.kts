@@ -17,9 +17,6 @@ kotlin {
             kotlinOptions.jvmTarget = JAVA_VERSION.toString()
         }
     }
-    js(IR) {
-        browser()
-    }
 
     sourceSets {
         all {
@@ -59,23 +56,10 @@ kotlin {
                 implementation(kotlin("test-junit"))
             }
         }
-        val jsMain by getting {
-            dependencies {
-                api("io.ktor:ktor-client-js:$KTOR_VERSION")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$KOTLINX_COROUTINES_VERSION")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$SERIALIZATION_VERSION")
-            }
-        }
-        val jsTest by getting {
-            dependencies {
-                implementation(kotlin("test-js"))
-            }
-        }
     }
 }
 tasks {
     withType<Test>() {
-        enabled = false
+//        enabled = false
         reports.html.required.set(false)}
 }

@@ -68,7 +68,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     ) {
         @Serializable
         class ViewRow(
-            val id: KouchEntity.Id? = null,
+            val id: KouchEntity.CommonId? = null,
             val key: JsonElement?,
             val value: JsonElement?,
             val doc: JsonElement? = null,
@@ -76,7 +76,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     }
 
     suspend fun getWithResponse(
-        id: KouchEntity.Id,
+        id: KouchDesign.Id,
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
         parameters: KouchDocument.GetQueryParameters? = null,
     ) = kouchDocumentService.getWithResponse<KouchDesign>(id, db, parameters)
@@ -158,7 +158,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
 
         val response = context.request(
             method = HttpMethod.Post,
-            path = "$db/_design/$id/_view/$view",
+            path = "$db/_design/${id.value}/_view/$view",
             body = TextContent(
                 text = context.systemJson.encodeToString(request),
                 contentType = ContentType.Application.Json

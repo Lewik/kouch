@@ -4,10 +4,13 @@ import kotlinx.serialization.Serializable
 import kouch.KouchEntity
 
 class KouchUser {
+    @Serializable
+    @JvmInline
+    value class Id(override val value: String) : KouchEntity.Id
 
     @Serializable
     data class Request(
-        val id: KouchEntity.Id? = null,
+        val id: Id? = null,
         val derived_key: String? = null,
         val name: String,
         val roles: List<String>? = null,
@@ -15,22 +18,22 @@ class KouchUser {
         val password_sha: String? = null,
         val password_scheme: String? = null,
         val salt: String? = null,
-        val type: String? = null
+        val type: String? = null,
     )
 
     @Serializable
     data class StandardResponse(
         val ok: Boolean? = null,
-        val id: KouchEntity.Id? = null,
+        val id: Id? = null,
         val rev: KouchEntity.Rev? = null,
         val error: String? = null,
-        val reason: String? = null
+        val reason: String? = null,
     )
 
     @Serializable
     data class User(
         val name: String,
         val password: String,
-        val revision: KouchEntity.Rev? = null
+        val revision: KouchEntity.Rev? = null,
     )
 }

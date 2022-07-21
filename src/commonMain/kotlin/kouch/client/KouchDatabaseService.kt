@@ -443,9 +443,9 @@ class KouchDatabaseService(
                 val getUpdatedEntitiesCallback = {
                     val idToRev = getResponseCallback()
                         .filter { it.ok == true }
-                        .associateBy({ it.id }, { it.rev ?: throw ResponseRevisionIsNullException(text) })
+                        .associateBy({ it.id.value }, { it.rev ?: throw ResponseRevisionIsNullException(text) })
                     entities
-                        .mapNotNull { it.copyWithRevision(idToRev[it.id] ?: return@mapNotNull null) }
+                        .mapNotNull { it.copyWithRevision(idToRev[it.id.value] ?: return@mapNotNull null) }
                 }
                 BulkUpsertResult(
                     getUpdatedEntitiesCallback = getUpdatedEntitiesCallback,

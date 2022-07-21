@@ -5,6 +5,10 @@ import kouch.KouchEntity
 
 class KouchDocument {
 
+    @Serializable
+    @JvmInline
+    value class Id(override val value: String) : KouchEntity.Id
+
     companion object {
         const val HIGHEST_KEY = '\ufff0'
     }
@@ -28,7 +32,7 @@ class KouchDocument {
 
     @Serializable
     data class GetResponse(
-        val _id: KouchEntity.Id? = null,
+        val _id: Id? = null,
         val _rev: KouchEntity.Rev? = null,
         val _deleted: Boolean? = null,
         val _attachments: Attachments? = null,
@@ -46,7 +50,7 @@ class KouchDocument {
 
         @Serializable
         data class Revisions(
-            val ids: List<KouchEntity.Id>,
+            val ids: List<Id>,
             val start: Int,
         )
     }
@@ -63,7 +67,7 @@ class KouchDocument {
 
     @Serializable
     data class PutResponse(
-        val id: KouchEntity.Id? = null,
+        val id: Id? = null,
         val ok: Boolean? = null,
         val rev: KouchEntity.Rev? = null,
         val error: String? = null,
@@ -81,7 +85,7 @@ class KouchDocument {
 
     @Serializable
     data class DeleteResponse(
-        val id: KouchEntity.Id? = null,
+        val id: Id? = null,
         val ok: Boolean? = null,
         val rev: KouchEntity.Rev? = null,
         val error: String? = null,

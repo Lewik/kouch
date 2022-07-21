@@ -1,7 +1,7 @@
 package kouch
 
 import kotlinx.serialization.Serializable
-import kouch.KouchEntity.Id
+import kouch.KouchEntity.CommonId
 import kouch.KouchEntity.Rev
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDocument
@@ -11,7 +11,7 @@ internal class KouchDocumentTest {
     @KouchEntityMetadata
     @Serializable
     data class TestEntity(
-        override val id: Id,
+        override val id: CommonId,
         override val revision: Rev? = null,
         val string: String,
         val label: String,
@@ -20,7 +20,7 @@ internal class KouchDocumentTest {
     private val kouch = KouchClientImpl(KouchTestHelper.defaultContext)
 
     private fun getEntity() = TestEntity(
-        id = Id("some-id"),
+        id = CommonId("some-id"),
         revision = Rev("some-revision"),
         string = "some-string",
         label = "some label"

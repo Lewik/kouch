@@ -2,13 +2,13 @@ package kouch
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
-import kotlin.jvm.JvmInline
 
 @Serializable
 @JvmInline
 value class DatabaseName(val value: String) {
     override fun toString() = value
 }
+
 @Serializable
 @JvmInline
 value class ClassName(val value: String) {
@@ -28,18 +28,20 @@ interface KouchEntity {
     val id: Id
     val revision: Rev?
 
-    @Serializable
-    @JvmInline
-    value class Id(val value: String) {
+    interface Id {
+        val value: String
         fun isBlank() = value.isBlank()
-        override fun toString() = value
     }
 
     @Serializable
     @JvmInline
-    value class Rev(val value: String) {
-        override fun toString() = value
-    }
+    value class Rev(val value: String)
+
+    @Serializable
+    @JvmInline
+    value class CommonId(override val value: String) : Id
+
+
 }
 
 sealed class KouchMetadata {
@@ -56,7 +58,7 @@ sealed class KouchMetadata {
 
 @Serializable
 data class KouchDesign(
-    override val id: KouchEntity.Id,
+    override val id: Id,
     override val revision: KouchEntity.Rev? = null,
     val autoupdate: Boolean? = null,
     val language: String = "javascript",
@@ -66,6 +68,10 @@ data class KouchDesign(
     val validate_doc_update: String? = null,
     val views: Map<ViewName, View>? = null,
 ) : KouchEntity {
+    @Serializable
+    @JvmInline
+    value class Id(override val value: String) : KouchEntity.Id
+
     @Serializable
     data class View(
         val map: String? = null,

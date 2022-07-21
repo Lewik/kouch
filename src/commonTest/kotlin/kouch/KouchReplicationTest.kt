@@ -3,6 +3,7 @@ package kouch.kouch
 import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
 import kouch.*
+import kouch.KouchEntity.Rev
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDatabase
 import kouch.client.KouchDatabaseService
@@ -14,8 +15,8 @@ internal class KouchReplicationTest {
     @KouchEntityMetadata("test_entity", "test_entity")
     @Serializable
     data class TestEntity(
-        override val id: KouchEntity.Id,
-        override val revision: KouchEntity.Rev? = null,
+        override val id: Id,
+        override val revision: Rev? = null,
         val string: String,
         val label: String,
     ) : KouchEntity
@@ -26,8 +27,8 @@ internal class KouchReplicationTest {
     private val targetClient = KouchClientImpl(targetContext)
 
     private fun getEntity() = TestEntity(
-        id = KouchEntity.Id("some-id"),
-        revision = KouchEntity.Rev("some-revision"),
+        id = Id("some-id"),
+        revision = Rev("some-revision"),
         string = "some-string",
         label = "some label"
     )

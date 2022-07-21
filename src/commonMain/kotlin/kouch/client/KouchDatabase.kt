@@ -107,7 +107,7 @@ class KouchDatabase {
 
     @Serializable
     data class ChangesRequest(
-        val doc_ids: List<KouchEntity.Id> = emptyList(),
+        val doc_ids: List<KouchEntity.CommonId> = emptyList(),
         val conflicts: Boolean = false,
         val descending: Boolean = false,
 //        val feed: Feed,
@@ -159,7 +159,7 @@ class KouchDatabase {
         @Serializable
         data class Result(
             val changes: List<RevOnly>,
-            val id: KouchEntity.Id,
+            val id: KouchEntity.CommonId,
             val seq: String,
             val deleted: Boolean = false,
             val doc: KouchEntity? = null
@@ -173,7 +173,7 @@ class KouchDatabase {
         @Serializable
         data class RawResult(
             val changes: List<Result.RevOnly>,
-            val id: KouchEntity.Id,
+            val id: KouchEntity.CommonId,
             val seq: String,
             val deleted: Boolean = false,
             val doc: JsonObject? = null
@@ -192,7 +192,7 @@ class KouchDatabase {
     ) {
         @Serializable
         data class Result(
-            val id: KouchEntity.Id,
+            val id: KouchEntity.CommonId,
             val docs: List<Doc>,
         ) {
             @Serializable
@@ -202,7 +202,7 @@ class KouchDatabase {
             ) {
                 @Serializable
                 data class Error(
-                    val id: KouchEntity.Id,
+                    val id: KouchEntity.CommonId,
                     val rev: KouchEntity.Rev,
                     val error: String,
                     val reason: String,
@@ -225,7 +225,7 @@ class KouchDatabase {
 
     @Serializable
     data class BulkUpsertResponse(
-        val id: KouchEntity.Id,
+        val id: KouchEntity.CommonId,
         val rev: KouchEntity.Rev? = null,
         val ok: Boolean? = null,
         val error: String? = null,

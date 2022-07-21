@@ -9,7 +9,7 @@ import kouch.getMetadata
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-abstract class KouchRepository<T : KouchEntity>(
+abstract class KouchRepository<T : KouchEntity, ID : KouchEntity.Id>(
     protected val kouch: KouchClient,
     protected val entityKClass: KClass<T>,
     protected val isErlang: Boolean = true,
@@ -21,9 +21,9 @@ abstract class KouchRepository<T : KouchEntity>(
     suspend fun update(entity: T) = kouch.doc.update(entity, entityKClass)
     suspend fun upsert(entity: T) = kouch.doc.upsert(entity, entityKClass)
     suspend fun delete(entity: T) = kouch.doc.delete(entity, entityKClass)
-    suspend fun delete(id: KouchEntity.Id, revision: KouchEntity.Rev) = kouch.doc.delete(id, entityKClass, revision)
-    suspend fun get(id: KouchEntity.Id) = kouch.doc.get(id, entityKClass)
-    suspend fun bulkGet(ids: Iterable<KouchEntity.Id>) = kouch.db.bulkGet(ids, listOf(entityKClass))
+    suspend fun delete(id: ID, revision: KouchEntity.Rev) = kouch.doc.delete(id, entityKClass, revision)
+    suspend fun get(id: ID) = kouch.doc.get(id, entityKClass)
+    suspend fun bulkGet(ids: Iterable<ID>) = kouch.db.bulkGet(ids, listOf(entityKClass))
     suspend fun bulkUpsert(
         entities: Iterable<T>,
         entitiesToDelete: Iterable<KouchEntity> = emptyList(),
@@ -36,11 +36,11 @@ abstract class KouchRepository<T : KouchEntity>(
 
 
     protected val metadata = kouch.context.getMetadata(entityKClass)
-    protected val defaultDesignDocId = KouchEntity.Id("${metadata.className}_design")
+    protected val defaultDesignDocId = KouchDesign.Id("${metadata.className}_design")
     protected val classField = kouch.context.classField
 
     protected suspend fun getView(
-        id: KouchEntity.Id = defaultDesignDocId,
+        id: KouchDesign.Id = defaultDesignDocId,
         viewName: Enum<*>,
         request: KouchDesignService.ViewRequest = KouchDesignService.ViewRequest(
             include_docs = true,
@@ -187,7 +187,7 @@ abstract class KouchRepository<T : KouchEntity>(
     )
 }
 
-class BaseKouchRepository<T : KouchEntity>(kouch: KouchClient, entityKClass: KClass<T>, isErlang: Boolean = true) :
-    KouchRepository<T>(kouch, entityKClass, isErlang)
+class BaseKouchRepository<T : KouchEntity, ID: KouchEntity.Id>(kouch: KouchClient, entityKClass: KClass<T>, isErlang: Boolean = true) :
+    KouchRepository<T, ID>(kouch, entityKClass, isErlang)
 
 

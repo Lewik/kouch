@@ -22,7 +22,7 @@ class KouchUserService(val context: Context) {
 
 
     suspend fun create(
-        request: KouchUser.Request
+        request: KouchUser.Request,
     ): KouchUser.StandardResponse {
         val bodyJson = context.systemJson.encodeToString(KouchUser.Request.serializer(), request)
 
@@ -39,7 +39,7 @@ class KouchUserService(val context: Context) {
             BadRequest,
             Unauthorized,
             NotFound,
-            Forbidden
+            Forbidden,
             -> {
                 val responseBody = context.systemJson.decodeFromString<KouchUser.StandardResponse>(text)
                 when {
@@ -54,7 +54,7 @@ class KouchUserService(val context: Context) {
     }
 
     suspend fun delete(
-        user: KouchUser.User
+        user: KouchUser.User,
     ): KouchUser.StandardResponse {
         when {
             user.name.isBlank() -> throw BlankUserNameException(user.toString())
@@ -74,7 +74,7 @@ class KouchUserService(val context: Context) {
             BadRequest,
             Unauthorized,
             NotFound,
-            Conflict
+            Conflict,
             -> {
                 val responseBody = context.systemJson.decodeFromString<KouchUser.StandardResponse>(text)
                 when {
@@ -88,12 +88,12 @@ class KouchUserService(val context: Context) {
     }
 
     suspend fun delete(
-        id: KouchEntity.Id,
-        revision: KouchEntity.Rev
+        id: KouchUser.Id,
+        revision: KouchEntity.Rev,
     ): KouchUser.StandardResponse {
         val response = context.request(
             method = Delete,
-            path = "_users/${id}",
+            path = "_users/${id.value}",
             parameters = mapOf("rev" to revision)
         )
 
@@ -104,7 +104,7 @@ class KouchUserService(val context: Context) {
             BadRequest,
             Unauthorized,
             NotFound,
-            Conflict
+            Conflict,
             -> {
                 val responseBody = context.systemJson.decodeFromString<KouchUser.StandardResponse>(text)
                 when {
