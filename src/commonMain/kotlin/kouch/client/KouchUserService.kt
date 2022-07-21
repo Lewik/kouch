@@ -32,7 +32,7 @@ class KouchUserService(val context: Context) {
             body = TextContent(bodyJson, contentType = ContentType.Application.Json)
         )
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         when (response.status) {
             Created,
             Accepted,
@@ -67,7 +67,7 @@ class KouchUserService(val context: Context) {
             parameters = mapOf("rev" to user.revision)
         )
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         when (response.status) {
             OK,
             Accepted,
@@ -97,7 +97,7 @@ class KouchUserService(val context: Context) {
             parameters = mapOf("rev" to revision)
         )
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         when (response.status) {
             OK,
             Accepted,

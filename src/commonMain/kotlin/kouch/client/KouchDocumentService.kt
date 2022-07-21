@@ -52,7 +52,7 @@ class KouchDocumentService(
             path = "${db.value}/$pathPart$id$queryString"
         )
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             //TODO : error if <T> removed
             OK -> context.decodeKouchEntityFromJsonElement(
@@ -88,7 +88,7 @@ class KouchDocumentService(
             path = "${db.value}/$pathPart$id$queryString"
         )
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             OK -> {
                 context
@@ -205,7 +205,7 @@ class KouchDocumentService(
         }
 
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             Created,
             Accepted
@@ -292,7 +292,7 @@ class KouchDocumentService(
             path = "${db.value}/$id$queryString",
         )
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             OK,
             Accepted,

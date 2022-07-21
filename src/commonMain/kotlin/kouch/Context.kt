@@ -1,9 +1,8 @@
 package kouch
 
 import io.ktor.client.*
-import io.ktor.client.features.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.client.utils.*
 import io.ktor.http.*
 import io.ktor.utils.io.core.*
@@ -44,7 +43,7 @@ class Context(
         parameters: Map<String, Any?> = emptyMap(),
         headers: Map<String, String> = emptyMap(),
         timeout: Long? = null,
-    ) = client.request<HttpResponse> { buildRequest(path, method, body, headers, parameters, timeout) }
+    ) = client.request { buildRequest(path, method, body, headers, parameters, timeout) }
 
     suspend fun requestStatement(
         method: HttpMethod,
@@ -53,7 +52,7 @@ class Context(
         parameters: Map<String, Any?> = emptyMap(),
         headers: Map<String, String> = emptyMap(),
         timeout: Long? = null,
-    ) = client.request<HttpStatement> { buildRequest(path, method, body, headers, parameters, timeout) }
+    ) = client.prepareRequest { buildRequest(path, method, body, headers, parameters, timeout) }
 
     private fun HttpRequestBuilder.buildRequest(
         path: String,
@@ -65,7 +64,7 @@ class Context(
     ) {
         url(settings.scheme, settings.host, settings.port, path)
         this.method = method
-        this.body = body
+        this.setBody(body)
         this.header(HttpHeaders.Authorization, getAdminBasic())
         headers.forEach { (key, value) ->
             this.header(key, value)

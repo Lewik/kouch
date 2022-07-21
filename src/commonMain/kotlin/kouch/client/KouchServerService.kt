@@ -24,7 +24,7 @@ class KouchServerService(val context: Context) {
             path = "/"
         )
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             HttpStatusCode.OK -> context.systemJson.decodeFromString(text)
             else -> throw UnsupportedStatusCodeException("$response: $text")
@@ -54,7 +54,7 @@ class KouchServerService(val context: Context) {
             body = TextContent(bodyJson, contentType = ContentType.Application.Json)
         )
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             HttpStatusCode.OK,
             HttpStatusCode.Accepted
@@ -92,7 +92,7 @@ class KouchServerService(val context: Context) {
             path = "/_active_tasks"
         )
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             HttpStatusCode.OK -> {
                 val json = Json(context.systemJson) {

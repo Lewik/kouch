@@ -1,4 +1,4 @@
-# kouch (pre alfa) Abandoned
+# kouch (beta)
 [![](https://jitpack.io/v/lewik/kouch.svg)](https://jitpack.io/#lewik/kouch)
 
 Kotlin client for CouchDB
@@ -16,9 +16,9 @@ Use https://jitpack.io repository
 ```
 Use these dependencies per kotlin module respectively:
 ```
-implementation 'com.github.lewik.kouch:kouch-metadata:0.0.51' //for common modules
-implementation 'com.github.lewik.kouch:kouch-js:0.0.51'  //for js modules TODO
-implementation 'com.github.lewik.kouch:kouch-jvm:0.0.51'  //for jvm modules
+implementation 'com.github.lewik.kouch:kouch-metadata:0.0.52' //for common modules
+implementation 'com.github.lewik.kouch:kouch-js:0.0.52'  //for js modules TODO
+implementation 'com.github.lewik.kouch:kouch-jvm:0.0.52'  //for jvm modules
 ```
 
 ## Usage      

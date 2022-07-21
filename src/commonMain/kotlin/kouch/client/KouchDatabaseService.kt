@@ -2,7 +2,7 @@ package kouch.client
 
 
 import io.ktor.client.call.*
-import io.ktor.client.features.*
+import io.ktor.client.plugins.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.HttpMethod.Companion.Delete
@@ -24,7 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
@@ -33,7 +32,6 @@ import kotlinx.serialization.json.*
 import kouch.*
 import kotlin.reflect.KClass
 import kotlin.time.Duration
-import kotlin.time.seconds
 
 class KouchDatabaseService(
     val context: Context,
@@ -49,10 +47,10 @@ class KouchDatabaseService(
 
 
     suspend fun isExist(
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
     ): Boolean {
         val response = context.request(method = Head, path = db.value)
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             OK -> true
             NotFound -> false
@@ -65,10 +63,10 @@ class KouchDatabaseService(
     ) = isExist(context.getMetadata(kClass).databaseName)
 
     suspend fun get(
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
     ): KouchDatabase.GetResponse? {
         val response = context.request(method = Get, path = db.value)
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             OK -> context.systemJson.decodeFromString(text)
             NotFound -> null
@@ -77,14 +75,14 @@ class KouchDatabaseService(
     }
 
     suspend fun getAll(
-        request: KouchServer.AllDbsRequest = KouchServer.AllDbsRequest()
+        request: KouchServer.AllDbsRequest = KouchServer.AllDbsRequest(),
     ): List<DatabaseName> {
         val response = context.request(
             method = Get,
             path = "_all_dbs",
             body = Json.encodeToString(request)
         )
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             OK -> context.systemJson
                 .decodeFromJsonElement<List<String>>(context.responseJson.parseToJsonElement(text))
@@ -97,7 +95,7 @@ class KouchDatabaseService(
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
         partitions: Int? = null,
         replicas: Int? = null,
-        partitioned: Boolean = false
+        partitioned: Boolean = false,
     ) {
 
         val response = context.request(
@@ -109,7 +107,7 @@ class KouchDatabaseService(
                 "partitioned" to partitioned
             )
         )
-        val text = response.readText()
+        val text = response.bodyAsText()
         when (response.status) {
             Created,
             Accepted,
@@ -178,10 +176,10 @@ class KouchDatabaseService(
     }
 
     suspend fun delete(
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
     ) {
         val response = context.request(method = Delete, path = db.value)
-        val text = response.readText()
+        val text = response.bodyAsText()
         when (response.status) {
             OK,
             Accepted,
@@ -203,7 +201,7 @@ class KouchDatabaseService(
         request: KouchDatabase.ChangesRequest,
         reconnectionDelay: Duration = Duration.seconds(2),
         entities: List<KClass<out KouchEntity>>,
-        listener: suspend (entry: KouchDatabase.ChangesResponse.Result) -> Unit
+        listener: suspend (entry: KouchDatabase.ChangesResponse.Result) -> Unit,
     ) = scope.launch {
         val classNameToKClass = entities.associateBy { context.getMetadata(it).className.value }
         var since = request.since
@@ -233,7 +231,7 @@ class KouchDatabaseService(
                     timeout = HttpTimeout.INFINITE_TIMEOUT_MS
                 )
                 requestStatement.execute { response ->
-                    val channel = response.receive<ByteReadChannel>()
+                    val channel = response.body<ByteReadChannel>()
                     channel
                         .readByLineAsFlow()
                         .collect { line ->
@@ -293,7 +291,7 @@ class KouchDatabaseService(
 
     suspend inline fun <reified T : KouchEntity> bulkGet(
         ids: Iterable<String>,
-        db: DatabaseName = context.getMetadata(T::class).databaseName
+        db: DatabaseName = context.getMetadata(T::class).databaseName,
     ): KouchDatabase.BulkGetResult<T> {
         val ret = bulkGet(
             db = db,
@@ -310,7 +308,7 @@ class KouchDatabaseService(
     suspend fun bulkGet(
         ids: Iterable<String>,
         entityClasses: List<KClass<out KouchEntity>>,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
     ): KouchDatabase.BulkGetResult<KouchEntity> {
         val classNameToKClass = entityClasses.associateBy { context.getMetadata(it).className.value }
         val body = buildJsonObject {
@@ -332,9 +330,9 @@ class KouchDatabaseService(
         )
 
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
-            OK
+            OK,
             -> {
                 val responseJson = context.systemJson.parseToJsonElement(text).jsonObject
                 val result = context.systemJson.decodeFromJsonElement<KouchDatabase.BulkGetRawResult>(responseJson)
@@ -370,7 +368,7 @@ class KouchDatabaseService(
             BadRequest,
             Unauthorized,
             NotFound,
-            UnsupportedMediaType
+            UnsupportedMediaType,
             -> throw KouchDocumentException("$response: $text")
             else -> throw UnsupportedStatusCodeException("$response: $text")
         }
@@ -378,7 +376,7 @@ class KouchDatabaseService(
 
     class BulkUpsertResult<T>(
         private val getResponseCallback: () -> List<KouchDatabase.BulkUpsertResponse>,
-        private val getUpdatedEntitiesCallback: () -> List<T>
+        private val getUpdatedEntitiesCallback: () -> List<T>,
     ) {
         fun getResponseAndUpdatedEntities() = getResponseCallback() to getUpdatedEntitiesCallback()
         fun getResponse() = getResponseCallback()
@@ -395,7 +393,7 @@ class KouchDatabaseService(
 
     suspend inline fun <reified T : KouchEntity> bulkUpsert(
         entities: Iterable<T> = emptyList(),
-        entitiesToDelete: Iterable<KouchEntity> = emptyList()
+        entitiesToDelete: Iterable<KouchEntity> = emptyList(),
     ) = bulkUpsert(
         entities = entities,
         entitiesToDelete = entitiesToDelete,
@@ -408,7 +406,7 @@ class KouchDatabaseService(
         entities: Iterable<T> = emptyList(),
         entitiesToDelete: Iterable<KouchEntity> = emptyList(),
         kClass: KClass<T>,
-        db: DatabaseName
+        db: DatabaseName,
     ): BulkUpsertResult<T> {
 
         val className = context.getMetadata(kClass).className
@@ -435,9 +433,9 @@ class KouchDatabaseService(
                 contentType = ContentType.Application.Json
             ),
         )
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
-            Created
+            Created,
             -> {
                 val getResponseCallback = {
                     context.systemJson.decodeFromString<List<KouchDatabase.BulkUpsertResponse>>(text)
@@ -455,7 +453,7 @@ class KouchDatabaseService(
                 )
             }
             BadRequest,
-            NotFound
+            NotFound,
             -> throw KouchDocumentException("$response: $text")
             else -> throw UnsupportedStatusCodeException("$response: $text")
         }

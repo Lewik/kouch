@@ -1,7 +1,7 @@
 version: '3.2'
 services:
   couchdb:
-    image: "couchdb:3.1.1"
+    image: "couchdb:3.2.2"
     environment:
       COUCHDB_USER: dbadmin
       COUCHDB_PASSWORD: dbadmin
@@ -13,7 +13,7 @@ services:
       - "./couch.ini:/opt/couchdb/etc/local.d/docker.ini"
 
   couchdb2:
-    image: "couchdb:3.1.1"
+    image: "couchdb:3.2.2"
     environment:
       COUCHDB_USER: dbadmin
       COUCHDB_PASSWORD: dbadmin
