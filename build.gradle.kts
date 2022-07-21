@@ -31,7 +31,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("reflect"))
-                api("io.ktor:ktor-client-core:$KTOR_VERSION")
+                implementation("io.ktor:ktor-client-core:$KTOR_VERSION")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$KOTLINX_COROUTINES_VERSION")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$SERIALIZATION_VERSION")
@@ -45,7 +45,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                api("io.ktor:ktor-client-cio:$KTOR_VERSION")
+                implementation("io.ktor:ktor-client-cio:$KTOR_VERSION")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$KOTLINX_COROUTINES_VERSION")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$SERIALIZATION_VERSION")
