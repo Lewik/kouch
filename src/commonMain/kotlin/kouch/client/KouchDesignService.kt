@@ -68,7 +68,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     ) {
         @Serializable
         class ViewRow(
-            val id: String? = null,
+            val id: KouchEntity.Id? = null,
             val key: JsonElement?,
             val value: JsonElement?,
             val doc: JsonElement? = null,
@@ -76,7 +76,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     }
 
     suspend fun getWithResponse(
-        id: String,
+        id: KouchEntity.Id,
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
         parameters: KouchDocument.GetQueryParameters? = null,
     ) = kouchDocumentService.getWithResponse<KouchDesign>(id, db, parameters)
@@ -101,8 +101,8 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
 
 
     suspend inline fun <reified RESULT : Any> getView(
-        id: String,
-        view: String,
+        id: KouchEntity.Id,
+        view: KouchDesign.ViewName,
         request: ViewRequest = ViewRequest(),
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
     ) = getView(
@@ -119,8 +119,8 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     )
 
     suspend fun <RESULT : Any> getView(
-        id: String,
-        view: String,
+        id: KouchEntity.Id,
+        view: KouchDesign.ViewName,
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>,
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
@@ -134,8 +134,8 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     )
 
     suspend fun getRawView(
-        id: String,
-        view: String,
+        id: KouchEntity.Id,
+        view: KouchDesign.ViewName,
         request: ViewRequest = ViewRequest(),
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
     ): Result<IntermediateViewResponse.ViewRow?> = internalGetView(
@@ -148,8 +148,8 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     )
 
     private suspend fun <RESULT : Any> internalGetView(
-        id: String,
-        view: String,
+        id: KouchEntity.Id,
+        view: KouchDesign.ViewName,
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>,
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
@@ -158,7 +158,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
 
         val response = context.request(
             method = HttpMethod.Post,
-            path = "${db.value}/_design/$id/_view/$view",
+            path = "$db/_design/$id/_view/$view",
             body = TextContent(
                 text = context.systemJson.encodeToString(request),
                 contentType = ContentType.Application.Json

@@ -4,6 +4,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
+import kouch.KouchDesign.ViewName
+import kouch.KouchEntity.Id
+import kouch.KouchEntity.Rev
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDesignService.ViewRequest
 import kotlin.test.*
@@ -12,8 +15,8 @@ internal class KouchDesignTest {
     @KouchEntityMetadata("test_entity", "test_entity")
     @Serializable
     data class TestEntity(
-        override val id: String,
-        override val revision: String? = null,
+        override val id: Id,
+        override val revision: Rev? = null,
         val string: String,
         val label: String,
     ) : KouchEntity
@@ -26,8 +29,8 @@ internal class KouchDesignTest {
     }
 
     private fun getEntity() = TestEntity(
-        id = "some-id",
-        revision = "some-revision",
+        id = Id("some-id"),
+        revision = Rev("some-revision"),
         string = "some-string",
         label = "some label"
     )
@@ -37,7 +40,7 @@ internal class KouchDesignTest {
         prepareData()
 
         val (_, getResult) = kouch.design.getWithResponse(
-            id = "testdes",
+            id = Id("testdes"),
             db = DatabaseName("test_entity")
         )
         assertNotNull(getResult)
@@ -50,7 +53,7 @@ internal class KouchDesignTest {
     fun getNonexistentDesign() = runTest {
         kouch.db.create(DatabaseName("test_entity"))
         val (_, nullResult) = kouch.design.getWithResponse(
-            id = "devices2",
+            id = Id("devices2"),
             db = DatabaseName("test_entity")
         )
         assertNull(nullResult)
@@ -61,7 +64,7 @@ internal class KouchDesignTest {
         prepareData()
 
         val (_, getResult) = kouch.design.getWithResponse(
-            id = "testdes",
+            id = Id("testdes"),
             db = DatabaseName("test_entity")
         )
         assertNotNull(getResult)
@@ -74,7 +77,7 @@ internal class KouchDesignTest {
         assertEquals(true, deleteResult.ok)
 
         val (_, getResult2) = kouch.design.getWithResponse(
-            id = "testdes",
+            id = Id("testdes"),
             db = DatabaseName("test_entity")
         )
         assertNull(getResult2)
@@ -86,8 +89,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = "testdes",
-            view = "all",
+            id = Id("testdes"),
+            view = ViewName("all"),
             db = DatabaseName("test_entity")
         ).result.also {
             assertEquals(8, it.size)
@@ -101,8 +104,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = "testdes",
-            view = "asd_only",
+            id = Id("testdes"),
+            view = ViewName("asd_only"),
             db = DatabaseName("test_entity")
         ).result.also {
             assertEquals(1, it.size)
@@ -115,8 +118,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = "testdes",
-            view = "all",
+            id = Id("testdes"),
+            view = ViewName("all"),
             db = DatabaseName("test_entity")
         ).result.also {
             assertEquals(8, it.size)
@@ -130,8 +133,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = "testdes",
-            view = "allnull",
+            id = Id("testdes"),
+            view = ViewName("allnull"),
             request = ViewRequest(
                 include_docs = true
             ),
@@ -148,8 +151,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = "testdes",
-            view = "allnull",
+            id = Id("testdes"),
+            view = ViewName("allnull"),
             request = ViewRequest(),
             db = DatabaseName("test_entity")
         ).result.also { list ->
@@ -163,8 +166,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = "testdes",
-            view = "all",
+            id = Id("testdes"),
+            view = ViewName("all"),
             request = ViewRequest(descending = true),
             db = DatabaseName("test_entity")
         ).result.also {
@@ -181,8 +184,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = "testdes",
-            view = "all",
+            id = Id("testdes"),
+            view = ViewName("all"),
             request = ViewRequest(
                 key = JsonPrimitive("label35")
             ),
@@ -198,8 +201,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = "testdes",
-            view = "by_label_and_string",
+            id = Id("testdes"),
+            view = ViewName("by_label_and_string"),
             request = ViewRequest(
                 key = JsonArray(listOf(JsonPrimitive("label1"), JsonPrimitive("string3")))
             ),
@@ -216,8 +219,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = "testdes",
-            view = "by_label_and_string",
+            id = Id("testdes"),
+            view = ViewName("by_label_and_string"),
             request = ViewRequest(
                 key = JsonArray(listOf(JsonPrimitive("notExistingKey"), JsonPrimitive("string3")))
             ),
@@ -233,8 +236,8 @@ internal class KouchDesignTest {
 
         kouch.design.getView<JsonElement>(
             db = DatabaseName("test_entity"),
-            id = "testdes",
-            view = "by_label_and_string",
+            id = Id("testdes"),
+            view = ViewName("by_label_and_string"),
             request = ViewRequest(
                 key = JsonArray(listOf(JsonPrimitive("notExistingKey"), JsonPrimitive("notExistingKey")))
             )
@@ -249,8 +252,8 @@ internal class KouchDesignTest {
 
         kouch.design.getRawView(
             db = DatabaseName("test_entity"),
-            id = "testdes",
-            view = "reduce",
+            id = Id("testdes"),
+            view = ViewName("reduce"),
             request = ViewRequest(
                 group = true
             )
@@ -264,8 +267,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = "testdes",
-            view = "all",
+            id = Id("testdes"),
+            view = ViewName("all"),
             request = ViewRequest(
                 limit = 2,
                 skip = 1
@@ -282,14 +285,14 @@ internal class KouchDesignTest {
         var i = 1
         kouch.db.create(DatabaseName("test_entity"))
         listOf(
-            getEntity().copy(id = "some-id${i++}", revision = null, label = "label3", string = "string1"),
-            getEntity().copy(id = "some-id${i++}", revision = null, label = "label2", string = "string1"),
-            getEntity().copy(id = "some-id${i++}", revision = null, label = "label35", string = "string2"),
-            getEntity().copy(id = "some-id${i++}", revision = null, label = "label1", string = "string3"),
-            getEntity().copy(id = "some-id${i++}", revision = null, label = "ASD", string = "string2"),
-            getEntity().copy(id = "some-id${i++}", revision = null, label = "ASD1", string = "string3"),
-            getEntity().copy(id = "some-id${i++}", revision = null, label = "label1", string = "string4"),
-            getEntity().copy(id = "some-id${i}", revision = null, label = "label1", string = "string1"),
+            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "label3", string = "string1"),
+            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "label2", string = "string1"),
+            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "label35", string = "string2"),
+            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string3"),
+            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "ASD", string = "string2"),
+            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "ASD1", string = "string3"),
+            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string4"),
+            getEntity().copy(id = Id("some-id${i}"), revision = null, label = "label1", string = "string1"),
         )
             .forEach {
                 val result = kouch.doc.insert(it)
@@ -297,24 +300,24 @@ internal class KouchDesignTest {
             }
 
         val design = KouchDesign(
-            id = "testdes",
+            id = Id("testdes"),
             views = mapOf(
-                "all" to KouchDesign.View(
+                ViewName("all") to KouchDesign.View(
                     /*language=js*/ map = """doc => { emit(doc.label, doc) }"""
                 ),
-                "allnull" to KouchDesign.View(
+                ViewName("allnull") to KouchDesign.View(
                     /*language=js*/ map = """doc => { emit(doc.label, null) }"""
                 ),
-                "by_label" to KouchDesign.View(
+                ViewName("by_label") to KouchDesign.View(
                     /*language=js*/ map = """doc => { if (doc.label != null) emit(doc.label, doc) }"""
                 ),
-                "asd_only" to KouchDesign.View(
+                ViewName("asd_only") to KouchDesign.View(
                     /*language=js*/ map = """doc => { if (doc.label === "ASD") { emit(doc.label, doc); } }"""
                 ),
-                "by_label_and_string" to KouchDesign.View(
+                ViewName("by_label_and_string") to KouchDesign.View(
                     /*language=js*/ map = """doc => { emit([doc.label, doc.string], doc) }"""
                 ),
-                "reduce" to KouchDesign.View(
+                ViewName("reduce") to KouchDesign.View(
                     /*language=js*/ map = """doc => { emit(doc.label, doc) }""",
                     /*language=js*/ reduce = """(key, value) => { return true }"""
                 )

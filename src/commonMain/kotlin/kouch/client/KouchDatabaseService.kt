@@ -217,13 +217,13 @@ class KouchDatabaseService(
                 val bodyMap = if (request.doc_ids.isEmpty()) {
                     emptyMap()
                 } else {
-                    mapOf("doc_ids" to JsonArray(request.doc_ids.map { JsonPrimitive(it) }))
+                    mapOf("doc_ids" to JsonArray(request.doc_ids.map { JsonPrimitive(it.value) }))
                 }
                 val body = context.systemJson.encodeToString(JsonObject(bodyMap))
 
                 val requestStatement = context.requestStatement(
                     method = Post,
-                    path = "${db.value}/_changes$queryString",
+                    path = "$db/_changes$queryString",
                     body = TextContent(
                         text = body,
                         contentType = ContentType.Application.Json
@@ -290,7 +290,7 @@ class KouchDatabaseService(
     }
 
     suspend inline fun <reified T : KouchEntity> bulkGet(
-        ids: Iterable<String>,
+        ids: Iterable<KouchEntity.Id>,
         db: DatabaseName = context.getMetadata(T::class).databaseName,
     ): KouchDatabase.BulkGetResult<T> {
         val ret = bulkGet(
@@ -306,7 +306,7 @@ class KouchDatabaseService(
     }
 
     suspend fun bulkGet(
-        ids: Iterable<String>,
+        ids: Iterable<KouchEntity.Id>,
         entityClasses: List<KClass<out KouchEntity>>,
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
     ): KouchDatabase.BulkGetResult<KouchEntity> {
@@ -315,14 +315,14 @@ class KouchDatabaseService(
             put(
                 key = "docs",
                 element = buildJsonArray {
-                    ids.forEach { add(buildJsonObject { put("id", it) }) }
+                    ids.forEach { add(buildJsonObject { put("id", it.value) }) }
                 }
             )
         }
 
         val response = context.request(
             method = Post,
-            path = "${db.value}/_bulk_get",
+            path = "$db/_bulk_get",
             body = TextContent(
                 text = context.systemJson.encodeToString(body),
                 contentType = ContentType.Application.Json
@@ -414,8 +414,8 @@ class KouchDatabaseService(
             entities.forEach { add(element = context.encodeToKouchEntityJson(kClass, it, className)) }
             entitiesToDelete.forEach {
                 add(element = buildJsonObject {
-                    put("_id", it.id)
-                    put("_rev", it.revision)
+                    put("_id", it.id.value)
+                    put("_rev", it.revision?.value)
                     put("_deleted", true)
                 })
             }
@@ -427,7 +427,7 @@ class KouchDatabaseService(
 
         val response = context.request(
             method = Post,
-            path = "${db.value}/_bulk_docs",
+            path = "$db/_bulk_docs",
             body = TextContent(
                 text = context.systemJson.encodeToString(request),
                 contentType = ContentType.Application.Json

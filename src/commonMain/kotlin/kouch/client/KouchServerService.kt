@@ -70,7 +70,7 @@ class KouchServerService(val context: Context) {
 
     private fun KouchDatabase.PullReplicationRequestInput.toPullReplicationRequest() = KouchDatabase.ReplicationRequest(
         source = KouchDatabase.UrlWithHeader(
-            url = "${sourceSettings.scheme}://${sourceSettings.host}:${sourceSettings.port}/${this.sourceDb.value}",
+            url = "${sourceSettings.scheme}://${sourceSettings.host}:${sourceSettings.port}/${this.sourceDb}",
             headers = KouchDatabase.DbHeader(
                 Authorization = context.getAdminBasic()
             )

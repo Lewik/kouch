@@ -88,8 +88,8 @@ class KouchUserService(val context: Context) {
     }
 
     suspend fun delete(
-        id: String,
-        revision: String
+        id: KouchEntity.Id,
+        revision: KouchEntity.Rev
     ): KouchUser.StandardResponse {
         val response = context.request(
             method = Delete,

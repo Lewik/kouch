@@ -1,3 +1,3 @@
 package kouch
 
-expect fun <T : KouchEntity> T.copyWithRevision(revision: String): T
+internal expect fun <T : KouchEntity> T.copyWithRevision(revision: KouchEntity.Rev): T

@@ -5,20 +5,23 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kouch.*
+import kouch.KouchDesign.ViewName
+import kouch.KouchEntity.Id
 import kouch.client.KouchClientImpl
 import kotlin.random.Random
 import kotlin.test.*
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
-import kotlin.time.seconds
 
 internal class KouchDocumentSpeedFunTest {
     @KouchEntityMetadata("test_entity", "test_entity")
     @Serializable
     data class TestEntity(
-        override val id: String,
-        override val revision: String? = null,
+        override val id: Id,
+        override val revision: KouchEntity.Rev? = null,
         val string: String,
         val label: String,
     ) : KouchEntity
@@ -27,7 +30,7 @@ internal class KouchDocumentSpeedFunTest {
     private val kouch = KouchClientImpl(KouchTestHelper.defaultContext)
 
     private fun getEntity() = TestEntity(
-        id = "some-id",
+        id = Id("some-id"),
         revision = null,
         string = "some-string",
         label = "some label"
@@ -47,13 +50,12 @@ internal class KouchDocumentSpeedFunTest {
     fun oneByOneTest() = runTest {
         kouch.db.createForEntity(kClass = TestEntity::class)
         val entity = getEntity()
-        var id = 0
 
         val result = measureTime {
             (1..items)
                 .map { id ->
                     kouch.doc.insert(
-                        entity = entity.copy(id = id.toString())
+                        entity = entity.copy(id = Id(id.toString()))
                     )
                 }
         }
@@ -74,7 +76,7 @@ internal class KouchDocumentSpeedFunTest {
                 .map { id ->
                     GlobalScope.launch {
                         kouch.doc.insert(
-                            entity = entity.copy(id = id.toString())
+                            entity = entity.copy(id = Id(id.toString()))
                         )
                     }
                 }
@@ -111,7 +113,7 @@ internal class KouchDocumentSpeedFunTest {
         .joinToString("")
 
     private fun randomEntity() = TestEntity(
-        id = randomString(16),
+        id = Id(randomString(16)),
         string = randomString(16),
         label = randomString(24),
     )
@@ -166,34 +168,34 @@ internal class KouchDocumentSpeedFunTest {
             }
         }
         println("Time: $time, Wait: $waitTime, Insert: $insertTime")
-        println("Insertions per second: ${1000000 / time.inSeconds}")
-        println("Insertions per second w/o waiting: ${1000000 / insertTime.inSeconds}")
+        println("Insertions per second: ${1000000 / time.toDouble(DurationUnit.SECONDS)}")
+        println("Insertions per second w/o waiting: ${1000000 / insertTime.toDouble(DurationUnit.SECONDS)}")
     }
 
     private fun getJsDesignDoc(i: Int): KouchDesign {
         val prefix = if (i == 0) "" else i.toString()
         val design = KouchDesign(
-            id = "testdes$i",
+            id = Id("testdes$i"),
             views = mapOf(
-                "all${prefix}" to KouchDesign.View(
+                ViewName("all$prefix") to KouchDesign.View(
                     /*language=js*/
-                    map = """doc => { emit(doc.label${prefix}, doc) }""",
+                    map = """doc => { emit(doc.label$prefix, doc) }""",
                 ),
-                "allnull${prefix}" to KouchDesign.View(
+                ViewName("allnull$prefix") to KouchDesign.View(
                     /*language=js*/
-                    map = """doc => { emit(doc.label${prefix}, null) }""",
+                    map = """doc => { emit(doc.label$prefix, null) }""",
                 ),
-                "by_label${prefix}" to KouchDesign.View(
-                    /*language=js*/ map = """doc => { if (doc.label${prefix} != null) emit(doc.label${prefix}, doc) }"""
+                ViewName("by_label$prefix") to KouchDesign.View(
+                    /*language=js*/ map = """doc => { if (doc.label$prefix != null) emit(doc.label$prefix, doc) }"""
                 ),
-                "asd_only${prefix}" to KouchDesign.View(
-                    /*language=js*/ map = """doc => { if (doc.label${prefix} === "ASD") { emit(doc.label${prefix}, doc); } }"""
+                ViewName("asd_only$prefix") to KouchDesign.View(
+                    /*language=js*/ map = """doc => { if (doc.label$prefix === "ASD") { emit(doc.label$prefix, doc); } }"""
                 ),
-                "by_label_and_string${prefix}" to KouchDesign.View(
-                    /*language=js*/ map = """doc => { emit([doc.label${prefix}, doc.string], doc) }"""
+                ViewName("by_label_and_string$prefix") to KouchDesign.View(
+                    /*language=js*/ map = """doc => { emit([doc.label$prefix, doc.string], doc) }"""
                 ),
-                "reduce${prefix}" to KouchDesign.View(
-                    /*language=js*/ map = """doc => { emit(doc.label${prefix}, doc) }""",
+                ViewName("reduce$prefix") to KouchDesign.View(
+                    /*language=js*/ map = """doc => { emit(doc.label$prefix, doc) }""",
                     /*language=js*/ reduce = """(key, value) => { return true }"""
                 )
             )
@@ -204,32 +206,32 @@ internal class KouchDocumentSpeedFunTest {
     private fun getErlangDesignDoc(i: Int): KouchDesign {
         val prefix = if (i == 0) "" else i.toString()
         val design = KouchDesign(
-            id = "testdes$i",
+            id = Id("testdes$i"),
             language = "Erlang",
             views = mapOf(
-                "all${prefix}" to KouchDesign.View(
+                ViewName("all$prefix") to KouchDesign.View(
                     /*language=Erlang*/
                     map = """
                                 fun({Doc}) ->
-                                    K = proplists:get_value(<<"label${prefix}">>, Doc, null),
+                                    K = proplists:get_value(<<"label$prefix">>, Doc, null),
                                     Emit(K, {Doc})
                                 end.
                             """.trimIndent(),
                 ),
-                "allnull${prefix}" to KouchDesign.View(
+                ViewName("allnull$prefix") to KouchDesign.View(
                     /*language=Erlang*/
                     map = """
                                 fun({Doc}) ->
-                                    K = proplists:get_value(<<"label${prefix}">>, Doc, null),
+                                    K = proplists:get_value(<<"label$prefix">>, Doc, null),
                                     Emit(K, null)
                                 end.
                             """.trimIndent(),
                 ),
-                "by_label${prefix}" to KouchDesign.View(
+                ViewName("by_label$prefix") to KouchDesign.View(
                     /*language=Erlang*/
                     map = """
                                 fun({Doc}) ->
-                                    K = proplists:get_value(<<"label${prefix}">>, Doc, null),
+                                    K = proplists:get_value(<<"label$prefix">>, Doc, null),
                                     if
                                       K == null -> null;
                                       true -> Emit(null, null)
@@ -237,10 +239,10 @@ internal class KouchDocumentSpeedFunTest {
                                 end.
                             """.trimIndent(),
                 ),
-                "asd_only${prefix}" to KouchDesign.View(
+                ViewName("asd_only$prefix") to KouchDesign.View(
                     /*language=Erlang*/ map = """
                                 fun({Doc}) ->
-                                    K = proplists:get_value(<<"label${prefix}">>, Doc, null),
+                                    K = proplists:get_value(<<"label$prefix">>, Doc, null),
                                     if
                                       K == <<"ASD">> -> Emit(K, {Doc});
                                       true -> null
@@ -248,19 +250,19 @@ internal class KouchDocumentSpeedFunTest {
                                 end.
                             """.trimIndent()
                 ),
-                "by_label_and_string${prefix}" to KouchDesign.View(
+                ViewName("by_label_and_string$prefix") to KouchDesign.View(
                     /*language=Erlang*/ map = """
                                 fun({Doc}) ->
-                                    K = proplists:get_value(<<"label${prefix}">>, Doc, null),
+                                    K = proplists:get_value(<<"label$prefix">>, Doc, null),
                                     S = proplists:get_value(<<"string">>, Doc, null),
                                     Emit([K, S], {Doc})
                                 end.
                             """.trimIndent()
                 ),
-                "reduce${prefix}" to KouchDesign.View(
+                ViewName("reduce$prefix") to KouchDesign.View(
                     /*language=Erlang*/ map = """
                                 fun({Doc}) ->
-                                    K = proplists:get_value(<<"label${prefix}">>, Doc, null),
+                                    K = proplists:get_value(<<"label$prefix">>, Doc, null),
                                     Emit(K, {Doc})
                                 end.
                             """.trimIndent(),

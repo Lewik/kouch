@@ -2,7 +2,7 @@ package kouch
 
 import kotlin.reflect.KParameter
 
-actual fun <T : KouchEntity> T.copyWithRevision(revision: String): T {
+internal actual fun <T : KouchEntity> T.copyWithRevision(revision: KouchEntity.Rev): T {
     val copy = this::class.members.first { it.name == "copy" }
     val instanceParam = copy.parameters.first { it.kind == KParameter.Kind.INSTANCE }
     val revisionParam = copy.parameters.first { it.name == "revision" }

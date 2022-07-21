@@ -14,8 +14,8 @@ internal class KouchReplicationTest {
     @KouchEntityMetadata("test_entity", "test_entity")
     @Serializable
     data class TestEntity(
-        override val id: String,
-        override val revision: String? = null,
+        override val id: KouchEntity.Id,
+        override val revision: KouchEntity.Rev? = null,
         val string: String,
         val label: String,
     ) : KouchEntity
@@ -26,8 +26,8 @@ internal class KouchReplicationTest {
     private val targetClient = KouchClientImpl(targetContext)
 
     private fun getEntity() = TestEntity(
-        id = "some-id",
-        revision = "some-revision",
+        id = KouchEntity.Id("some-id"),
+        revision = KouchEntity.Rev("some-revision"),
         string = "some-string",
         label = "some label"
     )

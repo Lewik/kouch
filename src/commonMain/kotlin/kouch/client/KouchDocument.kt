@@ -1,6 +1,7 @@
 package kouch.client
 
 import kotlinx.serialization.Serializable
+import kouch.KouchEntity
 
 class KouchDocument {
 
@@ -20,15 +21,15 @@ class KouchDocument {
         val meta: Boolean = false,
         //TODO: support "all" value
         val open_revs: List<String>? = null,
-        val rev: String? = null,
+        val rev: KouchEntity.Rev? = null,
         val revs: Boolean = false,
         val revs_info: Boolean = false,
     )
 
     @Serializable
     data class GetResponse(
-        val _id: String? = null,
-        val _rev: String? = null,
+        val _id: KouchEntity.Id? = null,
+        val _rev: KouchEntity.Rev? = null,
         val _deleted: Boolean? = null,
         val _attachments: Attachments? = null,
         val _conflicts: List<String>? = null,
@@ -45,14 +46,14 @@ class KouchDocument {
 
         @Serializable
         data class Revisions(
-            val ids: List<String>,
-            val start: Int
+            val ids: List<KouchEntity.Id>,
+            val start: Int,
         )
     }
 
     @Serializable
     class PutQueryParameters(
-        val rev: String? = null,
+        val rev: KouchEntity.Rev? = null,
         /**
          * possible values: [null|"ok"]
          */
@@ -62,16 +63,16 @@ class KouchDocument {
 
     @Serializable
     data class PutResponse(
-        val id: String? = null,
+        val id: KouchEntity.Id? = null,
         val ok: Boolean? = null,
-        val rev: String? = null,
+        val rev: KouchEntity.Rev? = null,
         val error: String? = null,
         val reason: String? = null,
     )
 
     @Serializable
     class DeleteQueryParameters(
-        val rev: String,
+        val rev: KouchEntity.Rev,
         /**
          * possible values: [null|"ok"]
          */
@@ -80,9 +81,9 @@ class KouchDocument {
 
     @Serializable
     data class DeleteResponse(
-        val id: String? = null,
+        val id: KouchEntity.Id? = null,
         val ok: Boolean? = null,
-        val rev: String? = null,
+        val rev: KouchEntity.Rev? = null,
         val error: String? = null,
         val reason: String? = null,
     )

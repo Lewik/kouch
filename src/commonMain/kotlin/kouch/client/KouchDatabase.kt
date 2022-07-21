@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kouch.DatabaseName
+import kouch.KouchDesign
 import kouch.KouchEntity
 import kouch.Settings
 
@@ -13,7 +14,7 @@ class KouchDatabase {
     data class GetResponse(
         val cluster: Cluster,
         val compact_running: Boolean,
-        val db_name: String,
+        val db_name: DatabaseName,
         val disk_format_version: Int,
         val doc_count: Int,
         val doc_del_count: Int,
@@ -106,7 +107,7 @@ class KouchDatabase {
 
     @Serializable
     data class ChangesRequest(
-        val doc_ids: List<String> = emptyList(),
+        val doc_ids: List<KouchEntity.Id> = emptyList(),
         val conflicts: Boolean = false,
         val descending: Boolean = false,
 //        val feed: Feed,
@@ -121,7 +122,7 @@ class KouchDatabase {
         val since: String = "now",
         val style: Style = Style.MAIN_ONLY,
         val timeout: Int? = null,
-        val view: String? = null,
+        val view: KouchDesign.ViewName? = null,
         val seq_interval: Int? = null,
     ) {
 //        @Serializable
@@ -158,21 +159,21 @@ class KouchDatabase {
         @Serializable
         data class Result(
             val changes: List<RevOnly>,
-            val id: String,
+            val id: KouchEntity.Id,
             val seq: String,
             val deleted: Boolean = false,
             val doc: KouchEntity? = null
         ) {
             @Serializable
             class RevOnly(
-                val rev: String
+                val rev: KouchEntity.Rev
             )
         }
 
         @Serializable
         data class RawResult(
             val changes: List<Result.RevOnly>,
-            val id: String,
+            val id: KouchEntity.Id,
             val seq: String,
             val deleted: Boolean = false,
             val doc: JsonObject? = null
@@ -191,7 +192,7 @@ class KouchDatabase {
     ) {
         @Serializable
         data class Result(
-            val id: String,
+            val id: KouchEntity.Id,
             val docs: List<Doc>,
         ) {
             @Serializable
@@ -201,8 +202,8 @@ class KouchDatabase {
             ) {
                 @Serializable
                 data class Error(
-                    val id: String,
-                    val rev: String,
+                    val id: KouchEntity.Id,
+                    val rev: KouchEntity.Rev,
                     val error: String,
                     val reason: String,
                 )
@@ -224,8 +225,8 @@ class KouchDatabase {
 
     @Serializable
     data class BulkUpsertResponse(
-        val id: String,
-        val rev: String? = null,
+        val id: KouchEntity.Id,
+        val rev: KouchEntity.Rev? = null,
         val ok: Boolean? = null,
         val error: String? = null,
         val reason: String? = null

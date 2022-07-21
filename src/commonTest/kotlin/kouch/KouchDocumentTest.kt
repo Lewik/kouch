@@ -1,6 +1,8 @@
 package kouch
 
 import kotlinx.serialization.Serializable
+import kouch.KouchEntity.Id
+import kouch.KouchEntity.Rev
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDocument
 import kotlin.test.*
@@ -9,8 +11,8 @@ internal class KouchDocumentTest {
     @KouchEntityMetadata
     @Serializable
     data class TestEntity(
-        override val id: String,
-        override val revision: String? = null,
+        override val id: Id,
+        override val revision: Rev? = null,
         val string: String,
         val label: String,
     ) : KouchEntity
@@ -18,8 +20,8 @@ internal class KouchDocumentTest {
     private val kouch = KouchClientImpl(KouchTestHelper.defaultContext)
 
     private fun getEntity() = TestEntity(
-        id = "some-id",
-        revision = "some-revision",
+        id = Id("some-id"),
+        revision = Rev("some-revision"),
         string = "some-string",
         label = "some label"
     )
@@ -31,7 +33,7 @@ internal class KouchDocumentTest {
 
     @Test
     fun notExistedId() = runTest {
-        val document = kouch.doc.get<TestEntity>("notExistedId1")
+        val document = kouch.doc.get<TestEntity>(Id("notExistedId1"))
         assertNull(document)
     }
 
@@ -123,7 +125,7 @@ internal class KouchDocumentTest {
         )
         kouch.db.createForEntity(entity)
         kouch.doc.insert(entity)
-        val entityWithWrongRevision = entity.copy(revision = "wrongRev")
+        val entityWithWrongRevision = entity.copy(revision = Rev("wrongRev"))
         val exception = assertFailsWith<KouchDocumentException> { kouch.doc.delete(entityWithWrongRevision) }
 
         assertNotNull(exception.message)
@@ -140,7 +142,6 @@ internal class KouchDocumentTest {
         kouch.db.createForEntity(entity)
 
         val entityInserted = kouch.doc.insert(entity).getUpdatedEntity()
-
         val entityReturned = kouch.doc.get<TestEntity>(entityInserted.id)
         assertNotNull(entityReturned)
         assertEquals(entityReturned, entityInserted)

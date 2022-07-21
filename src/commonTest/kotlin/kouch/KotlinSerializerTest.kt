@@ -10,20 +10,20 @@ internal class KotlinSerializerTest {
     @KouchEntityMetadata("test-data", "test-data")
     @Serializable
     data class TestData(
-        override val id: String,
-        override val revision: String? = null,
+        override val id: KouchEntity.Id,
+        override val revision: KouchEntity.Rev? = null,
         val someData: String,
-        val someDefData: String = "theDefData"
+        val someDefData: String = "theDefData",
     ) : KouchEntity
 
     @KouchEntityMetadata("test-data-not-sorted-fields", "test-data-not-sorted-fields")
     @Serializable
     data class TestDataNotSortedFields(
-        override val id: String,
-        override val revision: String? = null,
+        override val id: KouchEntity.Id,
+        override val revision: KouchEntity.Rev? = null,
         val someDefData: String = "theDefData",
         val test: TestDataNotSortedFields? = null,
-        val someData: String
+        val someData: String,
     ) : KouchEntity
 
     private val context = KouchTestHelper.defaultContext
@@ -31,8 +31,8 @@ internal class KotlinSerializerTest {
     @Test
     fun serializeAllSet() {
         val data = TestData(
-            id = "theId",
-            revision = "theRevision",
+            id = KouchEntity.Id("theId"),
+            revision = KouchEntity.Rev("theRevision"),
             someData = "someData",
             someDefData = "theDefData2"
         )
@@ -46,7 +46,7 @@ internal class KotlinSerializerTest {
     @Test
     fun serializeWithDefaultRev() {
         val data = TestData(
-            id = "theId",
+            id = KouchEntity.Id("theId"),
             someData = "someData",
             someDefData = "theDefData2"
         )
@@ -59,8 +59,8 @@ internal class KotlinSerializerTest {
     @Test
     fun serializeWithDefaultData() {
         val data = TestData(
-            id = "theId",
-            revision = "theRevision",
+            id = KouchEntity.Id("theId"),
+            revision = KouchEntity.Rev("theRevision"),
             someData = "someData",
             //someDefData = "theDefData"
         )
@@ -74,7 +74,7 @@ internal class KotlinSerializerTest {
     @Test
     fun serializeWithDefaultRevAndData() {
         val data = TestData(
-            id = "theId",
+            id = KouchEntity.Id("theId"),
             someData = "someData",
             //someDefData = "theDefData"
         )
@@ -87,13 +87,13 @@ internal class KotlinSerializerTest {
     @Test
     fun deserialize() {
         val data = TestDataNotSortedFields(
-            id = "theId",
-            revision = "theRevision",
+            id = KouchEntity.Id("theId"),
+            revision = KouchEntity.Rev("theRevision"),
             someData = "someData",
             someDefData = "theDefData2",
             test = TestDataNotSortedFields(
-                id = "SUBtheId",
-                revision = "SUBtheRevision",
+                id = KouchEntity.Id("SUBtheId"),
+                revision = KouchEntity.Rev("SUBtheRevision"),
                 someData = "SUBsomeData",
                 someDefData = "SUBtheDefData2"
             )

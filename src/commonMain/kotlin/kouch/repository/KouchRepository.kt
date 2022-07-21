@@ -21,9 +21,9 @@ abstract class KouchRepository<T : KouchEntity>(
     suspend fun update(entity: T) = kouch.doc.update(entity, entityKClass)
     suspend fun upsert(entity: T) = kouch.doc.upsert(entity, entityKClass)
     suspend fun delete(entity: T) = kouch.doc.delete(entity, entityKClass)
-    suspend fun delete(id: String, revision: String) = kouch.doc.delete(id, entityKClass, revision)
-    suspend fun get(id: String) = kouch.doc.get(id, entityKClass)
-    suspend fun bulkGet(ids: Iterable<String>) = kouch.db.bulkGet(ids, listOf(entityKClass))
+    suspend fun delete(id: KouchEntity.Id, revision: KouchEntity.Rev) = kouch.doc.delete(id, entityKClass, revision)
+    suspend fun get(id: KouchEntity.Id) = kouch.doc.get(id, entityKClass)
+    suspend fun bulkGet(ids: Iterable<KouchEntity.Id>) = kouch.db.bulkGet(ids, listOf(entityKClass))
     suspend fun bulkUpsert(
         entities: Iterable<T>,
         entitiesToDelete: Iterable<KouchEntity> = emptyList(),
@@ -36,11 +36,11 @@ abstract class KouchRepository<T : KouchEntity>(
 
 
     protected val metadata = kouch.context.getMetadata(entityKClass)
-    protected val defaultDesignDocId = metadata.className.value + "_design"
+    protected val defaultDesignDocId = KouchEntity.Id("${metadata.className}_design")
     protected val classField = kouch.context.classField
 
     protected suspend fun getView(
-        id: String = defaultDesignDocId,
+        id: KouchEntity.Id = defaultDesignDocId,
         viewName: Enum<*>,
         request: KouchDesignService.ViewRequest = KouchDesignService.ViewRequest(
             include_docs = true,
@@ -48,7 +48,7 @@ abstract class KouchRepository<T : KouchEntity>(
     ) = kouch.design
         .getView(
             id = id,
-            view = viewName.name,
+            view = KouchDesign.ViewName(viewName.name),
             request = request.copy(include_docs = true),
             resultKClass = entityKClass
         )
@@ -67,7 +67,7 @@ abstract class KouchRepository<T : KouchEntity>(
             id = defaultDesignDocId,
             language = getLang(),
             views = views.entries.associate {
-                it.key.name to KouchDesign.View(
+                KouchDesign.ViewName(it.key.name) to KouchDesign.View(
                     map = it.value.map.trimIndent(),
                     reduce = it.value.reduce?.trimIndent(),
                 )
