@@ -68,7 +68,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     ) {
         @Serializable
         class ViewRow(
-            val id: KouchEntity.CommonId? = null,
+            val id: KouchDocument.CommonId? = null,
             val key: JsonElement?,
             val value: JsonElement?,
             val doc: JsonElement? = null,
@@ -77,13 +77,13 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
 
     suspend fun getWithResponse(
         id: KouchDesign.Id,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
         parameters: KouchDocument.GetQueryParameters? = null,
     ) = kouchDocumentService.getWithResponse<KouchDesign>(id, db, parameters)
 
     suspend fun upsert(
         ddoc: KouchDesign,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
         parameters: KouchDocument.PutQueryParameters? = null,
     ) = kouchDocumentService.upsert(
         entity = ddoc,
@@ -96,15 +96,15 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     suspend inline fun delete(
         entity: KouchDesign,
         batch: Boolean = false,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
     ) = kouchDocumentService.delete(entity, batch, db)
 
 
     suspend inline fun <reified RESULT : Any> getView(
-        id: KouchEntity.Id,
+        id: KouchDocument.Id,
         view: KouchDesign.ViewName,
         request: ViewRequest = ViewRequest(),
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
     ) = getView(
         id = id,
         view = view,
@@ -119,11 +119,11 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     )
 
     suspend fun <RESULT : Any> getView(
-        id: KouchEntity.Id,
+        id: KouchDocument.Id,
         view: KouchDesign.ViewName,
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
     ): Result<RESULT?> = internalGetView(
         id = id,
         view = view,
@@ -134,10 +134,10 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     )
 
     suspend fun getRawView(
-        id: KouchEntity.Id,
+        id: KouchDocument.Id,
         view: KouchDesign.ViewName,
         request: ViewRequest = ViewRequest(),
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
     ): Result<IntermediateViewResponse.ViewRow?> = internalGetView(
         id = id,
         view = view,
@@ -148,11 +148,11 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
     )
 
     private suspend fun <RESULT : Any> internalGetView(
-        id: KouchEntity.Id,
+        id: KouchDocument.Id,
         view: KouchDesign.ViewName,
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
         rawRow: Boolean,
     ): Result<RESULT?> {
 
@@ -175,7 +175,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
                         request.include_docs -> viewRow.jsonObject["doc"] ?: throw DocIsNullException(text)
                         else -> viewRow.jsonObject["value"].takeIf { it != JsonNull }
                     }
-                    resultJson?.let { context.decodeKouchEntityFromJsonElement(it, resultKClass) }
+                    resultJson?.let { context.decodeKouchDocumentFromJsonElement(it, resultKClass) }
                 }
                 Result(
                     result = entities,

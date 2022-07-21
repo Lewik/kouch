@@ -42,12 +42,12 @@ class KouchDatabaseService(
             "_replicator",
             "_global_changes"
         )
-            .map { DatabaseName(it) }
+            .map { KouchDatabase.Name(it) }
     }
 
 
     suspend fun isExist(
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
     ): Boolean {
         val response = context.request(method = Head, path = db.value)
         val text = response.bodyAsText()
@@ -58,12 +58,12 @@ class KouchDatabaseService(
         }
     }
 
-    suspend fun <T : KouchEntity> isExistFor(
+    suspend fun <T : KouchDocument> isExistFor(
         kClass: KClass<out T>,
     ) = isExist(context.getMetadata(kClass).databaseName)
 
     suspend fun get(
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
     ): KouchDatabase.GetResponse? {
         val response = context.request(method = Get, path = db.value)
         val text = response.bodyAsText()
@@ -76,7 +76,7 @@ class KouchDatabaseService(
 
     suspend fun getAll(
         request: KouchServer.AllDbsRequest = KouchServer.AllDbsRequest(),
-    ): List<DatabaseName> {
+    ): List<KouchDatabase.Name> {
         val response = context.request(
             method = Get,
             path = "_all_dbs",
@@ -86,13 +86,13 @@ class KouchDatabaseService(
         return when (response.status) {
             OK -> context.systemJson
                 .decodeFromJsonElement<List<String>>(context.responseJson.parseToJsonElement(text))
-                .map { DatabaseName(it) }
+                .map { KouchDatabase.Name(it) }
             else -> throw UnsupportedStatusCodeException("$response: $text")
         }
     }
 
     suspend fun create(
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
         partitions: Int? = null,
         replicas: Int? = null,
         partitioned: Boolean = false,
@@ -120,7 +120,7 @@ class KouchDatabaseService(
         }
     }
 
-    suspend fun <T : KouchEntity> createForEntity(
+    suspend fun <T : KouchDocument> createForEntity(
         entity: T,
         partitions: Int? = null,
         replicas: Int? = null,
@@ -132,7 +132,7 @@ class KouchDatabaseService(
         partitioned = partitioned
     )
 
-    suspend fun <T : KouchEntity> createForEntity(
+    suspend fun <T : KouchDocument> createForEntity(
         kClass: KClass<out T>,
         partitions: Int? = null,
         replicas: Int? = null,
@@ -146,7 +146,7 @@ class KouchDatabaseService(
 
 
     //TODO : speedup with parallel coroutines
-    suspend fun <T : KouchEntity> createForEntities(
+    suspend fun <T : KouchDocument> createForEntities(
         kClasses: List<KClass<out T>>,
         partitions: Int? = null,
         replicas: Int? = null,
@@ -161,7 +161,7 @@ class KouchDatabaseService(
             )
         }
 
-    suspend fun <T : KouchEntity> createForEntitiesIfNotExists(
+    suspend fun <T : KouchDocument> createForEntitiesIfNotExists(
         kClasses: List<KClass<out T>>,
         partitions: Int? = null,
         replicas: Int? = null,
@@ -176,7 +176,7 @@ class KouchDatabaseService(
     }
 
     suspend fun delete(
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
     ) {
         val response = context.request(method = Delete, path = db.value)
         val text = response.bodyAsText()
@@ -197,10 +197,10 @@ class KouchDatabaseService(
 
     suspend fun changesContinuous(
         scope: CoroutineScope,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
         request: KouchDatabase.ChangesRequest,
         reconnectionDelay: Duration = Duration.seconds(2),
-        entities: List<KClass<out KouchEntity>>,
+        entities: List<KClass<out KouchDocument>>,
         listener: suspend (entry: KouchDatabase.ChangesResponse.Result) -> Unit,
     ) = scope.launch {
         val classNameToKClass = entities.associateBy { context.getMetadata(it).className.value }
@@ -252,7 +252,7 @@ class KouchDatabaseService(
                                         val className = jsonDoc[context.classField]?.jsonPrimitive?.content ?: return@collect
                                         val kClass = classNameToKClass[className]
                                             ?: throw IllegalArgumentException("changesContinuous: Unknown classField value: $className")
-                                        context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
+                                        context.decodeKouchDocumentFromJsonElement(jsonDoc, kClass)
                                     } else {
                                         null
                                     }
@@ -289,9 +289,9 @@ class KouchDatabaseService(
         }
     }
 
-    suspend inline fun <reified T : KouchEntity> bulkGet(
-        ids: Iterable<KouchEntity.Id>,
-        db: DatabaseName = context.getMetadata(T::class).databaseName,
+    suspend inline fun <reified T : KouchDocument> bulkGet(
+        ids: Iterable<KouchDocument.Id>,
+        db: KouchDatabase.Name = context.getMetadata(T::class).databaseName,
     ): KouchDatabase.BulkGetResult<T> {
         val ret = bulkGet(
             db = db,
@@ -306,10 +306,10 @@ class KouchDatabaseService(
     }
 
     suspend fun bulkGet(
-        ids: Iterable<KouchEntity.Id>,
-        entityClasses: List<KClass<out KouchEntity>>,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
-    ): KouchDatabase.BulkGetResult<KouchEntity> {
+        ids: Iterable<KouchDocument.Id>,
+        entityClasses: List<KClass<out KouchDocument>>,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
+    ): KouchDatabase.BulkGetResult<KouchDocument> {
         val classNameToKClass = entityClasses.associateBy { context.getMetadata(it).className.value }
         val body = buildJsonObject {
             put(
@@ -350,7 +350,7 @@ class KouchDatabaseService(
                                         ?: throw IllegalArgumentException("Can't find classField value $jsonDoc")
                                     val kClass = classNameToKClass[className]
                                         ?: throw IllegalArgumentException("bulkGet: Unknown classField value: $className")
-                                    context.decodeKouchEntityFromJsonElement(jsonDoc, kClass)
+                                    context.decodeKouchDocumentFromJsonElement(jsonDoc, kClass)
                                 }
                             }
                             doc.error != null -> doc.error
@@ -358,9 +358,9 @@ class KouchDatabaseService(
                         }
                     }
 
-                val entities = results.filterIsInstance<KouchEntity>()
+                val entities = results.filterIsInstance<KouchDocument>()
                 val errors = results.filterIsInstance<KouchDatabase.BulkGetRawResult.Result.Doc.Error>()
-                if (results.any { it !is KouchEntity && it !is KouchDatabase.BulkGetRawResult.Result.Doc.Error }) {
+                if (results.any { it !is KouchDocument && it !is KouchDatabase.BulkGetRawResult.Result.Doc.Error }) {
                     throw IllegalArgumentException("Unsupported results: $results")
                 }
                 KouchDatabase.BulkGetResult(entities, errors)
@@ -391,9 +391,9 @@ class KouchDatabaseService(
         }
     }
 
-    suspend inline fun <reified T : KouchEntity> bulkUpsert(
+    suspend inline fun <reified T : KouchDocument> bulkUpsert(
         entities: Iterable<T> = emptyList(),
-        entitiesToDelete: Iterable<KouchEntity> = emptyList(),
+        entitiesToDelete: Iterable<KouchDocument> = emptyList(),
     ) = bulkUpsert(
         entities = entities,
         entitiesToDelete = entitiesToDelete,
@@ -402,16 +402,16 @@ class KouchDatabaseService(
     )
 
 
-    suspend fun <T : KouchEntity> bulkUpsert(
+    suspend fun <T : KouchDocument> bulkUpsert(
         entities: Iterable<T> = emptyList(),
-        entitiesToDelete: Iterable<KouchEntity> = emptyList(),
+        entitiesToDelete: Iterable<KouchDocument> = emptyList(),
         kClass: KClass<T>,
-        db: DatabaseName,
+        db: KouchDatabase.Name,
     ): BulkUpsertResult<T> {
 
         val className = context.getMetadata(kClass).className
         val jsonArray = buildJsonArray {
-            entities.forEach { add(element = context.encodeToKouchEntityJson(kClass, it, className)) }
+            entities.forEach { add(element = context.encodeToKouchDocumentJson(kClass, it, className)) }
             entitiesToDelete.forEach {
                 add(element = buildJsonObject {
                     put("_id", it.id.value)

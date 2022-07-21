@@ -10,11 +10,11 @@ class KouchServer {
         val vendor: Vendor,
         val version: String,
         val git_sha: String,
-        val features: List<String>
+        val features: List<String>,
     ) {
         @Serializable
         data class Vendor(
-            val name: String
+            val name: String,
         )
     }
 
@@ -25,7 +25,7 @@ class KouchServer {
         val endKey: String? = null,
         val limit: Int? = null,
         val skip: Int? = null,
-        val startKey: String? = null
+        val startKey: String? = null,
     )
 
     @Serializable

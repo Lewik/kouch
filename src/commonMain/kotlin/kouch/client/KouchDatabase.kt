@@ -4,17 +4,21 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
-import kouch.DatabaseName
-import kouch.KouchDesign
-import kouch.KouchEntity
 import kouch.Settings
 
 class KouchDatabase {
+
+    @Serializable
+    @JvmInline
+    value class Name(val value: String) {
+        override fun toString() = value
+    }
+
     @Serializable
     data class GetResponse(
         val cluster: Cluster,
         val compact_running: Boolean,
-        val db_name: DatabaseName,
+        val db_name: Name,
         val disk_format_version: Int,
         val doc_count: Int,
         val doc_del_count: Int,
@@ -65,8 +69,8 @@ class KouchDatabase {
      */
     data class PullReplicationRequestInput(
         val sourceSettings: Settings,
-        val sourceDb: DatabaseName,
-        val targetDb: DatabaseName,
+        val sourceDb: Name,
+        val targetDb: Name,
         val createTargetDb: Boolean = false,
         val continuous: Boolean = false,
         val cancel: Boolean = false,
@@ -107,7 +111,7 @@ class KouchDatabase {
 
     @Serializable
     data class ChangesRequest(
-        val doc_ids: List<KouchEntity.CommonId> = emptyList(),
+        val doc_ids: List<KouchDocument.CommonId> = emptyList(),
         val conflicts: Boolean = false,
         val descending: Boolean = false,
 //        val feed: Feed,
@@ -159,51 +163,51 @@ class KouchDatabase {
         @Serializable
         data class Result(
             val changes: List<RevOnly>,
-            val id: KouchEntity.CommonId,
+            val id: KouchDocument.CommonId,
             val seq: String,
             val deleted: Boolean = false,
-            val doc: KouchEntity? = null
+            val doc: KouchDocument? = null,
         ) {
             @Serializable
             class RevOnly(
-                val rev: KouchEntity.Rev
+                val rev: KouchDocument.Rev,
             )
         }
 
         @Serializable
         data class RawResult(
             val changes: List<Result.RevOnly>,
-            val id: KouchEntity.CommonId,
+            val id: KouchDocument.CommonId,
             val seq: String,
             val deleted: Boolean = false,
-            val doc: JsonObject? = null
+            val doc: JsonObject? = null,
         )
 
         @Serializable
         data class RawLastResult(
             val last_seq: String,
-            val pending: Int
+            val pending: Int,
         )
     }
 
     @Serializable
     data class BulkGetRawResult(
-        val results: List<Result>
+        val results: List<Result>,
     ) {
         @Serializable
         data class Result(
-            val id: KouchEntity.CommonId,
+            val id: KouchDocument.CommonId,
             val docs: List<Doc>,
         ) {
             @Serializable
             data class Doc(
                 val ok: JsonObject? = null,
-                val error: Error? = null
+                val error: Error? = null,
             ) {
                 @Serializable
                 data class Error(
-                    val id: KouchEntity.CommonId,
-                    val rev: KouchEntity.Rev,
+                    val id: KouchDocument.CommonId,
+                    val rev: KouchDocument.Rev,
                     val error: String,
                     val reason: String,
                 )
@@ -212,23 +216,23 @@ class KouchDatabase {
     }
 
     @Serializable
-    data class BulkGetResult<T : KouchEntity>(
+    data class BulkGetResult<T : KouchDocument>(
         val entities: List<T>,
-        val errors: List<BulkGetRawResult.Result.Doc.Error>
+        val errors: List<BulkGetRawResult.Result.Doc.Error>,
     )
 
     @Serializable
     data class BulkUpsertRequest(
         val docs: JsonArray,
-        val new_edits: Boolean = true
+        val new_edits: Boolean = true,
     )
 
     @Serializable
     data class BulkUpsertResponse(
-        val id: KouchEntity.CommonId,
-        val rev: KouchEntity.Rev? = null,
+        val id: KouchDocument.CommonId,
+        val rev: KouchDocument.Rev? = null,
         val ok: Boolean? = null,
         val error: String? = null,
-        val reason: String? = null
+        val reason: String? = null,
     )
 }

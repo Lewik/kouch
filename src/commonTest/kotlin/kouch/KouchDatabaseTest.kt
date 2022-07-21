@@ -7,11 +7,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kouch.*
-import kouch.KouchEntity.CommonId
-import kouch.KouchEntity.Rev
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDatabase
 import kouch.client.KouchDatabaseService
+import kouch.client.KouchDocument
+import kouch.client.KouchDocument.CommonId
+import kouch.client.KouchDocument.Rev
 import kotlin.test.*
 
 internal class KouchDatabaseTest {
@@ -26,7 +27,7 @@ internal class KouchDatabaseTest {
 
     @Test
     fun dbIsExistForTest1() = runTest {
-        val db = DatabaseName("defaultdb")
+        val db = KouchDatabase.Name("defaultdb")
         kouch.db.createForEntity(TestEntity1::class)
         assertTrue(kouch.db.isExist(db))
         assertTrue(kouch.db.isExistFor(TestEntity1::class))
@@ -37,7 +38,7 @@ internal class KouchDatabaseTest {
 
     @Test
     fun dbIsExistForTest2() = runTest {
-        val db = DatabaseName("test_entity1")
+        val db = KouchDatabase.Name("test_entity1")
         perEntityDbKouch.db.createForEntity(TestEntity1::class)
         assertTrue(perEntityDbKouch.db.isExist(db))
         assertTrue(perEntityDbKouch.db.isExistFor(TestEntity1::class))
@@ -50,41 +51,41 @@ internal class KouchDatabaseTest {
     @Test
     fun dbPutTest1() = runTest {
 
-        kouch.db.create(DatabaseName("test1"), 8, 3, true)
-        assertTrue(kouch.db.isExist(DatabaseName("test1")))
-        assertFails { kouch.db.create(DatabaseName("test1")) }
-        kouch.db.delete(DatabaseName("test1"))
-        assertNull(kouch.db.get(DatabaseName("test1")))
-        assertFailsWith<KouchDatabaseException> { kouch.db.create(DatabaseName("1test1")) }
+        kouch.db.create(KouchDatabase.Name("test1"), 8, 3, true)
+        assertTrue(kouch.db.isExist(KouchDatabase.Name("test1")))
+        assertFails { kouch.db.create(KouchDatabase.Name("test1")) }
+        kouch.db.delete(KouchDatabase.Name("test1"))
+        assertNull(kouch.db.get(KouchDatabase.Name("test1")))
+        assertFailsWith<KouchDatabaseException> { kouch.db.create(KouchDatabase.Name("1test1")) }
     }
 
     @Test
     fun dbPutTest2() = runTest {
-        kouch.db.create(DatabaseName("test1"))
-        assertTrue(kouch.db.isExist(DatabaseName("test1")))
-        assertFails { kouch.db.create(DatabaseName("test1")) }
-        kouch.db.delete(DatabaseName("test1"))
-        assertNull(kouch.db.get(DatabaseName("test1")))
-        assertFailsWith<KouchDatabaseException> { kouch.db.create(DatabaseName("1test1")) }
+        kouch.db.create(KouchDatabase.Name("test1"))
+        assertTrue(kouch.db.isExist(KouchDatabase.Name("test1")))
+        assertFails { kouch.db.create(KouchDatabase.Name("test1")) }
+        kouch.db.delete(KouchDatabase.Name("test1"))
+        assertNull(kouch.db.get(KouchDatabase.Name("test1")))
+        assertFailsWith<KouchDatabaseException> { kouch.db.create(KouchDatabase.Name("1test1")) }
     }
 
     @Test
     fun dbGetTest() = runTest {
-        kouch.db.create(DatabaseName("test1"))
-        kouch.db.get(DatabaseName("test1")).also {
+        kouch.db.create(KouchDatabase.Name("test1"))
+        kouch.db.get(KouchDatabase.Name("test1")).also {
             assertNotNull(it)
             assertEquals("test1", it.db_name.value)
         }
-        kouch.db.delete(DatabaseName("test1"))
-        assertNull(kouch.db.get(DatabaseName("test1")))
+        kouch.db.delete(KouchDatabase.Name("test1"))
+        assertNull(kouch.db.get(KouchDatabase.Name("test1")))
     }
 
     @Test
     fun dbDeleteTest() = runTest {
-        kouch.db.create(DatabaseName("test1"))
-        assertFails { kouch.db.delete(DatabaseName("test2")) }
-        kouch.db.delete(DatabaseName("test1"))
-        assertNull(kouch.db.get(DatabaseName("test1")))
+        kouch.db.create(KouchDatabase.Name("test1"))
+        assertFails { kouch.db.delete(KouchDatabase.Name("test2")) }
+        kouch.db.delete(KouchDatabase.Name("test1"))
+        assertNull(kouch.db.get(KouchDatabase.Name("test1")))
     }
 
     @Test
@@ -93,56 +94,56 @@ internal class KouchDatabaseTest {
             assertEquals(KouchDatabaseService.systemDbs.size, it.size)
         }
 
-        kouch.db.create(DatabaseName("test1"))
-        kouch.db.create(DatabaseName("test2"))
+        kouch.db.create(KouchDatabase.Name("test1"))
+        kouch.db.create(KouchDatabase.Name("test2"))
 
         kouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 2, it.size)
-            assertTrue(DatabaseName("test1") in it)
-            assertTrue(DatabaseName("test2") in it)
+            assertTrue(KouchDatabase.Name("test1") in it)
+            assertTrue(KouchDatabase.Name("test2") in it)
         }
 
-        kouch.db.delete(DatabaseName("test1"))
+        kouch.db.delete(KouchDatabase.Name("test1"))
 
         kouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 1, it.size)
-            assertTrue(DatabaseName("test2") in it)
+            assertTrue(KouchDatabase.Name("test2") in it)
         }
 
-        kouch.db.delete(DatabaseName("test2"))
+        kouch.db.delete(KouchDatabase.Name("test2"))
 
         kouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size, it.size)
         }
     }
 
-    @KouchEntityMetadata
+    @KouchDocumentMetadata
     @Serializable
     data class TestEntity1(
-        override val id: Id,
+        override val id: TestId,
         override val revision: Rev? = null,
         val string: String,
         val label: String,
-    ) : KouchEntity
+    ) : KouchDocument
 
-    @KouchEntityMetadata
+    @KouchDocumentMetadata
     @Serializable
     data class TestEntity2(
-        override val id: Id,
+        override val id: TestId,
         override val revision: Rev? = null,
         val string: String,
         val label: String,
         val boolean: Boolean,
-    ) : KouchEntity
+    ) : KouchDocument
 
-    @KouchEntityMetadata
+    @KouchDocumentMetadata
     @Serializable
     data class TestEntity3(
-        override val id: Id,
+        override val id: TestId,
         override val revision: Rev? = null,
         val string: String,
         val label: String,
-    ) : KouchEntity
+    ) : KouchDocument
 
     @Test
     fun createForEntity() = runTest {
@@ -157,7 +158,7 @@ internal class KouchDatabaseTest {
     fun createForEntity1() = runTest {
         perEntityDbKouch.db.createForEntity(
             TestEntity1(
-                id = Id("id"),
+                id = TestId("id"),
                 revision = null,
                 string = "string",
                 label = "label"
@@ -165,7 +166,7 @@ internal class KouchDatabaseTest {
         )
         perEntityDbKouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 1, it.size)
-            assertTrue(DatabaseName("test_entity1") in it)
+            assertTrue(KouchDatabase.Name("test_entity1") in it)
         }
     }
 
@@ -173,7 +174,7 @@ internal class KouchDatabaseTest {
     fun createForEntity11() = runTest {
         kouch.db.createForEntity(
             TestEntity1(
-                id = Id("id"),
+                id = TestId("id"),
                 revision = null,
                 string = "string",
                 label = "label"
@@ -190,8 +191,8 @@ internal class KouchDatabaseTest {
         perEntityDbKouch.db.createForEntities(kClasses = listOf(TestEntity1::class, TestEntity2::class))
         perEntityDbKouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 2, it.size)
-            assertTrue(DatabaseName("test_entity1") in it)
-            assertTrue(DatabaseName("test_entity2") in it)
+            assertTrue(KouchDatabase.Name("test_entity1") in it)
+            assertTrue(KouchDatabase.Name("test_entity2") in it)
         }
     }
 
@@ -200,17 +201,17 @@ internal class KouchDatabaseTest {
         perEntityDbKouch.db.createForEntities(kClasses = listOf(TestEntity1::class, TestEntity2::class))
         perEntityDbKouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 2, it.size)
-            assertTrue(DatabaseName("test_entity1") in it)
-            assertTrue(DatabaseName("test_entity2") in it)
-            assertTrue(DatabaseName("test_entity3") !in it)
+            assertTrue(KouchDatabase.Name("test_entity1") in it)
+            assertTrue(KouchDatabase.Name("test_entity2") in it)
+            assertTrue(KouchDatabase.Name("test_entity3") !in it)
         }
 
         perEntityDbKouch.db.createForEntitiesIfNotExists(kClasses = listOf(TestEntity2::class, TestEntity3::class))
         perEntityDbKouch.db.getAll().also {
             assertEquals(KouchDatabaseService.systemDbs.size + 3, it.size)
-            assertTrue(DatabaseName("test_entity1") in it)
-            assertTrue(DatabaseName("test_entity2") in it)
-            assertTrue(DatabaseName("test_entity3") in it)
+            assertTrue(KouchDatabase.Name("test_entity1") in it)
+            assertTrue(KouchDatabase.Name("test_entity2") in it)
+            assertTrue(KouchDatabase.Name("test_entity3") in it)
         }
     }
 
@@ -271,7 +272,7 @@ internal class KouchDatabaseTest {
 
         val job = kouch.db.changesContinuous(
             scope = GlobalScope,
-            db = DatabaseName("test_entity1"),
+            db = KouchDatabase.Name("test_entity1"),
             request = KouchDatabase.ChangesRequest(
                 include_docs = true,
                 heartbeat = 20000
@@ -301,7 +302,7 @@ internal class KouchDatabaseTest {
     fun bulkGet() = runTest {
         kouch.db.createForEntity(TestEntity1::class)
         insertDocs1(100)
-        val result = kouch.db.bulkGet<TestEntity1>(ids = (100..110).map { Id("some-id$it") })
+        val result = kouch.db.bulkGet<TestEntity1>(ids = (100..110).map { TestId("some-id$it") })
         assertEquals(listOf("some-id101", "some-id102", "some-id104", "some-id105", "some-id107", "some-id108"), result.entities.map { it.id.value }.sorted())
         val error = result.errors.singleOrNull()
         assertEquals(CommonId("some-id110"), error?.id)
@@ -320,7 +321,7 @@ internal class KouchDatabaseTest {
         insertDocs1(100)
         insertDocs2(200)
         val result = kouch.db.bulkGet(
-            ids = ((100..110) + (200..210)).map { Id("some-id$it") },
+            ids = ((100..110) + (200..210)).map { TestId("some-id$it") },
             entityClasses = listOf(TestEntity1::class, TestEntity2::class)
         )
         val expected1 = listOf("some-id101", "some-id102", "some-id104", "some-id105", "some-id107", "some-id108")
@@ -337,19 +338,19 @@ internal class KouchDatabaseTest {
         kouch.db.createForEntity(TestEntity1::class)
         val insertedDocs = insertDocs1(100).associateBy { it.id }
         val newDocs = listOf(
-            getEntity1().copy(id = Id("some-id104"), revision = null, label = "conflicted", string = "newstring0"),
-            getEntity1().copy(id = Id("some-id200"), revision = null, label = "newlabel0", string = "newstring0"),
-            getEntity1().copy(id = Id("some-id201"), revision = null, label = "newlabel1", string = "newstring1"),
-            getEntity1().copy(id = Id("some-id202"), revision = null, label = "newlabel2", string = "newstring2"),
+            getEntity1().copy(id = TestId("some-id104"), revision = null, label = "conflicted", string = "newstring0"),
+            getEntity1().copy(id = TestId("some-id200"), revision = null, label = "newlabel0", string = "newstring0"),
+            getEntity1().copy(id = TestId("some-id201"), revision = null, label = "newlabel1", string = "newstring1"),
+            getEntity1().copy(id = TestId("some-id202"), revision = null, label = "newlabel2", string = "newstring2"),
         ).associateBy { it.id }
         val updatedDocs = listOf(
-            insertedDocs.getValue(Id("some-id100")).copy(label = "conflicted"),
-            insertedDocs.getValue(Id("some-id101")).copy(label = "updated1"),
-            insertedDocs.getValue(Id("some-id102")).copy(label = "updated2")
+            insertedDocs.getValue(TestId("some-id100")).copy(label = "conflicted"),
+            insertedDocs.getValue(TestId("some-id101")).copy(label = "updated1"),
+            insertedDocs.getValue(TestId("some-id102")).copy(label = "updated2")
         ).associateBy { it.id }
 
         val docsToUpsert = newDocs + updatedDocs
-        val docsToDelete = listOf(insertedDocs.getValue(Id("some-id104")), insertedDocs.getValue(Id("some-id105")))
+        val docsToDelete = listOf(insertedDocs.getValue(TestId("some-id104")), insertedDocs.getValue(TestId("some-id105")))
 
         val (response, updatedEntities) = kouch.db.bulkUpsert(docsToUpsert.values, docsToDelete)
             .getResponseAndUpdatedEntities()
@@ -368,29 +369,29 @@ internal class KouchDatabaseTest {
         )
 
 
-        assertNull(kouch.doc.get<TestEntity1>(Id("some-id100")))
-        assertEquals("updated1", kouch.doc.get<TestEntity1>(Id("some-id101"))?.label)
-        assertEquals("updated2", kouch.doc.get<TestEntity1>(Id("some-id102"))?.label)
-        assertNull(kouch.doc.get<TestEntity1>(Id("some-id103")))
-        assertNull(kouch.doc.get<TestEntity1>(Id("some-id104")))
-        assertNull(kouch.doc.get<TestEntity1>(Id("some-id105")))
-        assertNull(kouch.doc.get<TestEntity1>(Id("some-id106")))
-        assertEquals("label1", kouch.doc.get<TestEntity1>(Id("some-id107"))?.label)
-        assertEquals("label1", kouch.doc.get<TestEntity1>(Id("some-id108"))?.label)
-        assertNull(kouch.doc.get<TestEntity1>(Id("some-id109")))
-        assertNull(kouch.doc.get<TestEntity1>(Id("some-id110")))
-        assertNull(kouch.doc.get<TestEntity1>(Id("some-id111")))
+        assertNull(kouch.doc.get<TestEntity1>(TestId("some-id100")))
+        assertEquals("updated1", kouch.doc.get<TestEntity1>(TestId("some-id101"))?.label)
+        assertEquals("updated2", kouch.doc.get<TestEntity1>(TestId("some-id102"))?.label)
+        assertNull(kouch.doc.get<TestEntity1>(TestId("some-id103")))
+        assertNull(kouch.doc.get<TestEntity1>(TestId("some-id104")))
+        assertNull(kouch.doc.get<TestEntity1>(TestId("some-id105")))
+        assertNull(kouch.doc.get<TestEntity1>(TestId("some-id106")))
+        assertEquals("label1", kouch.doc.get<TestEntity1>(TestId("some-id107"))?.label)
+        assertEquals("label1", kouch.doc.get<TestEntity1>(TestId("some-id108"))?.label)
+        assertNull(kouch.doc.get<TestEntity1>(TestId("some-id109")))
+        assertNull(kouch.doc.get<TestEntity1>(TestId("some-id110")))
+        assertNull(kouch.doc.get<TestEntity1>(TestId("some-id111")))
 
-        assertEquals("newlabel0", kouch.doc.get<TestEntity1>(Id("some-id200"))?.label)
-        assertEquals("newlabel1", kouch.doc.get<TestEntity1>(Id("some-id201"))?.label)
-        assertEquals("newlabel2", kouch.doc.get<TestEntity1>(Id("some-id202"))?.label)
+        assertEquals("newlabel0", kouch.doc.get<TestEntity1>(TestId("some-id200"))?.label)
+        assertEquals("newlabel1", kouch.doc.get<TestEntity1>(TestId("some-id201"))?.label)
+        assertEquals("newlabel2", kouch.doc.get<TestEntity1>(TestId("some-id202"))?.label)
 
 
     }
 
 
     private fun getEntity1() = TestEntity1(
-        id = Id("some-id"),
+        id = TestId("some-id"),
         revision = Rev("some-revision"),
         string = "some-string",
         label = "some label"
@@ -398,7 +399,7 @@ internal class KouchDatabaseTest {
 
 
     private fun getEntity2() = TestEntity2(
-        id = Id("some-id"),
+        id = TestId("some-id"),
         revision = Rev("some-revision"),
         string = "some-string",
         label = "some label",
@@ -408,16 +409,16 @@ internal class KouchDatabaseTest {
     private suspend fun insertDocs1(startI: Int): List<TestEntity1> {
         var i = startI
         return listOf(
-            getEntity1().copy(id = Id("some-id${i++}"), revision = null, label = "label3", string = "string1"),
-            getEntity1().copy(id = Id("some-id${i++}"), revision = null, label = "label2", string = "string1"),
-            getEntity1().copy(id = Id("some-id${i++}"), revision = null, label = "label35", string = "string2"),
-            getEntity1().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string3"),
-            getEntity1().copy(id = Id("some-id${i++}"), revision = null, label = "ASD", string = "string2"),
-            getEntity1().copy(id = Id("some-id${i++}"), revision = null, label = "ASD1", string = "string3"),
-            getEntity1().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string4"),
-            getEntity1().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string4"),
-            getEntity1().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string4"),
-            getEntity1().copy(id = Id("some-id${i}"), revision = null, label = "label1", string = "string1"),
+            getEntity1().copy(id = TestId("some-id${i++}"), revision = null, label = "label3", string = "string1"),
+            getEntity1().copy(id = TestId("some-id${i++}"), revision = null, label = "label2", string = "string1"),
+            getEntity1().copy(id = TestId("some-id${i++}"), revision = null, label = "label35", string = "string2"),
+            getEntity1().copy(id = TestId("some-id${i++}"), revision = null, label = "label1", string = "string3"),
+            getEntity1().copy(id = TestId("some-id${i++}"), revision = null, label = "ASD", string = "string2"),
+            getEntity1().copy(id = TestId("some-id${i++}"), revision = null, label = "ASD1", string = "string3"),
+            getEntity1().copy(id = TestId("some-id${i++}"), revision = null, label = "label1", string = "string4"),
+            getEntity1().copy(id = TestId("some-id${i++}"), revision = null, label = "label1", string = "string4"),
+            getEntity1().copy(id = TestId("some-id${i++}"), revision = null, label = "label1", string = "string4"),
+            getEntity1().copy(id = TestId("some-id${i}"), revision = null, label = "label1", string = "string1"),
         )
             .mapIndexed { index, doc ->
                 val putResult = kouch.doc.insert(doc)
@@ -436,16 +437,16 @@ internal class KouchDatabaseTest {
     private suspend fun insertDocs2(startI: Int): List<Unit> {
         var i = startI
         return listOf(
-            getEntity2().copy(id = Id("some-id${i++}"), revision = null, label = "label3", string = "string1"),
-            getEntity2().copy(id = Id("some-id${i++}"), revision = null, label = "label2", string = "string1"),
-            getEntity2().copy(id = Id("some-id${i++}"), revision = null, label = "label35", string = "string2"),
-            getEntity2().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string3"),
-            getEntity2().copy(id = Id("some-id${i++}"), revision = null, label = "ASD", string = "string2"),
-            getEntity2().copy(id = Id("some-id${i++}"), revision = null, label = "ASD1", string = "string3"),
-            getEntity2().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string4"),
-            getEntity2().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string4"),
-            getEntity2().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string4"),
-            getEntity2().copy(id = Id("some-id${i}"), revision = null, label = "label1", string = "string1"),
+            getEntity2().copy(id = TestId("some-id${i++}"), revision = null, label = "label3", string = "string1"),
+            getEntity2().copy(id = TestId("some-id${i++}"), revision = null, label = "label2", string = "string1"),
+            getEntity2().copy(id = TestId("some-id${i++}"), revision = null, label = "label35", string = "string2"),
+            getEntity2().copy(id = TestId("some-id${i++}"), revision = null, label = "label1", string = "string3"),
+            getEntity2().copy(id = TestId("some-id${i++}"), revision = null, label = "ASD", string = "string2"),
+            getEntity2().copy(id = TestId("some-id${i++}"), revision = null, label = "ASD1", string = "string3"),
+            getEntity2().copy(id = TestId("some-id${i++}"), revision = null, label = "label1", string = "string4"),
+            getEntity2().copy(id = TestId("some-id${i++}"), revision = null, label = "label1", string = "string4"),
+            getEntity2().copy(id = TestId("some-id${i++}"), revision = null, label = "label1", string = "string4"),
+            getEntity2().copy(id = TestId("some-id${i}"), revision = null, label = "label1", string = "string1"),
         )
             .mapIndexed { index, doc ->
                 val putResult = kouch.doc.insert(doc)

@@ -1,26 +1,25 @@
 package kouch
 
 import kotlinx.serialization.Serializable
-import kouch.KouchEntity.CommonId
-import kouch.KouchEntity.Rev
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDocument
+import kouch.client.KouchDocument.Rev
 import kotlin.test.*
 
 internal class KouchDocumentTest {
-    @KouchEntityMetadata
+    @KouchDocumentMetadata
     @Serializable
     data class TestEntity(
-        override val id: CommonId,
+        override val id: TestId,
         override val revision: Rev? = null,
         val string: String,
         val label: String,
-    ) : KouchEntity
+    ) : KouchDocument
 
     private val kouch = KouchClientImpl(KouchTestHelper.defaultContext)
 
     private fun getEntity() = TestEntity(
-        id = CommonId("some-id"),
+        id = TestId("some-id"),
         revision = Rev("some-revision"),
         string = "some-string",
         label = "some label"
@@ -33,7 +32,7 @@ internal class KouchDocumentTest {
 
     @Test
     fun notExistedId() = runTest {
-        val document = kouch.doc.get<TestEntity>(Id("notExistedId1"))
+        val document = kouch.doc.get<TestEntity>(TestId("notExistedId1"))
         assertNull(document)
     }
 

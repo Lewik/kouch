@@ -3,23 +3,24 @@ package kouch.kouch
 import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
 import kouch.*
-import kouch.KouchEntity.Rev
 import kouch.client.KouchClientImpl
 import kouch.client.KouchDatabase
 import kouch.client.KouchDatabaseService
+import kouch.client.KouchDocument
+import kouch.client.KouchDocument.Rev
 import kotlin.test.*
 
 internal class KouchReplicationTest {
     private val replicationDelay = 10_000L
 
-    @KouchEntityMetadata("test_entity", "test_entity")
+    @KouchDocumentMetadata("test_entity", "test_entity")
     @Serializable
     data class TestEntity(
-        override val id: Id,
+        override val id: TestId,
         override val revision: Rev? = null,
         val string: String,
         val label: String,
-    ) : KouchEntity
+    ) : KouchDocument
 
     private val sourceContext = KouchTestHelper.defaultContext
     private val targetContext = KouchTestHelper.secondaryContext
@@ -27,7 +28,7 @@ internal class KouchReplicationTest {
     private val targetClient = KouchClientImpl(targetContext)
 
     private fun getEntity() = TestEntity(
-        id = Id("some-id"),
+        id = TestId("some-id"),
         revision = Rev("some-revision"),
         string = "some-string",
         label = "some label"
@@ -39,8 +40,8 @@ internal class KouchReplicationTest {
         KouchTestHelper.removeAllDbsAndCreateSystemDbsServer(KouchTestHelper.secondaryContext)
     }
 
-    private val sourceDatabaseName = DatabaseName("sourcedb")
-    private val targetDatabaseName = DatabaseName("targetdb")
+    private val sourceDatabaseName = KouchDatabase.Name("sourcedb")
+    private val targetDatabaseName = KouchDatabase.Name("targetdb")
 
     @Test
     fun singleReplicateTest() = runTest {

@@ -4,21 +4,24 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
-import kouch.KouchDesign.ViewName
-import kouch.KouchEntity.Rev
 import kouch.client.KouchClientImpl
+import kouch.client.KouchDatabase
+import kouch.client.KouchDesign
+import kouch.client.KouchDesign.ViewName
 import kouch.client.KouchDesignService.ViewRequest
+import kouch.client.KouchDocument
+import kouch.client.KouchDocument.Rev
 import kotlin.test.*
 
 internal class KouchDesignTest {
-    @KouchEntityMetadata("test_entity", "test_entity")
+    @KouchDocumentMetadata("test_entity", "test_entity")
     @Serializable
     data class TestEntity(
-        override val id: Id,
+        override val id: TestId,
         override val revision: Rev? = null,
         val string: String,
         val label: String,
-    ) : KouchEntity
+    ) : KouchDocument
 
     private val kouch = KouchClientImpl(KouchTestHelper.defaultContext)
 
@@ -28,7 +31,7 @@ internal class KouchDesignTest {
     }
 
     private fun getEntity() = TestEntity(
-        id = Id("some-id"),
+        id = TestId("some-id"),
         revision = Rev("some-revision"),
         string = "some-string",
         label = "some label"
@@ -40,7 +43,7 @@ internal class KouchDesignTest {
 
         val (_, getResult) = kouch.design.getWithResponse(
             id = KouchDesign.Id("testdes"),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         )
         assertNotNull(getResult)
         assertEquals("javascript", getResult.language)
@@ -50,10 +53,10 @@ internal class KouchDesignTest {
 
     @Test
     fun getNonexistentDesign() = runTest {
-        kouch.db.create(DatabaseName("test_entity"))
+        kouch.db.create(KouchDatabase.Name("test_entity"))
         val (_, nullResult) = kouch.design.getWithResponse(
             id = KouchDesign.Id("devices2"),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         )
         assertNull(nullResult)
     }
@@ -64,20 +67,20 @@ internal class KouchDesignTest {
 
         val (_, getResult) = kouch.design.getWithResponse(
             id = KouchDesign.Id("testdes"),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         )
         assertNotNull(getResult)
         assertEquals("javascript", getResult.language)
         assertEquals(6, getResult.views!!.size)
 
         val deleteResult = kouch.design
-            .delete(entity = getResult, db = DatabaseName("test_entity"))()
+            .delete(entity = getResult, db = KouchDatabase.Name("test_entity"))()
 
         assertEquals(true, deleteResult.ok)
 
         val (_, getResult2) = kouch.design.getWithResponse(
             id = KouchDesign.Id("testdes"),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         )
         assertNull(getResult2)
     }
@@ -88,9 +91,9 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = Id("testdes"),
+            id = TestId("testdes"),
             view = ViewName("all"),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         ).result.also {
             assertEquals(8, it.size)
             assertEquals("ASD", it.firstOrNull()?.label)
@@ -103,9 +106,9 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = Id("testdes"),
+            id = TestId("testdes"),
             view = ViewName("asd_only"),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         ).result.also {
             assertEquals(1, it.size)
             assertEquals("ASD", it.singleOrNull()?.label)
@@ -117,9 +120,9 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = Id("testdes"),
+            id = TestId("testdes"),
             view = ViewName("all"),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         ).result.also {
             assertEquals(8, it.size)
             assertEquals("ASD", it.firstOrNull()?.label)
@@ -132,12 +135,12 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = Id("testdes"),
+            id = TestId("testdes"),
             view = ViewName("allnull"),
             request = ViewRequest(
                 include_docs = true
             ),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         ).result.also {
             assertEquals(8, it.size)
             assertEquals("ASD", it.firstOrNull()?.label)
@@ -150,10 +153,10 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = Id("testdes"),
+            id = TestId("testdes"),
             view = ViewName("allnull"),
             request = ViewRequest(),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         ).result.also { list ->
             assertEquals(8, list.size)
             assertTrue(list.all { it == null })
@@ -165,10 +168,10 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = Id("testdes"),
+            id = TestId("testdes"),
             view = ViewName("all"),
             request = ViewRequest(descending = true),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         ).result.also {
             assertEquals(8, it.size)
             assertEquals("label35", it.firstOrNull()?.label)
@@ -183,12 +186,12 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = Id("testdes"),
+            id = TestId("testdes"),
             view = ViewName("all"),
             request = ViewRequest(
                 key = JsonPrimitive("label35")
             ),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         ).result.also {
             assertEquals(1, it.size)
             assertEquals("label35", it.singleOrNull()?.label)
@@ -200,12 +203,12 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = Id("testdes"),
+            id = TestId("testdes"),
             view = ViewName("by_label_and_string"),
             request = ViewRequest(
                 key = JsonArray(listOf(JsonPrimitive("label1"), JsonPrimitive("string3")))
             ),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         ).result.also {
             assertEquals(1, it.size)
             assertEquals("label1", it.singleOrNull()?.label)
@@ -218,12 +221,12 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = Id("testdes"),
+            id = TestId("testdes"),
             view = ViewName("by_label_and_string"),
             request = ViewRequest(
                 key = JsonArray(listOf(JsonPrimitive("notExistingKey"), JsonPrimitive("string3")))
             ),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         ).result.also {
             assertEquals(0, it.size)
         }
@@ -234,8 +237,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<JsonElement>(
-            db = DatabaseName("test_entity"),
-            id = Id("testdes"),
+            db = KouchDatabase.Name("test_entity"),
+            id = TestId("testdes"),
             view = ViewName("by_label_and_string"),
             request = ViewRequest(
                 key = JsonArray(listOf(JsonPrimitive("notExistingKey"), JsonPrimitive("notExistingKey")))
@@ -250,8 +253,8 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getRawView(
-            db = DatabaseName("test_entity"),
-            id = Id("testdes"),
+            db = KouchDatabase.Name("test_entity"),
+            id = TestId("testdes"),
             view = ViewName("reduce"),
             request = ViewRequest(
                 group = true
@@ -266,13 +269,13 @@ internal class KouchDesignTest {
         prepareData()
 
         kouch.design.getView<TestEntity>(
-            id = Id("testdes"),
+            id = TestId("testdes"),
             view = ViewName("all"),
             request = ViewRequest(
                 limit = 2,
                 skip = 1
             ),
-            db = DatabaseName("test_entity")
+            db = KouchDatabase.Name("test_entity")
         ).result.also {
             assertEquals(2, it.size)
             assertEquals("ASD1", it.firstOrNull()?.label)
@@ -282,16 +285,16 @@ internal class KouchDesignTest {
 
     private suspend fun prepareData() {
         var i = 1
-        kouch.db.create(DatabaseName("test_entity"))
+        kouch.db.create(KouchDatabase.Name("test_entity"))
         listOf(
-            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "label3", string = "string1"),
-            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "label2", string = "string1"),
-            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "label35", string = "string2"),
-            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string3"),
-            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "ASD", string = "string2"),
-            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "ASD1", string = "string3"),
-            getEntity().copy(id = Id("some-id${i++}"), revision = null, label = "label1", string = "string4"),
-            getEntity().copy(id = Id("some-id${i}"), revision = null, label = "label1", string = "string1"),
+            getEntity().copy(id = TestId("some-id${i++}"), revision = null, label = "label3", string = "string1"),
+            getEntity().copy(id = TestId("some-id${i++}"), revision = null, label = "label2", string = "string1"),
+            getEntity().copy(id = TestId("some-id${i++}"), revision = null, label = "label35", string = "string2"),
+            getEntity().copy(id = TestId("some-id${i++}"), revision = null, label = "label1", string = "string3"),
+            getEntity().copy(id = TestId("some-id${i++}"), revision = null, label = "ASD", string = "string2"),
+            getEntity().copy(id = TestId("some-id${i++}"), revision = null, label = "ASD1", string = "string3"),
+            getEntity().copy(id = TestId("some-id${i++}"), revision = null, label = "label1", string = "string4"),
+            getEntity().copy(id = TestId("some-id${i}"), revision = null, label = "label1", string = "string1"),
         )
             .forEach {
                 val result = kouch.doc.insert(it)
@@ -325,7 +328,7 @@ internal class KouchDesignTest {
         val updateResult = kouch.design
             .upsert(
                 ddoc = design,
-                db = DatabaseName("test_entity")
+                db = KouchDatabase.Name("test_entity")
             )
             .getResponse()
         assertTrue(updateResult.ok ?: false)

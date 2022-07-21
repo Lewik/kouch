@@ -3,34 +3,35 @@ package kouch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import kotlinx.serialization.serializer
+import kouch.client.KouchDocument
 import kotlin.reflect.KClass
 
 
-fun <T : KouchEntity> Context.encodeToKouchEntity(
+fun <T : KouchDocument> Context.encodeToKouchDocument(
     entity: T,
     kClass: KClass<T>,
     className: ClassName,
-) = entityJson.encodeToString(encodeToKouchEntityJson(kClass, entity, className))
+) = entityJson.encodeToString(encodeToKouchDocumentJson(kClass, entity, className))
 
-fun <T : KouchEntity> Context.encodeToKouchEntityJson(kClass: KClass<T>, entity: T, className: ClassName) =
+fun <T : KouchDocument> Context.encodeToKouchDocumentJson(kClass: KClass<T>, entity: T, className: ClassName) =
     entityJson.encodeToJsonElement(kClass.serializer(), entity)
-           .jsonObject
-           .mapNotNull { (key, value) ->
-               when (key) {
-                   "id" -> "_id" to value
-                   "revision" -> if (value.jsonPrimitive.contentOrNull == null) {
-                       null
-                   } else {
-                       "_rev" to value
-                   }
-                   else -> key to value
-               }
-           }
-           .plus(classField to JsonPrimitive(className.value))
-           .toMap()
-           .let { JsonObject(it) }
+        .jsonObject
+        .mapNotNull { (key, value) ->
+            when (key) {
+                "id" -> "_id" to value
+                "revision" -> if (value.jsonPrimitive.contentOrNull == null) {
+                    null
+                } else {
+                    "_rev" to value
+                }
+                else -> key to value
+            }
+        }
+        .plus(classField to JsonPrimitive(className.value))
+        .toMap()
+        .let { JsonObject(it) }
 
-fun <T : KouchEntity> Context.encodeToKouchDesign(
+fun <T : KouchDocument> Context.encodeToKouchDesign(
     entity: T,
     kClass: KClass<T>,
 ) = designJson.encodeToString(designJson.encodeToJsonElement(kClass.serializer(), entity)
@@ -49,7 +50,7 @@ fun <T : KouchEntity> Context.encodeToKouchDesign(
     .toMap()
     .let { JsonObject(it) })
 
-fun <T : Any> Context.decodeKouchEntityFromJsonElement(jsonElement: JsonElement, resultKClass: KClass<T>) = entityJson.decodeFromJsonElement(
+fun <T : Any> Context.decodeKouchDocumentFromJsonElement(jsonElement: JsonElement, resultKClass: KClass<T>) = entityJson.decodeFromJsonElement(
     resultKClass.serializer(),
     jsonElement.jsonObject
         .mapNotNull { (key, value) ->

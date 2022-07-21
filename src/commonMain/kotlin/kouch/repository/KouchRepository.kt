@@ -1,15 +1,14 @@
 package kouch.repository
 
 import kouch.KouchClient
-import kouch.KouchDesign
-import kouch.KouchEntity
+import kouch.client.KouchDesign
 import kouch.client.KouchDesignService
 import kouch.client.KouchDocument
 import kouch.getMetadata
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-abstract class KouchRepository<T : KouchEntity, ID : KouchEntity.Id>(
+abstract class KouchRepository<T : KouchDocument, ID : KouchDocument.Id>(
     protected val kouch: KouchClient,
     protected val entityKClass: KClass<T>,
     protected val isErlang: Boolean = true,
@@ -21,12 +20,12 @@ abstract class KouchRepository<T : KouchEntity, ID : KouchEntity.Id>(
     suspend fun update(entity: T) = kouch.doc.update(entity, entityKClass)
     suspend fun upsert(entity: T) = kouch.doc.upsert(entity, entityKClass)
     suspend fun delete(entity: T) = kouch.doc.delete(entity, entityKClass)
-    suspend fun delete(id: ID, revision: KouchEntity.Rev) = kouch.doc.delete(id, entityKClass, revision)
+    suspend fun delete(id: ID, revision: KouchDocument.Rev) = kouch.doc.delete(id, entityKClass, revision)
     suspend fun get(id: ID) = kouch.doc.get(id, entityKClass)
     suspend fun bulkGet(ids: Iterable<ID>) = kouch.db.bulkGet(ids, listOf(entityKClass))
     suspend fun bulkUpsert(
         entities: Iterable<T>,
-        entitiesToDelete: Iterable<KouchEntity> = emptyList(),
+        entitiesToDelete: Iterable<KouchDocument> = emptyList(),
     ) = kouch.db.bulkUpsert(
         entities = entities,
         entitiesToDelete = entitiesToDelete,
@@ -187,7 +186,7 @@ abstract class KouchRepository<T : KouchEntity, ID : KouchEntity.Id>(
     )
 }
 
-class BaseKouchRepository<T : KouchEntity, ID: KouchEntity.Id>(kouch: KouchClient, entityKClass: KClass<T>, isErlang: Boolean = true) :
+class BaseKouchRepository<T : KouchDocument, ID : KouchDocument.Id>(kouch: KouchClient, entityKClass: KClass<T>, isErlang: Boolean = true) :
     KouchRepository<T, ID>(kouch, entityKClass, isErlang)
 
 

@@ -1,12 +1,11 @@
 package kouch.client
 
 import kotlinx.serialization.Serializable
-import kouch.KouchEntity
 
 class KouchUser {
     @Serializable
     @JvmInline
-    value class Id(override val value: String) : KouchEntity.Id
+    value class Id(override val value: String) : KouchDocument.Id
 
     @Serializable
     data class Request(
@@ -25,7 +24,7 @@ class KouchUser {
     data class StandardResponse(
         val ok: Boolean? = null,
         val id: Id? = null,
-        val rev: KouchEntity.Rev? = null,
+        val rev: KouchDocument.Rev? = null,
         val error: String? = null,
         val reason: String? = null,
     )
@@ -34,6 +33,6 @@ class KouchUser {
     data class User(
         val name: String,
         val password: String,
-        val revision: KouchEntity.Rev? = null,
+        val revision: KouchDocument.Rev? = null,
     )
 }

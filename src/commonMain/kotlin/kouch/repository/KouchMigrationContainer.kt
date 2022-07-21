@@ -1,9 +1,10 @@
 package kouch.repository
 
-import kouch.DatabaseName
+
 import kouch.KouchClient
-import kouch.KouchDesign
-import kouch.KouchEntity
+import kouch.client.KouchDatabase
+import kouch.client.KouchDesign
+import kouch.client.KouchDocument
 import kotlin.reflect.KClass
 
 
@@ -13,12 +14,12 @@ interface KouchMigrationContainer {
 
     sealed class Migration(
         val priority: Int = Int.MAX_VALUE,
-        val migrate: suspend () -> Unit
+        val migrate: suspend () -> Unit,
     ) {
         class CommonMigration(migrate: suspend () -> Unit) : Migration(migrate = migrate)
         class CreateDb(
             kouchClient: KouchClient,
-            databaseNames: List<DatabaseName>,
+            databaseNames: List<KouchDatabase.Name>,
         ) : Migration(priority = 0, migrate = {
             databaseNames
                 .minus(kouchClient.db.getAll())
@@ -27,14 +28,14 @@ interface KouchMigrationContainer {
 
         class CreateDbForEntities(
             kouchClient: KouchClient,
-            kClasses: List<KClass<out KouchEntity>>,
+            kClasses: List<KClass<out KouchDocument>>,
         ) : Migration(priority = 0, migrate = {
             kouchClient.db.createForEntitiesIfNotExists(kClasses)
         })
 
         class UpsertDesign(
             kouchClient: KouchClient,
-            databaseName: DatabaseName,
+            databaseName: KouchDatabase.Name,
             design: KouchDesign,
         ) : Migration(priority = 1_000, migrate = {
             val existedRev = kouchClient.design.getWithResponse(design.id, databaseName).second?.revision

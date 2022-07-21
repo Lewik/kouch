@@ -1,13 +1,24 @@
 package kouch.client
 
 import kotlinx.serialization.Serializable
-import kouch.KouchEntity
 
-class KouchDocument {
+interface KouchDocument {
+
+    val id: Id
+    val revision: Rev?
+
+    interface Id {
+        val value: String
+        fun isBlank() = value.isBlank()
+    }
 
     @Serializable
     @JvmInline
-    value class Id(override val value: String) : KouchEntity.Id
+    value class Rev(val value: String)
+
+    @Serializable
+    @JvmInline
+    value class CommonId(override val value: String) : Id
 
     companion object {
         const val HIGHEST_KEY = '\ufff0'
@@ -25,15 +36,15 @@ class KouchDocument {
         val meta: Boolean = false,
         //TODO: support "all" value
         val open_revs: List<String>? = null,
-        val rev: KouchEntity.Rev? = null,
+        val rev: KouchDocument.Rev? = null,
         val revs: Boolean = false,
         val revs_info: Boolean = false,
     )
 
     @Serializable
     data class GetResponse(
-        val _id: Id? = null,
-        val _rev: KouchEntity.Rev? = null,
+        val _id: CommonId? = null,
+        val _rev: KouchDocument.Rev? = null,
         val _deleted: Boolean? = null,
         val _attachments: Attachments? = null,
         val _conflicts: List<String>? = null,
@@ -50,14 +61,14 @@ class KouchDocument {
 
         @Serializable
         data class Revisions(
-            val ids: List<Id>,
+            val ids: List<CommonId>,
             val start: Int,
         )
     }
 
     @Serializable
     class PutQueryParameters(
-        val rev: KouchEntity.Rev? = null,
+        val rev: KouchDocument.Rev? = null,
         /**
          * possible values: [null|"ok"]
          */
@@ -67,16 +78,16 @@ class KouchDocument {
 
     @Serializable
     data class PutResponse(
-        val id: Id? = null,
+        val id: CommonId? = null,
         val ok: Boolean? = null,
-        val rev: KouchEntity.Rev? = null,
+        val rev: KouchDocument.Rev? = null,
         val error: String? = null,
         val reason: String? = null,
     )
 
     @Serializable
     class DeleteQueryParameters(
-        val rev: KouchEntity.Rev,
+        val rev: KouchDocument.Rev,
         /**
          * possible values: [null|"ok"]
          */
@@ -85,9 +96,9 @@ class KouchDocument {
 
     @Serializable
     data class DeleteResponse(
-        val id: Id? = null,
+        val id: CommonId? = null,
         val ok: Boolean? = null,
-        val rev: KouchEntity.Rev? = null,
+        val rev: KouchDocument.Rev? = null,
         val error: String? = null,
         val reason: String? = null,
     )

@@ -33,16 +33,16 @@ class KouchDocumentService(
         Type.DESIGN -> "_design/"
     }
 
-    suspend inline fun <reified T : KouchEntity> get(
-        id: KouchEntity.Id,
-        db: DatabaseName = context.getMetadata(T::class).databaseName,
+    suspend inline fun <reified T : KouchDocument> get(
+        id: KouchDocument.Id,
+        db: KouchDatabase.Name = context.getMetadata(T::class).databaseName,
         parameters: KouchDocument.GetQueryParameters? = null,
     ) = get(id, T::class, db, parameters)
 
-    suspend fun <T : KouchEntity> get(
-        id: KouchEntity.Id,
+    suspend fun <T : KouchDocument> get(
+        id: KouchDocument.Id,
         kClass: KClass<T>,
-        db: DatabaseName = context.getMetadata(kClass).databaseName,
+        db: KouchDatabase.Name = context.getMetadata(kClass).databaseName,
         parameters: KouchDocument.GetQueryParameters? = null,
     ): T? {
         val queryString = context.systemQueryParametersJson.encodeNullableToUrl(parameters, KouchDocument.GetQueryParameters::class)
@@ -55,7 +55,7 @@ class KouchDocumentService(
         val text = response.bodyAsText()
         return when (response.status) {
             //TODO : error if <T> removed
-            OK -> context.decodeKouchEntityFromJsonElement(
+            OK -> context.decodeKouchDocumentFromJsonElement(
                 context.responseJson.parseToJsonElement(text).filterNonUnderscoredFieldsWithIdRev(),
                 kClass
             )
@@ -69,16 +69,16 @@ class KouchDocumentService(
         }
     }
 
-    suspend inline fun <reified T : KouchEntity> getWithResponse(
-        id: KouchEntity.Id,
-        db: DatabaseName = context.getMetadata(T::class).databaseName,
+    suspend inline fun <reified T : KouchDocument> getWithResponse(
+        id: KouchDocument.Id,
+        db: KouchDatabase.Name = context.getMetadata(T::class).databaseName,
         parameters: KouchDocument.GetQueryParameters? = null,
     ) = getWithResponse(id, T::class, db, parameters)
 
-    suspend fun <T : KouchEntity> getWithResponse(
-        id: KouchEntity.Id,
+    suspend fun <T : KouchDocument> getWithResponse(
+        id: KouchDocument.Id,
         kClass: KClass<T>,
-        db: DatabaseName = context.getMetadata(kClass).databaseName,
+        db: KouchDatabase.Name = context.getMetadata(kClass).databaseName,
         parameters: KouchDocument.GetQueryParameters? = null,
     ): Pair<KouchDocument.GetResponse, T?> {
         val queryString = context.systemQueryParametersJson.encodeNullableToUrl(parameters, KouchDocument.GetQueryParameters::class)
@@ -98,7 +98,7 @@ class KouchDocumentService(
                     .let { (responseJson, entityJson) ->
                         Pair(
                             context.systemJson.decodeFromJsonElement(responseJson),
-                            context.decodeKouchEntityFromJsonElement(entityJson, kClass),
+                            context.decodeKouchDocumentFromJsonElement(entityJson, kClass),
                         )
                     }
             }
@@ -115,13 +115,13 @@ class KouchDocumentService(
         }
     }
 
-    suspend inline fun <reified T : KouchEntity> insert(
+    suspend inline fun <reified T : KouchDocument> insert(
         entity: T,
         metadata: KouchMetadata.Entity = context.getMetadata(T::class),
         parameters: KouchDocument.PutQueryParameters? = null,
     ) = insert(entity, T::class, metadata, parameters)
 
-    suspend fun <T : KouchEntity> insert(
+    suspend fun <T : KouchDocument> insert(
         entity: T,
         kClass: KClass<T>,
         metadata: KouchMetadata.Entity = context.getMetadata(kClass),
@@ -137,13 +137,13 @@ class KouchDocumentService(
         )
     }
 
-    suspend inline fun <reified T : KouchEntity> update(
+    suspend inline fun <reified T : KouchDocument> update(
         entity: T,
         metadata: KouchMetadata.Entity = context.getMetadata(T::class),
         parameters: KouchDocument.PutQueryParameters? = null,
     ) = update(entity, T::class, metadata, parameters)
 
-    suspend fun <T : KouchEntity> update(
+    suspend fun <T : KouchDocument> update(
         entity: T,
         kClass: KClass<T>,
         metadata: KouchMetadata.Entity = context.getMetadata(kClass),
@@ -177,13 +177,13 @@ class KouchDocumentService(
         }
     }
 
-    suspend inline fun <reified T : KouchEntity> upsert(
+    suspend inline fun <reified T : KouchDocument> upsert(
         entity: T,
         metadata: KouchMetadata = context.getMetadata(T::class),
         parameters: KouchDocument.PutQueryParameters? = null,
     ) = upsert(entity, T::class, metadata, parameters)
 
-    suspend fun <T : KouchEntity> upsert(
+    suspend fun <T : KouchDocument> upsert(
         entity: T,
         kClass: KClass<T>,
         metadata: KouchMetadata = context.getMetadata(kClass),
@@ -195,7 +195,7 @@ class KouchDocumentService(
             is KouchMetadata.Entity -> context.request(
                 method = Put,
                 path = "${metadata.databaseName}/$pathPart${entity.id.value}$queryString",
-                body = context.encodeToKouchEntity(entity, kClass, metadata.className)
+                body = context.encodeToKouchDocument(entity, kClass, metadata.className)
             )
             is KouchMetadata.Design -> context.request(
                 method = Put,
@@ -227,17 +227,17 @@ class KouchDocumentService(
         }
     }
 
-    suspend inline fun <reified T : KouchEntity> delete(
+    suspend inline fun <reified T : KouchDocument> delete(
         entity: T,
         batch: Boolean = false,
-        db: DatabaseName = context.getMetadata(T::class).databaseName,
+        db: KouchDatabase.Name = context.getMetadata(T::class).databaseName,
     ) = delete(entity, T::class, batch, db)
 
-    suspend fun <T : KouchEntity> delete(
+    suspend fun <T : KouchDocument> delete(
         entity: T,
         kClass: KClass<T>,
         batch: Boolean = false,
-        db: DatabaseName = context.getMetadata(kClass).databaseName,
+        db: KouchDatabase.Name = context.getMetadata(kClass).databaseName,
     ): () -> KouchDocument.DeleteResponse {
         val id = entity.id
         val revision = entity.revision
@@ -253,10 +253,10 @@ class KouchDocumentService(
         }
     }
 
-    suspend fun <T : KouchEntity> delete(
-        id: KouchEntity.Id,
+    suspend fun <T : KouchDocument> delete(
+        id: KouchDocument.Id,
         kClass: KClass<T>,
-        revision: KouchEntity.Rev,
+        revision: KouchDocument.Rev,
         batch: Boolean = false,
     ) =
         delete(
@@ -267,10 +267,10 @@ class KouchDocumentService(
         )
 
     suspend fun delete(
-        id: KouchEntity.Id,
-        revision: KouchEntity.Rev,
+        id: KouchDocument.Id,
+        revision: KouchDocument.Rev,
         batch: Boolean = false,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
     ): () -> KouchDocument.DeleteResponse {
         val batchStr = if (batch) "ok" else null
         return delete(
@@ -282,8 +282,8 @@ class KouchDocumentService(
 
 
     suspend fun delete(
-        id: KouchEntity.Id,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
+        id: KouchDocument.Id,
+        db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
         parameters: KouchDocument.DeleteQueryParameters,
     ): () -> KouchDocument.DeleteResponse {
         val queryString = context.systemQueryParametersJson.encodeToUrl(parameters, KouchDocument.DeleteQueryParameters::class)

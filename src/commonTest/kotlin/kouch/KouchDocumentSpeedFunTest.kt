@@ -4,10 +4,15 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import kouch.*
-import kouch.KouchDesign.ViewName
-import kouch.KouchEntity.Id
+import kouch.KouchDocumentMetadata
+import kouch.KouchTestHelper
+import kouch.TestId
 import kouch.client.KouchClientImpl
+import kouch.client.KouchDatabase
+import kouch.client.KouchDesign
+import kouch.client.KouchDesign.ViewName
+import kouch.client.KouchDocument
+import kouch.runTest
 import kotlin.random.Random
 import kotlin.test.*
 import kotlin.time.Duration
@@ -17,20 +22,20 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
 internal class KouchDocumentSpeedFunTest {
-    @KouchEntityMetadata("test_entity", "test_entity")
+    @KouchDocumentMetadata("test_entity", "test_entity")
     @Serializable
     data class TestEntity(
-        override val id: Id,
-        override val revision: KouchEntity.Rev? = null,
+        override val id: TestId,
+        override val revision: KouchDocument.Rev? = null,
         val string: String,
         val label: String,
-    ) : KouchEntity
+    ) : KouchDocument
 
 
     private val kouch = KouchClientImpl(KouchTestHelper.defaultContext)
 
     private fun getEntity() = TestEntity(
-        id = Id("some-id"),
+        id = TestId("some-id"),
         revision = null,
         string = "some-string",
         label = "some label"
@@ -55,11 +60,11 @@ internal class KouchDocumentSpeedFunTest {
             (1..items)
                 .map { id ->
                     kouch.doc.insert(
-                        entity = entity.copy(id = Id(id.toString()))
+                        entity = entity.copy(id = TestId(id.toString()))
                     )
                 }
         }
-        val getResponse = kouch.db.get(DatabaseName("test_entity"))
+        val getResponse = kouch.db.get(KouchDatabase.Name("test_entity"))
         assertEquals(items, getResponse?.doc_count)
         println(result)
     }
@@ -76,13 +81,13 @@ internal class KouchDocumentSpeedFunTest {
                 .map { id ->
                     GlobalScope.launch {
                         kouch.doc.insert(
-                            entity = entity.copy(id = Id(id.toString()))
+                            entity = entity.copy(id = TestId(id.toString()))
                         )
                     }
                 }
                 .forEach { it.join() }
         }
-        val getResponse = kouch.db.get(DatabaseName("test_entity"))
+        val getResponse = kouch.db.get(KouchDatabase.Name("test_entity"))
         assertEquals(items, getResponse?.doc_count)
         println(result)
     }
@@ -113,7 +118,7 @@ internal class KouchDocumentSpeedFunTest {
         .joinToString("")
 
     private fun randomEntity() = TestEntity(
-        id = Id(randomString(16)),
+        id = TestId(randomString(16)),
         string = randomString(16),
         label = randomString(24),
     )
@@ -142,7 +147,7 @@ internal class KouchDocumentSpeedFunTest {
             val updateResult = kouch.design
                 .upsert(
                     ddoc = design,
-                    db = DatabaseName("test_entity")
+                    db = KouchDatabase.Name("test_entity")
                 )
                 .getResponse()
             assertTrue(updateResult.ok ?: false)

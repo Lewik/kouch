@@ -2,10 +2,12 @@ package kouch
 
 import kotlinx.serialization.Serializable
 import kouch.client.KouchClientImpl
+import kouch.client.KouchDatabase
+import kouch.client.KouchDocument
 
 @Serializable
 @JvmInline
-internal value class Id(override val value: String) : KouchEntity.Id
+internal value class TestId(override val value: String) : KouchDocument.Id
 
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -14,7 +16,7 @@ internal object KouchTestHelper {
     val defaultSettings = Settings(
         adminName = "dbadmin",
         adminPassword = "dbadmin",
-        databaseNaming = Settings.DatabaseNaming.Predefined(DatabaseName("defaultdb"))
+        databaseNaming = Settings.DatabaseNaming.Predefined(KouchDatabase.Name("defaultdb"))
     )
     val defaultContext = Context(
         settings = defaultSettings,
@@ -25,7 +27,7 @@ internal object KouchTestHelper {
         adminName = "dbadmin",
         adminPassword = "dbadmin",
         port = 5985,
-        databaseNaming = Settings.DatabaseNaming.Predefined(DatabaseName("secondadydb"))
+        databaseNaming = Settings.DatabaseNaming.Predefined(KouchDatabase.Name("secondadydb"))
     )
     val secondaryContext = Context(
         settings = secondarySettings,

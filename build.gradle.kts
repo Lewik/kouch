@@ -60,6 +60,6 @@ kotlin {
 }
 tasks {
     withType<Test>() {
-//        enabled = false
+        enabled = false
         reports.html.required.set(false)}
 }

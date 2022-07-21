@@ -7,9 +7,6 @@ import io.ktor.http.HttpMethod.Companion.Get
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.decodeFromJsonElement
 import kouch.Context
 import kouch.KouchDatabaseException
 import kouch.KouchServerException
@@ -43,7 +40,7 @@ class KouchServerService(val context: Context) {
      * The create_target parameter is not destructive. If the database already exists, the replication proceeds as normal.
      */
     suspend fun pullReplicate(
-        input: KouchDatabase.PullReplicationRequestInput
+        input: KouchDatabase.PullReplicationRequestInput,
     ): KouchDatabase.ReplicationResponse {
         val request = input.toPullReplicationRequest()
 //        println("pullReplicate: $request")
@@ -57,12 +54,12 @@ class KouchServerService(val context: Context) {
         val text = response.bodyAsText()
         return when (response.status) {
             HttpStatusCode.OK,
-            HttpStatusCode.Accepted
+            HttpStatusCode.Accepted,
             -> context.systemJson.decodeFromString(text)
             HttpStatusCode.BadRequest,
             HttpStatusCode.Unauthorized,
             HttpStatusCode.NotFound,
-            HttpStatusCode.InternalServerError
+            HttpStatusCode.InternalServerError,
             -> throw KouchDatabaseException("$response: $text")
             else -> throw UnsupportedStatusCodeException("$response: $text")
         }
