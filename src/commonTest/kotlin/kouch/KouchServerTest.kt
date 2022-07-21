@@ -19,7 +19,7 @@ internal class KouchServerTest {
     fun rootTest() = runTest {
         val response = kouch.server.root()
         assertEquals("Welcome", response.couchdb)
-        assertEquals("3.1.1", response.version)
+        assertEquals("3.2.2", response.version)
     }
 
     @Test

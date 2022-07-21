@@ -4,10 +4,9 @@ plugins {
     `maven-publish`
 }
 group = "kouch"
-version = "0.0.51.IR.3"
+version = "0.0.52"
 
 repositories {
-    jcenter()
     mavenCentral()
     maven("https://repo.maven.apache.org/maven2")
     maven("https://www.jitpack.io")
@@ -19,24 +18,17 @@ kotlin {
         }
     }
     js(IR) {
-        moduleName = project.name
-        useCommonJs()
-        browser {
-            testTask {
-                enabled = false
-            }
-        }
-        binaries.executable()
+        browser()
     }
 
     sourceSets {
         all {
             languageSettings.apply {
                 progressiveMode = true
-                useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-                useExperimentalAnnotation("kotlinx.coroutines.ExperimentalCoroutinesApi")
-                useExperimentalAnnotation("kotlinx.coroutines.ExperimentalCoroutinesApi")
-                useExperimentalAnnotation("kotlin.time.ExperimentalTime")
+                optIn("kotlinx.serialization.InternalSerializationApi")
+                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+                optIn("kotlin.time.ExperimentalTime")
             }
         }
         val commonMain by getting {
@@ -83,5 +75,7 @@ kotlin {
     }
 }
 tasks {
-    withType<Test>() { enabled = false }
+    withType<Test>() {
+//        enabled = false
+        reports.html.required.set(false)}
 }

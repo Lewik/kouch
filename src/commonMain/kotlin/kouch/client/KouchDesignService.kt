@@ -8,10 +8,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.*
 import kouch.*
 import kotlin.reflect.KClass
 
@@ -126,7 +123,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         view: String,
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>,
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
     ): Result<RESULT?> = internalGetView(
         id = id,
         view = view,
@@ -140,7 +137,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         id: String,
         view: String,
         request: ViewRequest = ViewRequest(),
-        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!
+        db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
     ): Result<IntermediateViewResponse.ViewRow?> = internalGetView(
         id = id,
         view = view,
@@ -156,7 +153,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
         request: ViewRequest = ViewRequest(),
         resultKClass: KClass<out RESULT>,
         db: DatabaseName = context.settings.getPredefinedDatabaseName()!!,
-        rawRow: Boolean
+        rawRow: Boolean,
     ): Result<RESULT?> {
 
         val response = context.request(
@@ -168,7 +165,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
             )
         )
 
-        val text = response.readText()
+        val text = response.bodyAsText()
         return when (response.status) {
             HttpStatusCode.OK -> {
                 val intermediateResponse = context.systemJson.decodeFromString<IntermediateViewResponse>(text)
@@ -176,7 +173,7 @@ class KouchDesignService(val context: Context, val kouchDocumentService: KouchDo
                     val resultJson = when {
                         rawRow -> viewRow
                         request.include_docs -> viewRow.jsonObject["doc"] ?: throw DocIsNullException(text)
-                        else -> viewRow.jsonObject["value"]
+                        else -> viewRow.jsonObject["value"].takeIf { it != JsonNull }
                     }
                     resultJson?.let { context.decodeKouchEntityFromJsonElement(it, resultKClass) }
                 }
