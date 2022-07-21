@@ -32,6 +32,7 @@ import kotlinx.serialization.json.*
 import kouch.*
 import kotlin.reflect.KClass
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class KouchDatabaseService(
     val context: Context,
@@ -199,7 +200,7 @@ class KouchDatabaseService(
         scope: CoroutineScope,
         db: KouchDatabase.Name = context.settings.getPredefinedDatabaseName()!!,
         request: KouchDatabase.ChangesRequest,
-        reconnectionDelay: Duration = Duration.seconds(2),
+        reconnectionDelay: Duration = 2.seconds,
         entities: List<KClass<out KouchDocument>>,
         listener: suspend (entry: KouchDatabase.ChangesResponse.Result) -> Unit,
     ) = scope.launch {

@@ -23,9 +23,6 @@ kotlin {
             languageSettings.apply {
                 progressiveMode = true
                 optIn("kotlinx.serialization.InternalSerializationApi")
-                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
-                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
-                optIn("kotlin.time.ExperimentalTime")
             }
         }
         val commonMain by getting {
@@ -61,5 +58,6 @@ kotlin {
 tasks {
     withType<Test>() {
         enabled = false
-        reports.html.required.set(false)}
+        reports.html.required.set(false)
+    }
 }
