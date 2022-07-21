@@ -16,7 +16,7 @@ Use https://jitpack.io repository
 ```
 Use these dependencies per kotlin module respectively:
 ```
-implementation 'com.github.lewik.kouch:kouch:0.0.54'
+implementation 'com.github.lewik.kouch:kouch:0.0.55'
 ```
 
 ## Usage      
