@@ -3,8 +3,8 @@ plugins {
     kotlin("plugin.serialization") version KOTLIN_VERSION
     `maven-publish`
 }
-group = "kouch"
-version = "0.0.55"
+group = "com.github.lewik"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
