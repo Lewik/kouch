@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kouch.Settings
+import kotlin.jvm.JvmInline
 
 class KouchDatabase {
 

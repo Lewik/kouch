@@ -1,6 +1,5 @@
 package kouch
 
-import java.util.*
 
 
 private val camelRegex = "(?<=[a-zA-Z])[A-Z]".toRegex()
@@ -10,5 +9,5 @@ private val camelRegex = "(?<=[a-zA-Z])[A-Z]".toRegex()
 fun String.camelToSnakeCase(): String {
     return camelRegex.replace(this) {
         "_${it.value}"
-    }.lowercase(Locale.getDefault())
+    }.lowercase()
 }

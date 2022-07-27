@@ -1,6 +1,7 @@
 package kouch.client
 
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmInline
 
 interface KouchDocument {
 

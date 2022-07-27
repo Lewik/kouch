@@ -2,6 +2,7 @@ package kouch.client
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import kotlin.jvm.JvmInline
 
 @Serializable
 data class KouchDesign(
